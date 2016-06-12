@@ -2,6 +2,10 @@
 *.ipr
 *.iws
 .idea/
-build
-out
+.gradle/
+gradle/
+build/
+out/
+gradlew
+gradlew.bat
 rebel.xml
