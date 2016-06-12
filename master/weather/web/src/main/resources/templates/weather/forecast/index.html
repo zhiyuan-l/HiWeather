@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en-us"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title> Hi Weather </title>
+    <meta name="description" content="A Weather Website"/>
+    <meta name="author" content="vito"/>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+    <!-- #CSS Links -->
+    <!-- Basic Styles -->
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/css/font-awesome.min.css}"/>
+    <!--<link rel="stylesheet" type="text/css" href="http://cdn.oesmith.co.uk/morris-0.5.1.css"/>-->
+
+    <!-- #FAVICONS -->
+    <link rel="shortcut icon" type="image/x-icon"
+          th:href="@{/static/imgs/favicon/favicon.ico}"/>
+    <link rel="icon" type="image/x-icon"
+          th:href="@{/static/imgs/favicon/favicon.ico}"/>
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" th:href="@{/static/css/animate.css}"/>
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" th:href="@{/static/lib/css/icomoon.css}"/>
+    <!-- Magnific Popup-->
+    <link rel="stylesheet" th:href="@{/static/css/magnific-popup.css}"/>
+    <!-- Owl Carousel -->
+    <link rel="stylesheet" th:href="@{/static/lib/css/owl.carousel.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/lib/css/owl.theme.default.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/lib/css/morris.css}"/>
+
+    <!-- Cards -->
+    <link rel="stylesheet" th:href="@{/static/css/cards.css}"/>
+
+    <link rel="stylesheet" th:href="@{/static/lib/css/weather-icons.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/lib/css/weather-icons-wind.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/lib/css/meteocons.css}"/>
+
+    <!-- Modernizr JS -->
+    <script th:src="@{/static/lib/js/modernizr-2.6.2.min.js}"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script th:src="@{/static/lib/js/respond.min.js}"></script>
+    <![endif]-->
+
+</head>
+<body>
+
+<div id="fh5co-page">
+    <nav class="fh5co-nav-style-1" role="navigation"
+         data-offcanvass-position="fh5co-offcanvass-left">
+        <div class="container">
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 fh5co-logo">
+                <a href="javascript:void(0)" class="js-fh5co-mobile-toggle fh5co-nav-toggle"><i></i></a>
+                <a href="javascript:void(0)">Hi Weather</a>
+            </div>
+            <div class="col-lg-6 col-md-5 col-sm-5 text-center fh5co-link-wrap">
+                <ul data-offcanvass="yes">
+                    <li><a th:href="@{/}">当地天气</a></li>
+                    <li class="active"><a th:href="@{/weather/forecast/}">天气预报</a></li>
+                    <li><a th:href="@{/weather/history/}">历史天气</a></li>
+                    <li><a th:href="@{/weather/aqi/}">空气质量</a></li>
+                </ul>
+            </div>
+            <span class="col-lg-3 col-md-4 col-sm-4 text-right">
+                <button href="javascript:void(0)" class="btn btn-default btn-outline btn-lg"
+                        data-toggle="modal" data-target="#location_modal"
+                        style="color: lightgoldenrodyellow">
+                    更改默认城市
+                </button>
+            </span>
+        </div>
+    </nav>
+
+    <div class="fh5co-cover fh5co-cover-style-2 js-full-height" data-stellar-background-ratio="0.5"
+         data-next="yes" style="background-image: url(/static/imgs/full_1.jpg);">
+		  	<span class="scroll-btn wow fadeInUp" data-wow-duration=".5s" data-wow-delay="1.4s">
+				<a href="#">
+                    <span class="mouse"><span></span></span>
+                </a>
+			</span>
+        <div class="fh5co-overlay"></div>
+
+        <div class="fh5co-cover-text">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 full-height js-full-height">
+                        <div class="fh5co-cover-intro text-center">
+                            <p class="cover-text-lead wow fadeInUp" data-wow-duration=".5s"
+                               data-wow-delay=".5s"><i class="fa fa-map-marker"
+                                                       style="color: #b1811d;"></i>
+                                <span id="district_name">Some Place</span>
+                            </p>
+                            <h2 class="cover-text-sublead wow fadeInUp" data-wow-duration=".5s"
+                                data-wow-delay=".7s">未来30天温度</h2>
+                    </div>
+                    </div>
+
+                    <div class="col-md-8 full-height js-full-height">
+                        <div class="fh5co-cover-intro text-center">
+                            <p class="cover-text-lead wow fadeInUp" data-wow-duration=".5s"
+                               data-wow-delay=".5s">
+                            <div class=" wow fadeInUp col-xs-12 text-center" data-wow-duration=".5s"
+                                 data-wow-delay=".7s">
+                                <label class="label label-warning">白天</label>
+                                <label class="label label-success">夜晚</label>
+                                <div id="30d-chart"></div>
+                            </div>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 所有三十天预报-->
+    <div class="fh5co-project-style-2" id="forecast_part">
+
+        <div class="fh5co-projects">
+            <ul id="30d-forecast-container">
+                <li class="wow fadeInUp forecast-item" id="ori-forecast-item" style="background-image: url(/static/imgs/full_2.jpg);"
+                    data-wow-duration=".3s" data-wow-delay=".3s"
+                    data-stellar-background-ratio="0.5">
+                    <a href="javascript:void(0)">
+                        <div class="fh5co-overlay"></div>
+                        <div class="container" >
+                            <div class="fh5co-text" >
+                                <div class="fh5co-text-inner">
+                                    <div class="row">
+                                        <div class="col-md-4"><h3 class="date">Day 1</h3></div>
+                                        <div class="col-md-4"><p class="p1">DayWeather</p></div>
+                                        <div class="col-md-4"><p class="p2">NightWeather</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+
+            </ul>
+        </div>
+    </div>
+
+    <div class="fh5co-footer-style-3">
+        <div class="container">
+            <div class="row p-b">
+                <div class="col-md-offset-3 col-md-3 col-sm-6 fh5co-footer-widget wow fadeInUp"
+                     data-wow-duration=".5s" data-wow-delay=".5s">
+                    <div class="fh5co-logo"><span class="logo">Hi</span> Weather</div>
+                    <p class="fh5co-copyright">&copy; 2016 vito. <br/>All Rights Reserved. <br/>
+                    </p>
+                </div>
+                <div class="col-md-offset-2 col-md-3 col-sm-6 fh5co-footer-widget wow fadeInUp"
+                     data-wow-duration=".5s" data-wow-delay=".7s">
+                    <h3>关于</h3>
+                    <p>凌志远的毕业设计</p>
+                    <p><a href="Mailto:dev_vito@163.com" class="btn btn-success btn-sm btn-outline">联系我</a></p>
+                </div>
+                <div class="clearfix visible-sm-block"></div>
+            </div>
+            <div class="row fh5co-made">
+                <div class="col-md-12 wow fadeInUp" data-wow-duration=".5s" data-wow-delay=".5s">
+                    <p><i class="heart icon-heart"></i></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END footer -->
+
+</div>
+<!-- END page-->
+
+<!-- Modal -->
+<div class="modal fade" id="location_modal" tabindex="-1" role="dialog"
+     aria-labelledby="location_modal_label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="location_modal_label">更改城市</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-push-3 col-md-6">
+                        <div class="form-group">
+                            <label for="switch_province"> 省/直辖市 </label>
+                            <select class="form-control" id="switch_province">
+                                <option>北京</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-push-3 col-md-6">
+                        <div class="form-group">
+                            <label for="switch_city"> 城市 </label>
+                            <select class="form-control" id="switch_city">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-push-3 col-md-6">
+                        <div class="form-group">
+                            <label for="switch_district"> 县级市/县 </label>
+                            <select class="form-control" id="switch_district">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    取消
+                </button>
+                <button type="button" id="confirm_switch_location" class="btn btn-primary ">
+                    确认
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- jQuery -->
+<script th:src="@{/static/lib/js/jquery-2.1.1.min.js}"></script>
+<!-- jQuery Easing -->
+<script th:src="@{/static/lib/js/jquery.easing.1.3.js}"></script>
+<!-- BOOTSTRAP JS -->
+<script th:src="@{/static/lib/js/bootstrap.min.js}"></script>
+<!-- Waypoints -->
+<script th:src="@{/static/lib/js/jquery.waypoints.min.js}"></script>
+<!-- Owl Carousel -->
+<script th:src="@{/static/lib/js/owl.carousel.min.js}"></script>
+<!-- Magnific Popup -->
+<script th:src="@{/static/lib/js/jquery.magnific-popup.min.js}"></script>
+<!-- Stellar -->
+<script th:src="@{/static/lib/js/jquery.stellar.min.js}"></script>
+<!-- countTo -->
+<script th:src="@{/static/lib/js/jquery.countTo.js}"></script>
+<!-- WOW -->
+<script th:src="@{/static/lib/js/wow.min.js}"></script>
+
+<!--[if IE 8]>
+
+<h1>Your browser is out of date, please update your browser by going to
+    www.microsoft.com/download</h1>
+
+<![endif]-->
+
+<script th:src="@{/static/lib/js/moment-with-locales.min.js}"></script>
+
+<!-- PAGE RELATED PLUGIN(S) -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/morris/raphael.min.js}"></script>
+<!--<script th:src="@{/static/lib/smartadmin/js/plugin/morris/morris-chart-settings.min.js}"></script>-->
+<script th:src="@{/static/lib/smartadmin/js/plugin/morris/morris.min.js}"></script>
+
+<!--必须按顺序将 base.js 放在最下面 -->
+<script th:src="@{/static/js/location.js}"></script>
+<script th:src="@{/static/js/weather.js}"></script>
+<script th:src="@{/static/js/base.js}"></script>
+<script th:src="@{/static/js/switch-location-modal.js}"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(function () {
+
+        new WOW().init();
+        $('#district_name').text(window.currentDistrict.title);
+
+
+        var provinceSelect = $('#switch_province');
+        var citySelect = $('#switch_city');
+        var districtSelect = $('#switch_district');
+
+        // 区域切换的Modal初始设置
+        locationModal(provinceSelect, citySelect, districtSelect);
+        // 初始化location 选择列表
+        changeProvinces();
+
+        $('#confirm_switch_location').click(function () {
+            changeCurrentDistrictById(selectedDistrictId)
+            changeCurrentCityById(selectedCityId)
+            changeCurrentProvinceById(selectedProvinceId)
+            window.location.reload()
+        })
+
+        var data30d = [];
+        $.ajax({
+            url: /*[[@{/weather/forecast/30d}]]*/"",
+            data: {districtId: currentDistrict.id},
+            async: false,
+            dateType: 'json',
+            success: function (data) {
+                data30d = data.data
+            }
+        });
+
+        var config = {
+            data: data30d,
+            xkey: 'date',
+            ykeys: ['max','min'],
+            labels: ['白天', '夜晚'],
+            fillOpacity: 0.0,
+            hideHover: 'auto',
+            dateFormat: function (date) {
+                var parsedDate = new Date(date);
+                var M = (parsedDate.getMonth() + 1 < 10 ? '0' + (parsedDate.getMonth() + 1) : parsedDate.getMonth() + 1) + '-';
+                var D = parsedDate.getDate();
+                return M + D
+            },
+            behaveLikeLine: true,
+            resize: true,
+            numLines: 5,
+            gridTextSize: 15,
+            gridTextColor: '#b3b3b3',
+            pointFillColors: ['#ffffff'],
+            pointStrokeColors: ['#333333'],
+            lineColors: ['#c79121', '#739e73']
+        };
+
+        config.element = '30d-chart';
+        Morris.Line(config);
+
+        var oriItem = $('#ori-forecast-item')
+        $.each(data30d, function (index, val) {
+            var newItem = oriItem.clone(true).removeAttr('id')
+            newItem.appendTo('#30d-forecast-container')
+        })
+        oriItem.remove()
+
+        var itemList = $('.forecast-item')
+        $.each(itemList, function (index, val) {
+            var weather = data30d[index]
+            var weatherDay = parseWeatherCodeStr(weather.weather_day)
+            var weatherNight = parseWeatherCodeStr(weather.weather_night)
+            var windDirectionDay = findWindDirectionCodeByCode(weather.wind_direction_day).name_ch
+            var windDirectionNight = findWindDirectionCodeByCode(weather.wind_direction_night).name_ch
+            var windForceDay = parseForceCodeStr(weather.wind_force_day)
+            var windForceNight = parseForceCodeStr(weather.wind_force_night)
+            var icon_day = $('<i class="wi"></i>');
+            var icon_night = $('<i class="wi"></i>');
+            icon_day.addClass(codeToClass[weather.weather_day.split(",")[0]])
+            icon_night.addClass(codeToClass[weather.weather_night.split(",")[0]])
+
+            $(val).find("h3").text(moment(weather.date, 'YYYY-MM-DD').format('M月D日') + "(" + moment(weather.date, 'YYYY-MM-DD').format('dddd') + ")")
+            $(val).find("p.p1").text("")
+                    .append($("<span>日: </span>"))
+                    .append(icon_day)
+                    .append($("<span></span>").text("" + weatherDay + " " + weather.max + "°C" + " " + windDirectionDay + " " + windForceDay))
+            $(val).find("p.p2").text("")
+                    .append($("<span>夜: </span>"))
+                    .append(icon_night)
+                    .append($('<span></span>').text(weatherNight + " " + weather.min + "°C" + " " + windDirectionNight + " " + windForceNight))
+
+        })
+
+
+    });
+
+    /*]]>*/
+</script>
+
+
+<!-- Main -->
+<script th:src="@{/static/lib/js/main.js}"></script>
+
+</body>
+</html>

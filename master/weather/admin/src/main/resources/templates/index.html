@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="en-us"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title> Weather </title>
+    <meta name="description" content="A Weather Website"/>
+    <meta name="author" content="vito"/>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+    <!-- #CSS Links -->
+    <!-- Basic Styles -->
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/font-awesome.min.css}"/>
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>-->
+
+
+    <!-- SmartAdmin Styles : Caution! DO NOT change the order -->
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/smartadmin-production-plugins.min.css}"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/smartadmin-production.min.css}"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/smartadmin-skins.min.css}"/>
+
+    <!-- SmartAdmin RTL Support -->
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/smartadmin-rtl.min.css}"/>
+
+    <!-- #FAVICONS -->
+    <link rel="shortcut icon" type="image/x-icon"
+          th:href="@{/static/imgs/favicon.ico}"/>
+    <link rel="icon" type="image/x-icon"
+          th:href="@{/static/imgs/favicon.ico}"/>
+
+</head>
+
+<body class="smart-style-6 container">
+
+<!-- #HEADER -->
+<header id="header">
+    <div id="logo-group">
+
+        <!-- PLACE YOUR LOGO HERE -->
+        <span id="logo"><img th:src="@{/static/imgs/weather-admin-logo.png}"
+                             alt="Weather管理控制台"/> </span>
+        <!-- END LOGO PLACEHOLDER -->
+    </div>
+
+    <!-- #TOGGLE LAYOUT BUTTONS -->
+    <!-- pulled right: nav area -->
+    <div class="pull-right">
+
+        <!-- logout button -->
+        <div id="logout" class="btn-header transparent pull-right">
+            <span>
+                <a th:href="@{/logout}" title="Sign Out" data-action="userLogout"
+                   data-logout-msg="您确认要退出吗?"><i class="fa fa-sign-out"></i></a>
+            </span>
+        </div>
+        <!-- end logout button -->
+
+    </div>
+    <!-- end pulled right: nav area -->
+
+</header>
+<!-- END HEADER -->
+
+<!-- #NAVIGATION -->
+<!-- Left panel : Navigation area -->
+<!-- Note: This width of the aside area can be adjusted through LESS variables -->
+<aside id="left-panel">
+
+    <!-- User info -->
+    <div class="login-info">
+				<span> <!-- User image size is adjusted inside CSS, it should stay as it -->
+
+					<a href="javascript:void(0);">
+                        <img th:src="@{/static/lib/smartadmin/img/avatars/sunny.png}" alt="me"
+                             class="online"/>
+						<span>
+							vito
+						</span>
+                        <i class="fa fa-angle-down"></i>
+                    </a>
+
+				</span>
+    </div>
+    <!-- end user info -->
+
+    <nav>
+        <ul>
+            <li class="active">
+                <a th:href="@{/}"><i class="fa fa-lg fa-fw fa-home"></i> 首页</a>
+            </li>
+            <li class="">
+                <a th:href="@{/location/}"><i class="fa fa-lg fa-fw fa-map"></i> <span
+                        class="menu-item-parent">区域</span></a>
+            </li>
+            <li class="">
+                <a th:href="@{/weather/current/}"><i class="fa fa-lg fa-fw fa-sun-o"></i> <span
+                        class="menu-item-parent">即时天气</span></a>
+            </li>
+            <li class="">
+                <a th:href="@{/weather/forecast/}"><i class="fa fa-lg fa-fw fa-calendar"></i> <span
+                        class="menu-item-parent">未来天气</span></a>
+            </li>
+            <li class="">
+                <a th:href="@{/weather/history/}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> <span
+                        class="menu-item-parent">历史天气</span></a>
+            </li>
+            <li class="">
+                <a th:href="@{/weather/aqi/}"><i class="fa fa-lg fa-fw fa-line-chart"></i> <span
+                        class="menu-item-parent">空气质量</span></a>
+            </li>
+        </ul>
+    </nav>
+
+</aside>
+<!-- END NAVIGATION -->
+
+<!-- MAIN PANEL -->
+<div id="main" role="main">
+    <!-- RIBBON -->
+    <div id="ribbon">
+    </div>
+    <!-- END RIBBON -->
+
+    <!-- MAIN CONTENT -->
+    <div id="content">
+
+        <!-- row -->
+        <div class="row">
+
+            <!-- col -->
+            <div class="col-xs-12 col-sm-7 col-md-7 col-lg-4">
+                <h1 class="page-title txt-color-blueDark">
+
+                    <!-- PAGE HEADER -->
+                    <i class="fa-fw fa fa-home"></i>
+                    首页
+							<span>>
+								主页
+							</span>
+                </h1>
+            </div>
+            <!-- end col -->
+
+        </div>
+        <!-- end row -->
+
+        <!-- widget grid -->
+        <section id="widget-grid" class="">
+
+            <!-- row -->
+            <div class="row">
+
+                <!-- NEW WIDGET START -->
+                <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                    <!-- Widget ID (each widget will need unique ID)-->
+                    <div class="jarviswidget jarviswidget-color-darken" id="wid-id-0"
+                         data-widget-colorbutton="false" data-widget-editbutton="false"
+                         data-widget-togglebutton="false" data-widget-deletebutton="false">
+
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                            <h2>区域模块状态</h2>
+
+                        </header>
+
+                        <!-- widget div-->
+                        <div>
+
+                            <!-- widget content -->
+                            <div class="widget-body no-padding">
+
+                                <form class="smart-form">
+                                    <header>
+                                        区域概览
+                                    </header>
+
+                                    <fieldset>
+                                        <div class="row">
+                                            <section class="col col-3">
+                                                <label class="label font-lg">省份总数</label>
+                                                <label class="label font-xl" id="province_count">
+                                                    0
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">城市总数</label>
+                                                <label class="label font-xl" id="city_count">
+                                                    0
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">区县总数</label>
+                                                <label class="label font-xl" id="district_count">
+                                                    0
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">更新类型</label>
+                                                <label class="label font-xl" id="update_type_loc">
+                                                    手动更新
+                                                </label>
+                                            </section>
+                                        </div>
+                                    </fieldset>
+                                    <footer>
+                                        <button type="button" id="update_loc_btn" href="javascript:"
+                                                class="btn btn-success">
+                                            <i class="fa fa-refresh"></i>
+                                            更新全部
+                                        </button>
+                                    </footer>
+
+                                </form>
+
+                            </div>
+                            <!-- end widget content -->
+
+                        </div>
+                        <!-- end widget div -->
+
+                    </div>
+                    <!-- end widget -->
+
+                </article>
+                <!-- WIDGET END -->
+
+            </div>
+
+            <!-- end row -->
+            <!-- row -->
+            <div class="row">
+
+                <!-- NEW WIDGET START -->
+                <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                    <!-- Widget ID (each widget will need unique ID)-->
+                    <div class="jarviswidget jarviswidget-color-darken" id="wid-id-1"
+                         data-widget-colorbutton="false" data-widget-editbutton="false"
+                         data-widget-togglebutton="false" data-widget-deletebutton="false">
+
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                            <h2>即时天气模块状态</h2>
+
+                        </header>
+
+                        <!-- widget div-->
+                        <div>
+
+                            <!-- widget content -->
+                            <div class="widget-body no-padding">
+
+                                <form class="smart-form">
+
+                                    <header>
+                                        即时天气概览
+                                    </header>
+
+                                    <fieldset>
+                                        <div class="row">
+                                            <section class="col col-3">
+                                                <label class="label font-lg">当前数据量</label>
+                                                <label class="label font-xl" id="count_ins">
+                                                    0
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">今日更新量</label>
+                                                <label class="label font-xl" id="update_count_ins">
+                                                    0
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">更新类型</label>
+                                                <label class="label font-xl" id="update_type_ins">
+                                                    自动更新
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">更新周期</label>
+                                                <label class="label font-xl" id="update_schedule_ins">
+                                                    每 1 小时一次
+                                                </label>
+                                            </section>
+                                        </div>
+                                    </fieldset>
+                                    <footer>
+                                        <button type="button" id="update_ins_btn" href="javascript:"
+                                                class="btn btn-success">
+                                            <i class="fa fa-refresh"></i>
+                                            手动更新
+                                        </button>
+                                    </footer>
+                                </form>
+
+                            </div>
+                            <!-- end widget content -->
+
+                        </div>
+                        <!-- end widget div -->
+
+                    </div>
+                    <!-- end widget -->
+
+                </article>
+                <!-- WIDGET END -->
+
+            </div>
+
+            <!-- end row -->
+
+            <!-- row -->
+            <div class="row">
+
+                <!-- NEW WIDGET START -->
+                <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                    <!-- Widget ID (each widget will need unique ID)-->
+                    <div class="jarviswidget jarviswidget-color-darken" id="wid-id-2"
+                         data-widget-colorbutton="false" data-widget-editbutton="false"
+                         data-widget-togglebutton="false" data-widget-deletebutton="false">
+
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                            <h2>未来天气模块状态</h2>
+
+                        </header>
+
+                        <!-- widget div-->
+                        <div>
+
+                            <!-- widget content -->
+                            <div class="widget-body no-padding">
+
+                                <form class="smart-form">
+
+                                    <header>
+                                        未来天气概览
+                                    </header>
+
+                                    <fieldset>
+                                        <div class="row">
+                                            <section class="col col-3">
+                                                <label class="label font-lg">当前数据量</label>
+                                                <label class="label font-xl" id="count_forecast">
+                                                    0
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">今日更新量</label>
+                                                <label class="label font-xl" id="update_count_forecast">
+                                                    0
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">更新类型</label>
+                                                <label class="label font-xl" id="update_type_forecast">
+                                                    自动更新
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">更新周期</label>
+                                                <label class="label font-xl" id="update_schedule_forecast">
+                                                    每天早上七点
+                                                </label>
+                                            </section>
+                                        </div>
+                                    </fieldset>
+                                    <footer>
+                                        <button type="button" id="update_fore_btn" href="javascript:"
+                                                class="btn btn-success">
+                                            <i class="fa fa-refresh"></i>
+                                            手动更新
+                                        </button>
+                                    </footer>
+                                </form>
+
+                            </div>
+                            <!-- end widget content -->
+
+                        </div>
+                        <!-- end widget div -->
+
+                    </div>
+                    <!-- end widget -->
+
+                </article>
+                <!-- WIDGET END -->
+
+            </div>
+
+            <!-- end row -->
+
+            <!-- row -->
+            <div class="row">
+
+                <!-- NEW WIDGET START -->
+                <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                    <!-- Widget ID (each widget will need unique ID)-->
+                    <div class="jarviswidget jarviswidget-color-darken" id="wid-id-5"
+                         data-widget-colorbutton="false" data-widget-editbutton="false"
+                         data-widget-togglebutton="false" data-widget-deletebutton="false">
+
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                            <h2>24小时天气状态</h2>
+
+                        </header>
+
+                        <!-- widget div-->
+                        <div>
+
+                            <!-- widget content -->
+                            <div class="widget-body no-padding">
+
+                                <form class="smart-form">
+
+                                    <header>
+                                        24小时天气管理
+                                    </header>
+
+                                    <fieldset>
+                                        <div class="row">
+                                            <section class="col col-6">
+                                                <label class="label font-lg">更新类型</label>
+                                                <label class="label font-xl" id="update_type_24h">
+                                                    自动更新
+                                                </label>
+                                            </section>
+                                            <section class="col col-6">
+                                                <label class="label font-lg">更新周期</label>
+                                                <label class="label font-xl" id="update_schedule_24h">
+                                                    每 3 小时一次
+                                                </label>
+                                            </section>
+                                        </div>
+                                    </fieldset>
+                                    <footer>
+                                        <button type="button" id="update_24h_btn" href="javascript:"
+                                                class="btn btn-success">
+                                            <i class="fa fa-refresh"></i>
+                                            手动更新
+                                        </button>
+                                    </footer>
+                                </form>
+
+                            </div>
+                            <!-- end widget content -->
+
+                        </div>
+                        <!-- end widget div -->
+
+                    </div>
+                    <!-- end widget -->
+
+                </article>
+                <!-- WIDGET END -->
+
+            </div>
+
+            <!-- end row -->
+
+            <!-- row -->
+            <div class="row">
+
+                <!-- NEW WIDGET START -->
+                <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                    <!-- Widget ID (each widget will need unique ID)-->
+                    <div class="jarviswidget jarviswidget-color-darken" id="wid-id-3"
+                         data-widget-colorbutton="false" data-widget-editbutton="false"
+                         data-widget-togglebutton="false" data-widget-deletebutton="false">
+
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                            <h2>历史天气模块状态</h2>
+
+                        </header>
+
+                        <!-- widget div-->
+                        <div>
+
+                            <!-- widget content -->
+                            <div class="widget-body no-padding">
+
+                                <form class="smart-form">
+
+                                    <header>
+                                        历史天气概览
+                                    </header>
+
+                                    <fieldset>
+                                        <div class="row">
+                                            <section class="col col-3">
+                                                <label class="label font-lg">当前数据量</label>
+                                                <label class="label font-xl" id="count_history">
+                                                    0
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">上月更新量</label>
+                                                <label class="label font-xl" id="update_count_history">
+                                                    0
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">更新类型</label>
+                                                <label class="label font-xl" id="update_type_history">
+                                                    自动更新
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">更新周期</label>
+                                                <label class="label font-xl" id="update_schedule_history">
+                                                    周日 12:00
+                                                </label>
+                                            </section>
+                                        </div>
+                                    </fieldset>
+                                    <footer>
+                                        <button type="button" id="update_his_btn" href="javascript:"
+                                                class="btn btn-success">
+                                            <i class="fa fa-refresh"></i>
+                                            手动更新
+                                        </button>
+                                    </footer>
+                                </form>
+
+                            </div>
+                            <!-- end widget content -->
+
+                        </div>
+                        <!-- end widget div -->
+
+                    </div>
+                    <!-- end widget -->
+
+                </article>
+                <!-- WIDGET END -->
+
+            </div>
+
+            <!-- end row -->
+            <!-- row -->
+            <div class="row">
+
+                <!-- NEW WIDGET START -->
+                <article class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+                    <!-- Widget ID (each widget will need unique ID)-->
+                    <div class="jarviswidget jarviswidget-color-darken" id="wid-id-4"
+                         data-widget-colorbutton="false" data-widget-editbutton="false"
+                         data-widget-togglebutton="false" data-widget-deletebutton="false">
+
+                        <header>
+                            <span class="widget-icon"> <i class="fa fa-table"></i> </span>
+                            <h2>AQI模块状态</h2>
+
+                        </header>
+
+                        <!-- widget div-->
+                        <div>
+
+                            <!-- widget content -->
+                            <div class="widget-body no-padding">
+
+                                <form class="smart-form">
+
+                                    <header>
+                                        AQI概览
+                                    </header>
+
+                                    <fieldset>
+                                        <div class="row">
+                                            <section class="col col-3">
+                                                <label class="label font-lg">当前数据量</label>
+                                                <label class="label font-xl" id="count_aqi">
+                                                    0
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">今日更新量</label>
+                                                <label class="label font-xl" id="update_count_aqi">
+                                                    0
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">更新类型</label>
+                                                <label class="label font-xl" id="update_type_aqi">
+                                                    自动更新
+                                                </label>
+                                            </section>
+                                            <section class="col col-3">
+                                                <label class="label font-lg">更新周期</label>
+                                                <label class="label font-xl" id="update_schedule_aqi">
+                                                    每 3 小时 一次
+                                                </label>
+                                            </section>
+                                        </div>
+                                    </fieldset>
+                                    <footer>
+                                        <button type="button" id="update_aqi_btn" href="javascript:"
+                                                class="btn btn-success">
+                                            <i class="fa fa-refresh"></i>
+                                            手动更新
+                                        </button>
+                                    </footer>
+                                </form>
+
+                            </div>
+                            <!-- end widget content -->
+
+                        </div>
+                        <!-- end widget div -->
+
+                    </div>
+                    <!-- end widget -->
+
+                </article>
+                <!-- WIDGET END -->
+
+            </div>
+
+            <!-- end row -->
+
+        </section>
+        <!-- end widget grid -->
+
+    </div>
+    <!-- END MAIN CONTENT -->
+
+</div>
+<!-- END MAIN PANEL -->
+
+<!-- PAGE FOOTER -->
+<div class="page-footer">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6">
+            <span class="txt-color-white">Weather 1.0 <span class="hidden-xs"> - Vito's Weather Website</span> © 2015-2016</span>
+        </div>
+    </div>
+</div>
+<!-- END PAGE FOOTER -->
+
+<!--================================================== -->
+
+<!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices)-->
+<!--<script data-pace-options='{ "restartOnRequestAfter": true }' th:src="@{/static/lib/smartadmin/js/plugin/pace/pace.min.js}"></script>-->
+
+<script th:src="@{/static/lib/smartadmin/js/libs/jquery-2.1.1.min.js}"></script>
+<!--<script th:src="@{/static/lib/smartadmin/js/libs/jquery-ui-1.10.3.min.js}"></script>-->
+<!-- IMPORTANT: APP CONFIG -->
+<script th:src="@{/static/lib/smartadmin/js/app.config.js}"></script>
+
+<!-- JS TOUCH : include this plugin for mobile drag / drop touch events-->
+<script th:src="@{/static/lib/smartadmin/js/plugin/jquery-touch/jquery.ui.touch-punch.min.js}"></script>
+
+<!-- BOOTSTRAP JS -->
+<script th:src="@{/static/lib/smartadmin/js/bootstrap/bootstrap.min.js}"></script>
+
+<!-- CUSTOM NOTIFICATION -->
+<script th:src="@{/static/lib/smartadmin/js/notification/SmartNotification.min.js}"></script>
+
+<!-- JARVIS WIDGETS -->
+<script th:src="@{/static/lib/smartadmin/js/smartwidgets/jarvis.widget.min.js}"></script>
+
+<!-- EASY PIE CHARTS -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/easy-pie-chart/jquery.easy-pie-chart.min.js}"></script>
+
+<!-- SPARKLINES -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/sparkline/jquery.sparkline.min.js}"></script>
+
+<!-- JQUERY VALIDATE -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/jquery-validate/jquery.validate.min.js}"></script>
+
+<!-- JQUERY MASKED INPUT -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/masked-input/jquery.maskedinput.min.js}"></script>
+
+<!-- JQUERY SELECT2 INPUT -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/select2/select2.min.js}"></script>
+
+<!-- JQUERY UI + Bootstrap Slider -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/bootstrap-slider/bootstrap-slider.min.js}"></script>
+
+<!--[if IE 8]>
+
+<h1>Your browser is out of date, please update your browser by going to
+    www.microsoft.com/download</h1>
+
+<![endif]-->
+
+<!-- MAIN APP JS FILE -->
+<script th:src="@{/static/lib/smartadmin/js/app.min.js}"></script>
+
+<script th:src="@{/static/js/location.js}"></script>
+
+<!-- PAGE RELATED PLUGIN(S) -->
+
+
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(document).ready(function () {
+        pageSetUp();
+
+        var provinces = getProvinces(/*[[@{/location/provinces}]]*/"")
+
+        var cities = getCities(provinces, /*[[@{/location/cities}]]*/"")
+        var districts = getDistricts(cities, /*[[@{/location/districts}]]*/"")
+
+        $('#province_count').text(provinces.length)
+        $('#city_count').text(cities.length)
+        $('#district_count').text(districts.length)
+
+        /* Setting Update Buttons */
+
+        $('#update_loc_btn').click(function () {
+            $('#update_loc_btn i').addClass("fa-spin")
+            $('#update_loc_btn').text("正在更新...")
+
+            $.smallBox({
+                title : "正在更新...",
+                content : "<i class='fa fa-clock-o'></i> <i>now...</i>",
+                color : "#408000",
+                iconSmall : "fa fa-thumbs-up bounce animated",
+                timeout : 4000
+            });
+            var $t = $(this);
+            $t.attr('disabled', "true");
+            $.ajax({
+                url: /*[[@{/location/spider/update}]]*/"",
+                dateType: "json",
+                success: function (data) {
+                    window.location.reload()
+                },
+                complete: function (data) {
+                    $.smallBox({
+                        title : "更新失败",
+                        content : "<i class='fa fa-clock-o'></i> <i>now...</i>",
+                        color : "#801216",
+                        iconSmall : "fa fa-refresh fa-spin bounce animated",
+                        timeout : 4000
+                    });
+
+                    $t.attr('disabled', "false")
+                    $('#update_loc_btn i').removeClass("fa-spin")
+                    $('#update_loc_btn').text("更新全部")
+                }
+            })
+        })
+
+
+        $('#update_ins_btn').click(function () {
+            $('#update_ins_btn i').addClass("fa-spin")
+            $('#update_ins_btn').text("正在更新...")
+
+            $.smallBox({
+                title : "正在更新...",
+                content : "<i class='fa fa-clock-o'></i> <i>now...</i>",
+                color : "#408000",
+                iconSmall : "fa fa-thumbs-up bounce animated",
+                timeout : 4000
+            });
+            var $t = $(this);
+            $t.attr('disabled', "true");
+            $.ajax({
+                url: /*[[@{/weather/instant/spider/update}]]*/"",
+                dateType: "json",
+                success: function (data) {
+                    window.location.reload()
+                },
+                complete: function (data) {
+                    $.smallBox({
+                        title : "更新失败",
+                        content : "<i class='fa fa-clock-o'></i> <i>now...</i>",
+                        color : "#801216",
+                        iconSmall : "fa fa-refresh fa-spin bounce animated",
+                        timeout : 4000
+                    });
+
+                    $t.attr('disabled', "false")
+                    $('#update_ins_btn i').removeClass("fa-spin")
+                    $('#update_ins_btn').text("手动更新")
+                }
+            })
+        })
+
+        $('#update_fore_btn').click(function () {
+            $('#update_fore_btn i').addClass("fa-spin")
+            $('#update_fore_btn').text("正在更新...")
+
+            $.smallBox({
+                title : "正在更新...",
+                content : "<i class='fa fa-clock-o'></i> <i>now...</i>",
+                color : "#408000",
+                iconSmall : "fa fa-thumbs-up bounce animated",
+                timeout : 4000
+            });
+            var $t = $(this);
+            $t.attr('disabled', "true");
+            $.ajax({
+                url: /*[[@{/weather/forecast/spider/update}]]*/"",
+                data: {type: 10},
+                dateType: "json",
+                success: function (data) {
+                    window.location.reload()
+                },
+                complete: function (data) {
+                    $.smallBox({
+                        title : "更新失败",
+                        content : "<i class='fa fa-clock-o'></i> <i>now...</i>",
+                        color : "#801216",
+                        iconSmall : "fa fa-refresh fa-spin bounce animated",
+                        timeout : 4000
+                    });
+
+                    $t.attr('disabled', "false")
+                    $('#update_fore_btn i').removeClass("fa-spin")
+                    $('#update_fore_btn').text("手动更新")
+                }
+            })
+        })
+
+        $('#update_24h_btn').click(function () {
+            $('#update_24h_btn i').addClass("fa-spin")
+            $('#update_24h_btn').text("正在更新...")
+
+            $.smallBox({
+                title : "正在更新...",
+                content : "<i class='fa fa-clock-o'></i> <i>now...</i>",
+                color : "#408000",
+                iconSmall : "fa fa-thumbs-up bounce animated",
+                timeout : 4000
+            });
+            var $t = $(this);
+            $t.attr('disabled', "true");
+            $.ajax({
+                url: /*[[@{/weather/today/spider/update}]]*/"",
+                data: {type: 10},
+                dateType: "json",
+                success: function (data) {
+                    window.location.reload()
+                },
+                complete: function (data) {
+                    $.smallBox({
+                        title : "更新失败",
+                        content : "<i class='fa fa-clock-o'></i> <i>now...</i>",
+                        color : "#801216",
+                        iconSmall : "fa fa-refresh fa-spin bounce animated",
+                        timeout : 4000
+                    });
+
+                    $t.attr('disabled', "false")
+                    $('#update_24h_btn i').removeClass("fa-spin")
+                    $('#update_24h_btn').text("手动更新")
+                }
+            })
+        })
+
+        $('#update_his_btn').click(function () {
+            $('#update_his_btn i').addClass("fa-spin")
+            $('#update_his_btn').text("正在更新...")
+
+            $.smallBox({
+                title : "正在更新...",
+                content : "<i class='fa fa-clock-o'></i> <i>now...</i>",
+                color : "#408000",
+                iconSmall : "fa fa-thumbs-up bounce animated",
+                timeout : 4000
+            });
+            var $t = $(this);
+            $t.attr('disabled', "true");
+            $.ajax({
+                url: /*[[@{/weather/history/spider/update}]]*/"",
+                data: {type: 10},
+                dateType: "json",
+                success: function (data) {
+                    window.location.reload()
+                },
+                complete: function (data) {
+                    $.smallBox({
+                        title : "更新失败",
+                        content : "<i class='fa fa-clock-o'></i> <i>now...</i>",
+                        color : "#801216",
+                        iconSmall : "fa fa-refresh fa-spin bounce animated",
+                        timeout : 4000
+                    });
+
+                    $t.attr('disabled', "false")
+                    $('#update_his_btn i').removeClass("fa-spin")
+                    $('#update_his_btn').text("手动更新")
+                }
+            })
+        })
+
+        $('#update_aqi_btn').click(function () {
+            $('#update_aqi_btn i').addClass("fa-spin")
+            $('#update_aqi_btn').text("正在更新...")
+
+            $.smallBox({
+                title : "正在更新...",
+                content : "<i class='fa fa-clock-o'></i> <i>now...</i>",
+                color : "#408000",
+                iconSmall : "fa fa-thumbs-up bounce animated",
+                timeout : 4000
+            });
+            var $t = $(this);
+            $t.attr('disabled', "true");
+            $.ajax({
+                url: /*[[@{/aqi/spider/update}]]*/"",
+                dateType: "json",
+                success: function (data) {
+                    window.location.reload()
+                },
+                complete: function (data) {
+                    $.smallBox({
+                        title : "更新失败",
+                        content : "<i class='fa fa-clock-o'></i> <i>now...</i>",
+                        color : "#801216",
+                        iconSmall : "fa fa-refresh fa-spin bounce animated",
+                        timeout : 4000
+                    });
+
+                    $t.attr('disabled', "false")
+                    $('#update_aqi_btn i').removeClass("fa-spin")
+                    $('#update_aqi_btn').text("手动更新")
+                }
+            })
+        })
+
+
+    })
+
+
+    /*]]>*/
+</script>
+
+</body>
+
+</html>

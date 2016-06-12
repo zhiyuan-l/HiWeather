@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en-us"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title> Weather </title>
+    <meta name="description" content="A Weather Website"/>
+    <meta name="author" content="vito"/>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+    <!-- #CSS Links -->
+    <!-- Basic Styles -->
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/font-awesome.min.css}"/>
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>-->
+
+
+    <!-- SmartAdmin Styles : Caution! DO NOT change the order -->
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/smartadmin-production-plugins.min.css}"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/smartadmin-production.min.css}"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/smartadmin-skins.min.css}"/>
+
+    <!-- SmartAdmin RTL Support -->
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/smartadmin-rtl.min.css}"/>
+
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/css/error/error.css}"/>
+
+    <!-- #FAVICONS -->
+    <link rel="shortcut icon" type="image/x-icon"
+          th:href="@{/static/imgs/favicon.ico}"/>
+    <link rel="icon" type="image/x-icon"
+          th:href="@{/static/imgs/favicon.ico}"/>
+</head>
+
+<body class="smart-style-6 container">
+
+<!-- #HEADER -->
+<header id="header">
+    <div id="logo-group">
+
+        <!-- PLACE YOUR LOGO HERE -->
+        <span id="logo"><img th:src="@{/static/imgs/weather-admin-logo.png}"
+                             alt="Weather管理控制台"/> </span>
+        <!-- END LOGO PLACEHOLDER -->
+    </div>
+
+</header>
+<!-- END HEADER -->
+
+
+<!-- MAIN PANEL -->
+<div id="main" role="main">
+
+    <!-- MAIN CONTENT -->
+    <div id="content">
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+            <div class="col-xs-12 col-sm-12 col-md-offset-2 col-md-6 col-lg-offset-3 col-lg-4">
+                <div class="well no-padding">
+                    <form th:action="@{/login}" method="post" id="login-form"
+                          class="smart-form client-form">
+                        <header>
+                            登录
+                        </header>
+
+                        <fieldset>
+                            <section>
+                                <label th:if="${param.error}" class="label bg-color-red"><i
+                                        class="fa fa-warning"></i>帐号或密码错误</label>
+                            </section>
+
+                            <section>
+                                <label class="label">帐号</label>
+                                <label class="input"> <i class="icon-append fa fa-user"></i>
+                                    <input type="text" name="username" id="username"/>
+                                    <b class="tooltip tooltip-top-right"><i
+                                            class="fa fa-user txt-color-teal"></i>
+                                        请输入您的帐号</b></label>
+                            </section>
+
+                            <section>
+                                <label class="label">密码</label>
+                                <label class="input"> <i class="icon-append fa fa-lock"></i>
+                                    <input type="password" name="password" id="password"/>
+                                    <b class="tooltip tooltip-top-right"><i
+                                            class="fa fa-lock txt-color-teal"></i> 请输入密码</b>
+                                </label>
+                            </section>
+
+                        </fieldset>
+                        <footer>
+                            <button type="submit" class="btn btn-primary"><i
+                                    class="fa fa-unlock-alt"></i>
+                                登入
+                            </button>
+                        </footer>
+                    </form>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+    <!-- END MAIN CONTENT -->
+
+</div>
+<!-- END MAIN PANEL -->
+
+<!-- PAGE FOOTER -->
+<div class="page-footer">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6">
+            <span class="txt-color-white">Weather 1.0 <span class="hidden-xs"> - Vito's Weather Website</span> © 2015-2016</span>
+        </div>
+    </div>
+</div>
+<!-- END PAGE FOOTER -->
+
+<!--================================================== -->
+
+<!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices)-->
+<!--<script data-pace-options='{ "restartOnRequestAfter": true }' th:src="@{/static/lib/smartadmin/js/plugin/pace/pace.min.js}"></script>-->
+
+<script th:src="@{/static/lib/smartadmin/js/libs/jquery-2.1.1.min.js}"></script>
+<!--<script th:src="@{/static/lib/smartadmin/js/libs/jquery-ui-1.10.3.min.js}"></script>-->
+<!-- IMPORTANT: APP CONFIG -->
+<script th:src="@{/static/lib/smartadmin/js/app.config.js}"></script>
+
+<!-- JS TOUCH : include this plugin for mobile drag / drop touch events-->
+<script th:src="@{/static/lib/smartadmin/js/plugin/jquery-touch/jquery.ui.touch-punch.min.js}"></script>
+
+<!-- BOOTSTRAP JS -->
+<script th:src="@{/static/lib/smartadmin/js/bootstrap/bootstrap.min.js}"></script>
+
+<!-- CUSTOM NOTIFICATION -->
+<script th:src="@{/static/lib/smartadmin/js/notification/SmartNotification.min.js}"></script>
+
+<!-- JARVIS WIDGETS -->
+<script th:src="@{/static/lib/smartadmin/js/smartwidgets/jarvis.widget.min.js}"></script>
+
+<!-- EASY PIE CHARTS -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/easy-pie-chart/jquery.easy-pie-chart.min.js}"></script>
+
+<!-- SPARKLINES -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/sparkline/jquery.sparkline.min.js}"></script>
+
+<!-- JQUERY VALIDATE -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/jquery-validate/jquery.validate.min.js}"></script>
+
+<!-- JQUERY MASKED INPUT -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/masked-input/jquery.maskedinput.min.js}"></script>
+
+<!-- JQUERY SELECT2 INPUT -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/select2/select2.min.js}"></script>
+
+<!-- JQUERY UI + Bootstrap Slider -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/bootstrap-slider/bootstrap-slider.min.js}"></script>
+
+<!--[if IE 8]>
+
+<h1>Your browser is out of date, please update your browser by going to
+    www.microsoft.com/download</h1>
+
+<![endif]-->
+
+<!-- MAIN APP JS FILE -->
+<script th:src="@{/static/lib/smartadmin/js/app.min.js}"></script>
+
+<!-- PAGE RELATED PLUGIN(S) -->
+
+
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(document).ready(function () {
+
+        pageSetUp()
+    })
+
+    /*]]>*/
+</script>
+
+</body>
+
+</html>

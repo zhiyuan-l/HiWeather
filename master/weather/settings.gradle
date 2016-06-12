@@ -1,0 +1,5 @@
+rootProject.name = 'weather'
+include 'domain'
+include 'web'
+include 'admin'
+
