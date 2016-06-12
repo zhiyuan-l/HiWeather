@@ -5,3 +5,10 @@
 Kotlin、SpringBoot、SpringMVC、Hibernate、Gradle、Thymeleaf 等。
 #声明：
 本项目使用 GPLv3 作为开源许可证，请遵守相关协议。
+#项目结构：
+本项目包含三个模块：domain、admin、web。其中，domain 是基础模块，包含业务逻辑以及数据操作相关的包。admin 模块是后台模块，包含数据更新和管理的功能。而 web 模块是前台网站。
+数据存储在 mysql 数据库中。
+#使用说明：
+项目在 master 目录下，使用 setting.gradle 导入项目。
+项目运行前，需要创建名为 weather 的数据库，并执行 document 文件夹下 weather.sql中的代码。数据库的编码必须为 utf-8。
+可独立使用的模块为 admin 和 web。
