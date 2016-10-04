@@ -4,7 +4,7 @@ This project provides a complete example of developing web project in Kotlin. Th
 ![SIGNIN](http://git.oschina.net/uploads/images/2016/0612/174557_b82d3bfa_459585.jpeg "SIGN IN ADMIN MODULE")
 ![FORECAST](http://git.oschina.net/uploads/images/2016/0612/174757_f80614b2_459585.jpeg "FORECAST PAGE")
 #Keywords
-Kotlin、SpringBoot、SpringMVC、Hibernate、Gradle、Thymeleaf 等。
+Kotlin SpringBoot SpringMVC Hibernate Gradle Thymeleaf
 #Usage
 Importing the project from master/weather/setting.gradle
 Running this project needs a active mysql server, and the database should be named weather, the charset of the DB must be utf-8. Before deploying the website, you should execute the script file, document/weather.sql
