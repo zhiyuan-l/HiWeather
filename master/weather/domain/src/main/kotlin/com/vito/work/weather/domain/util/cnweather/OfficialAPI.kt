@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import com.vito.work.weather.domain.beans.api.CnWeatherModel
 import com.vito.work.weather.domain.config.Constant
 import com.vito.work.weather.domain.entities.District
+import com.vito.work.weather.domain.util.cnweather.APIType.*
+import com.vito.work.weather.domain.util.http.HttpUtil
 import com.vito.work.weather.domain.util.http.sendGetRequestViaHttpClient
 import org.slf4j.LoggerFactory
 import java.nio.charset.Charset
@@ -63,7 +65,7 @@ fun getResultBean(district: District): CnWeatherModel?
 private fun invokeAPI(baseUrl: String, requestBean: ReqeustBean): String?
 {
     val url = urlBuilder(baseUrl, requestBean)
-    val result: String? = sendGetRequestViaHttpClient(url, hashMapOf(), hashMapOf(), Charset.forName("utf-8"))
+    val result: String? = HttpUtil.sendGetRequestViaHttpClient(url, hashMapOf(), hashMapOf(), Charset.forName("utf-8"))
     if(result != null)
     {
         API.logger.info(result)
@@ -90,7 +92,7 @@ private fun urlBuilder(baseUrl: String, requestBean: ReqeustBean): String
     areaid = areaid.removeSuffix(areaidSeperator)
 
     // Parse Date
-    var formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
     date = formatter.format(requestBean.datetime)
 
     // Parse Type

@@ -8,13 +8,13 @@ import com.vito.work.weather.domain.services.HistoryWeatherService
 import com.vito.work.weather.domain.services.LocationService
 import com.vito.work.weather.domain.util.http.BusinessError
 import com.vito.work.weather.domain.util.http.BusinessException
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import us.codecraft.webmagic.scheduler.QueueScheduler
 import java.time.LocalDate
+import javax.annotation.Resource
 
 /**
  * Created by lingzhiyuan.
@@ -26,12 +26,15 @@ import java.time.LocalDate
 
 @Controller
 @RequestMapping("/weather/history")
-open class HistoryWeatherController @Autowired constructor(val historyWeatherService: HistoryWeatherService, val locationService: LocationService)
-{
+open class HistoryWeatherController {
+
+    @Resource
+    lateinit var locationService: LocationService
+    @Resource
+    lateinit var historyWeatherService: HistoryWeatherService
 
     @RequestMapping("/")
-    open fun forecastIndex(): String
-    {
+    open fun forecastIndex(): String {
         return "weather/history/index"
     }
 
@@ -45,10 +48,8 @@ open class HistoryWeatherController @Autowired constructor(val historyWeatherSer
     @ResponseBody
     open fun updateHistoryFromWeb(@RequestParam(required = true) type: Int,
                                   @RequestParam(required = false, defaultValue = "0") provinceId: Long,
-                                  @RequestParam(required = false, defaultValue = "0") cityId: Long)
-    {
-        if (SpiderStatus.HISTORY_UPDATE_STATUS == true)
-        {
+                                  @RequestParam(required = false, defaultValue = "0") cityId: Long) {
+        if (SpiderStatus.HISTORY_UPDATE_STATUS == true) {
             throw BusinessException(BusinessError.ERROR_HISTORY_WEATHER_UPDATING)
         }
 
@@ -58,38 +59,30 @@ open class HistoryWeatherController @Autowired constructor(val historyWeatherSer
         var provinces = mutableListOf<Province>()
         var cities = mutableListOf<City>()
 
-        when (type)
-        {
-            Constant.HISTORY_WEATHER_UPDATE_TYPE_ALL      ->
-            {
+        when (type) {
+            Constant.HISTORY_WEATHER_UPDATE_TYPE_ALL      -> {
                 provinces.addAll(locationService.findProvinces())
                 cities.addAll(locationService.findCities(provinces))
             }
-            Constant.HISTORY_WEATHER_UPDATE_TYPE_PROVINCE ->
-            {
+            Constant.HISTORY_WEATHER_UPDATE_TYPE_PROVINCE -> {
                 val province = locationService.getProvince(provinceId)
                 if (province != null) provinces.add(province) else throw BusinessException(BusinessError.ERROR_PROVINCE_NOT_FOUND)
                 cities.addAll(locationService.findCities(provinces))
             }
-            Constant.HISTORY_WEATHER_UPDATE_TYPE_CITY     ->
-            {
+            Constant.HISTORY_WEATHER_UPDATE_TYPE_CITY     -> {
                 val city = locationService.getCity(cityId)
                 if (city != null) cities.add(city) else throw BusinessException(BusinessError.ERROR_CITY_NOT_FOUND)
             }
         }
 
-        for (city in cities)
-        {
+        for (city in cities) {
             var tempDate = Constant.SPIDER_HISTORY_START_DATE
-            while (tempDate <= LocalDate.now().minusMonths(1))
-            {
-                try
-                {
+            while (tempDate <= LocalDate.now().minusMonths(1)) {
+                try {
                     tempDate = tempDate.plusMonths(1)
                     historyWeatherService.updateFromWeb(city, tempDate)
                 }
-                catch(ex: Exception)
-                {
+                catch(ex: Exception) {
                     // 忽略更新时的异常
                     continue
                 }

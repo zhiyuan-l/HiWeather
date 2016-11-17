@@ -2,14 +2,12 @@ package com.vito.work.weather.domain.services
 
 import com.vito.work.weather.domain.config.Constant
 import com.vito.work.weather.domain.daos.HistoryWeatherDao
-import com.vito.work.weather.domain.daos.LocationDao
 import com.vito.work.weather.domain.entities.City
 import com.vito.work.weather.domain.entities.HistoryWeather
 import com.vito.work.weather.domain.services.spider.MonthViewPageProcessor
 import com.vito.work.weather.domain.util.http.BusinessError
 import com.vito.work.weather.domain.util.http.BusinessException
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import us.codecraft.webmagic.ResultItems
@@ -19,6 +17,7 @@ import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.annotation.PreDestroy
+import javax.annotation.Resource
 
 /**
  * Created by lingzhiyuan.
@@ -30,8 +29,11 @@ import javax.annotation.PreDestroy
 
 @Service("historyWeatherService")
 @Transactional
-open class HistoryWeatherService @Autowired constructor(val historyWeatherDao: HistoryWeatherDao, val locationDao: LocationDao)
+open class HistoryWeatherService: UseLock()
 {
+
+    @Resource
+    lateinit var historyWeatherDao: HistoryWeatherDao
 
     @PreDestroy
     open fun destroy()
@@ -54,7 +56,7 @@ open class HistoryWeatherService @Autowired constructor(val historyWeatherDao: H
      * */
     open fun findHistoryWeather(city: City, date: LocalDate): HistoryWeather?
     {
-        var weather = historyWeatherDao.findByCityDate(city.id, Date.valueOf(date))
+        val weather = historyWeatherDao.findByCityDate(city.id, Date.valueOf(date))
         return weather
     }
 
@@ -65,15 +67,18 @@ open class HistoryWeatherService @Autowired constructor(val historyWeatherDao: H
      * */
     open fun updateFromWeb(city: City, date: LocalDate)
     {
-        var targetUrl = monthViewUrlBuilder(Constant.HISTORY_WEATHER_BASE_URL, city.pinyin, date)
+        val targetUrl = monthViewUrlBuilder(Constant.HISTORY_WEATHER_BASE_URL, city.pinyin, date)
         try
         {
+            lock()
             val hws = fetchDataViaSpider(targetUrl, city)
             saveHistoryWeather(hws, city)
         }
         catch(ex: Exception)
         {
             throw ex
+        }finally {
+            unlock()
         }
     }
 
@@ -82,10 +87,10 @@ open class HistoryWeatherService @Autowired constructor(val historyWeatherDao: H
      * */
     open fun saveHistoryWeather(weathers: List<HistoryWeather>, city: City)
     {
-        var dates = mutableListOf<Date>()
+        val dates = mutableListOf<Date>()
         weathers.forEach { dates.add(it.date) }
-        var savedWeathers: MutableList<HistoryWeather> = mutableListOf()
-        var temp = historyWeatherDao.findByCityDates(city.id, dates)
+        val savedWeathers: MutableList<HistoryWeather> = mutableListOf()
+        val temp = historyWeatherDao.findByCityDates(city.id, dates)
         if (temp != null)
         {
             savedWeathers.addAll(temp)
@@ -112,15 +117,15 @@ open class HistoryWeatherService @Autowired constructor(val historyWeatherDao: H
 
     open fun findHistoryWeathersOfToday(cityId: Long): List<HistoryWeather>
     {
-        var now = LocalDate.now()
+        val now = LocalDate.now()
 
-        var dates = mutableListOf<Date>()
+        val dates = mutableListOf<Date>()
         for(year in Constant.SPIDER_HISTORY_START_DATE.year..now.year)
         {
             dates.add(Date.valueOf(LocalDate.of(year, now.monthValue, now.dayOfMonth)))
         }
 
-        var result = historyWeatherDao.findByCityDates(cityId, dates) ?: throw BusinessException(BusinessError.ERROR_RESOURCE_NOT_FOUND)
+        val result = historyWeatherDao.findByCityDates(cityId, dates) ?: throw BusinessException(BusinessError.ERROR_RESOURCE_NOT_FOUND)
 
         return result
     }
@@ -128,10 +133,10 @@ open class HistoryWeatherService @Autowired constructor(val historyWeatherDao: H
     open fun findHistoryTops(cityId: Long): List<HistoryWeather>
     {
 
-        var result = mutableListOf<HistoryWeather>()
+        val result = mutableListOf<HistoryWeather>()
 
-        var maxTempWeather = historyWeatherDao.findHighestTemperature(cityId) ?: HistoryWeather()
-        var minTempWeather = historyWeatherDao.findLowestTemperature(cityId) ?: HistoryWeather()
+        val maxTempWeather = historyWeatherDao.findHighestTemperature(cityId) ?: HistoryWeather()
+        val minTempWeather = historyWeatherDao.findLowestTemperature(cityId) ?: HistoryWeather()
 
         result.add(maxTempWeather)
         result.add(minTempWeather)
@@ -144,7 +149,7 @@ open class HistoryWeatherService @Autowired constructor(val historyWeatherDao: H
      * */
     open fun findByDate(cityId: Long,date: LocalDate): HistoryWeather?
     {
-        var weather = historyWeatherDao.findByCityDate(cityId, Date.valueOf(date))
+        val weather = historyWeatherDao.findByCityDate(cityId, Date.valueOf(date))
         return weather
     }
 
@@ -153,16 +158,16 @@ open class HistoryWeatherService @Autowired constructor(val historyWeatherDao: H
      * */
     open fun findByMonth(cityId: Long, date: LocalDate): List<HistoryWeather>?
     {
-        var dates = mutableListOf<Date>()
+        val dates = mutableListOf<Date>()
 
         // 这个月的起始日期
-        var startDate = date.minusDays(date.dayOfMonth.toLong()-1)
+        val startDate = date.minusDays(date.dayOfMonth.toLong()-1)
         for(offset in 0..date.lengthOfMonth()-1)
         {
             dates.add(Date.valueOf(startDate.plusDays(offset.toLong())))
         }
 
-        var list: List<HistoryWeather>?
+        val list: List<HistoryWeather>?
 
         list = historyWeatherDao.findByCityDates(cityId, dates)
 
@@ -180,7 +185,7 @@ private fun monthViewUrlBuilder(baseUrl: String, cityPinyin: String, date: Local
     val urlSeparator = "/"
     val urlSuffix = ".html"
 
-    var urlBuffer: StringBuffer = StringBuffer()
+    val urlBuffer: StringBuffer = StringBuffer()
 
     with(urlBuffer){
         if (! baseUrl.startsWith("http://") && ! baseUrl.startsWith("https://"))
@@ -192,7 +197,7 @@ private fun monthViewUrlBuilder(baseUrl: String, cityPinyin: String, date: Local
         append(cityPinyin)
         append(urlSeparator)
         append(date.year)
-        var month = date.monthValue
+        val month = date.monthValue
         append(if (month >= 10) month else "0$month")
         append(urlSuffix)
     }
@@ -209,8 +214,8 @@ private fun monthViewUrlBuilder(baseUrl: String, cityPinyin: String, date: Local
  * */
 private fun fetchDataViaSpider(targetUrl: String, city: City): List<HistoryWeather>
 {
-    var resultItems: ResultItems?
-    var hws = mutableListOf<HistoryWeather>()
+    val resultItems: ResultItems?
+    val hws = mutableListOf<HistoryWeather>()
 
     try
     {
@@ -227,38 +232,38 @@ private fun fetchDataViaSpider(targetUrl: String, city: City): List<HistoryWeath
     }
 
     with(resultItems){
-        var dateStrs: List<String> = get("date")
-        var maxes: List<String> = get("max")
-        var mines: List<String> = get("min")
-        var weathers: List<String> = get("weather")
-        var directions: List<String> = get("wind_direction")
-        var forces: List<String> = get("wind_force")
+        val dateStrs: List<String> = get("date")
+        val maxes: List<String> = get("max")
+        val mines: List<String> = get("min")
+        val weathers: List<String> = get("weather")
+        val directions: List<String> = get("wind_direction")
+        val forces: List<String> = get("wind_force")
 
-        var dates = mutableListOf<Date>()
+        val dates = mutableListOf<Date>()
 
         // 将 date 的字符串转换成日期数组
         dateStrs.forEach { dates.add(Date.valueOf(it.toString())) }
 
         for ((index, date) in dates.withIndex())
         {
-            var weather: HistoryWeather =  HistoryWeather()
+            val weather: HistoryWeather =  HistoryWeather()
 
             with(weather){
                 this.city = city.id
                 this.date = dates[index]
-                max = Integer.parseInt(maxes[index])
-                min = Integer.parseInt(mines[index])
+                this.max = Integer.parseInt(maxes[index])
+                this.min = Integer.parseInt(mines[index])
                 // 调换温度的顺序, 数字大的为 max, 小的为 min
-                if(max < min)
+                if(this.max < this.min)
                 {
-                    var temp = min
-                    min = max
-                    max = temp
+                    val temp = this.min
+                    this.min = this.max
+                    this.max = temp
                 }
                 this.weather = weathers[index]
-                wind_direction = directions[index]
-                wind_force = forces[index]
-                update_time = Timestamp.valueOf(LocalDateTime.now())
+                this.wind_direction = directions[index]
+                this.wind_force = forces[index]
+                this.update_time = Timestamp.valueOf(LocalDateTime.now())
             }
 
             hws.add(weather)

@@ -2,15 +2,12 @@ package com.vito.work.weather.domain.services
 
 import com.vito.work.weather.domain.config.Constant
 import com.vito.work.weather.domain.daos.ForcastWeatherDao
-import com.vito.work.weather.domain.daos.LocationDao
-import com.vito.work.weather.domain.daos.UrlDao
 import com.vito.work.weather.domain.entities.City
 import com.vito.work.weather.domain.entities.District
 import com.vito.work.weather.domain.entities.ForecastWeather
 import com.vito.work.weather.domain.services.spider.ThirtyDaysForecastPageProcessor
 import com.vito.work.weather.domain.util.cnweather.*
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import us.codecraft.webmagic.ResultItems
@@ -21,6 +18,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.annotation.PreDestroy
+import javax.annotation.Resource
 
 /**
  * Created by lingzhiyuan.
@@ -33,8 +31,10 @@ import javax.annotation.PreDestroy
 
 @Service("forecastWeatherService")
 @Transactional
-open class ForecastWeatherService @Autowired constructor(val forcastWeatherDao: ForcastWeatherDao, val locationDao: LocationDao, val urlDao: UrlDao)
+open class ForecastWeatherService: UseLock()
 {
+    @Resource
+    lateinit var forcastWeatherDao: ForcastWeatherDao
 
     @PreDestroy
     open fun destroy()
@@ -60,7 +60,7 @@ open class ForecastWeatherService @Autowired constructor(val forcastWeatherDao: 
     open fun findThreeDaysWeather(districtId: Long): List<ForecastWeather>?
     {
         val MAX_RESULT = 3
-        var list = forcastWeatherDao.findWeathersAfter(districtId,Date.valueOf(LocalDate.now().plusDays(1)), MAX_RESULT)
+        val list = forcastWeatherDao.findWeathersAfter(districtId,Date.valueOf(LocalDate.now().plusDays(1)), MAX_RESULT)
         return list
     }
 
@@ -84,6 +84,7 @@ open class ForecastWeatherService @Autowired constructor(val forcastWeatherDao: 
         val targetUrl = forecastViewUrlBuilder(Constant.FORCAST_WEATHER_BASE_URL, city.pinyin, district.pinyin)
         try
         {
+            lock()
             val fws = fetchDataViaSpider(targetUrl, district)
             saveWeathers(fws, district)
             val fws2 = fetchDataViaAPI(district)
@@ -92,6 +93,8 @@ open class ForecastWeatherService @Autowired constructor(val forcastWeatherDao: 
         catch(ex: Exception)
         {
             throw ex
+        }finally {
+            unlock()
         }
     }
 
@@ -106,10 +109,10 @@ open class ForecastWeatherService @Autowired constructor(val forcastWeatherDao: 
      * */
     open fun saveWeathers(weathers: List<ForecastWeather>, district: District)
     {
-        var dates = mutableListOf<Date>()
+        val dates = mutableListOf<Date>()
+        val savedWeathers: MutableList<ForecastWeather> = mutableListOf()
         weathers.forEach { dates.add(it.date) }
-        var savedWeathers: MutableList<ForecastWeather> = mutableListOf()
-        var temp = forcastWeatherDao.findByDistrictDates(district.id, dates)
+        val temp = forcastWeatherDao.findByDistrictDates(district.id, dates)
         if (temp != null)
         {
             savedWeathers.addAll(temp)
@@ -146,7 +149,7 @@ open class ForecastWeatherService @Autowired constructor(val forcastWeatherDao: 
      * */
     open fun findByDate(districtId: Long, date: LocalDate): ForecastWeather?
     {
-        var result = forcastWeatherDao.findByDistrictDate(districtId, Date.valueOf(date))
+        val result = forcastWeatherDao.findByDistrictDate(districtId, Date.valueOf(date))
         return result
     }
 
@@ -157,7 +160,7 @@ open class ForecastWeatherService @Autowired constructor(val forcastWeatherDao: 
     open fun findThirtyDaysWeather(districtId: Long): List<ForecastWeather>?
     {
         val MAX_RESULT = 30
-        var list = forcastWeatherDao.findWeathersAfter(districtId, Date.valueOf(LocalDate.now()), MAX_RESULT)
+        val list = forcastWeatherDao.findWeathersAfter(districtId, Date.valueOf(LocalDate.now()), MAX_RESULT)
         return list
     }
 
@@ -172,7 +175,7 @@ private fun forecastViewUrlBuilder(baseUrl: String, cityPinyin: String, district
     val urlSeparator = "/"
     val urlSuffix = "/30/"
 
-    var urlBuffer: StringBuffer = StringBuffer()
+    val urlBuffer: StringBuffer = StringBuffer()
     with(urlBuffer){
         if (! baseUrl.startsWith("http://") && ! baseUrl.startsWith("https://"))
         {
@@ -209,8 +212,8 @@ private fun forecastViewUrlBuilder(baseUrl: String, cityPinyin: String, district
 private fun fetchDataViaSpider(targetUrl: String, district: District): List<ForecastWeather>
 {
 
-    var resultItems: ResultItems
-    var fws = mutableListOf<ForecastWeather>()
+    val resultItems: ResultItems
+    val fws = mutableListOf<ForecastWeather>()
 
     try
     {
@@ -227,24 +230,24 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): List<Fore
     }
 
     with(resultItems){
-        var dateStrs: List<String> = get("date")
-        var maxes: List<String> = get("max")
-        var mines: List<String> = get("min")
-        var dayWeathers: List<String> = get("weather_day")
-        var nightWeathers: List<String> = get("weather_night")
-        var dayWindDirections: List<String> = get("wind_direction_day")
-        var nightWindDirections: List<String> = get("wind_direction_night")
-        var dayWindForces: List<String> = get("wind_force_day")
-        var nightWindForces: List<String> = get("wind_force_night")
+        val dateStrs: List<String> = get("date")
+        val maxes: List<String> = get("max")
+        val mines: List<String> = get("min")
+        val dayWeathers: List<String> = get("weather_day")
+        val nightWeathers: List<String> = get("weather_night")
+        val dayWindDirections: List<String> = get("wind_direction_day")
+        val nightWindDirections: List<String> = get("wind_direction_night")
+        val dayWindForces: List<String> = get("wind_force_day")
+        val nightWindForces: List<String> = get("wind_force_night")
 
         // Get Date Strings
-        var dates = mutableListOf<Date>()
+        val dates = mutableListOf<Date>()
         // 将所有的 string 转换成日期存储到数组中
         dateStrs.forEach { dates.add(Date.valueOf(LocalDate.parse(it.toString().split(" ").get(0).replace("月", "").replace("日", "").trim().plus(LocalDate.now().year), DateTimeFormatter.ofPattern("MMddyyyy")))) }
 
         for ((index, date) in dates.withIndex())
         {
-            var fw: ForecastWeather = ForecastWeather()
+            val fw: ForecastWeather = ForecastWeather()
             with(fw){
                 this.district = district.id
                 this.date = dates[index]
@@ -260,7 +263,7 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): List<Fore
                 }
                 weather_day = parseWeather(dayWeathers[index])
                 // 风向有三种情况: 1.只包含风向的名称 2.另外包含了风力并用空格隔开 3. 只包含了风力的信息（带有级或微风）
-                var parsedWDD = dayWindDirections[index].trim().split(" ")
+                val parsedWDD = dayWindDirections[index].trim().split(" ")
                 // 如果
                 if(!parsedWDD[0].contains("级") && !parsedWDD[0].contains("微风"))
                 {
@@ -285,7 +288,7 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): List<Fore
                 {
                     - 273
                 }
-                var parsedWDN = nightWindDirections[index].trim().split(" ")
+                val parsedWDN = nightWindDirections[index].trim().split(" ")
                 weather_night = parseWeather(nightWeathers[index])
                 if(parsedWDN[0].contains("级") || parsedWDN[0].contains("微风"))
                 {
@@ -321,18 +324,18 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): List<Fore
 private fun parseWeather(weatherStr: String): String
 {
     var result = ""
-    var list = weatherStr.trim().split("转")
+    val list = weatherStr.trim().split("转")
     when(list.size)
     {
         1 ->
         {
-            var codeone = findByWeatherName(list[0]).code.toString()
+            val codeone = findByWeatherName(list[0]).code.toString()
             result = codeone
         }
         2 ->
         {
-            var codeone = findByWeatherName(list[0]).code.toString()
-            var codetwo = findByWeatherName(list[1]).code.toString()
+            val codeone = findByWeatherName(list[0]).code.toString()
+            val codetwo = findByWeatherName(list[1]).code.toString()
             result = "$codeone,$codetwo"
         }
     }
@@ -351,18 +354,18 @@ private fun parseWeather(weatherStr: String): String
 private fun parseWindForce(windForceStr: String): String
 {
     var result = ""
-    var list = windForceStr.trim().split("转")
+    val list = windForceStr.trim().split("转")
     when(list.size)
     {
         1 ->
         {
-            var codeone = findByWindForceName(list[0]).code.toString()
+            val codeone = findByWindForceName(list[0]).code.toString()
             result = codeone
         }
         2 ->
         {
-            var codeone = findByWindForceName(list[0]).code.toString()
-            var codetwo = findByWindForceName(list[1]).code.toString()
+            val codeone = findByWindForceName(list[0]).code.toString()
+            val codetwo = findByWindForceName(list[1]).code.toString()
             result = "$codeone,$codetwo"
         }
     }
@@ -375,15 +378,15 @@ private fun parseWindForce(windForceStr: String): String
  * */
 fun fetchDataViaAPI(district: District): List<ForecastWeather>
 {
-    var fws = mutableListOf<ForecastWeather>()
+    val fws = mutableListOf<ForecastWeather>()
     try
     {
-        var resultBean = getResultBean(district)
-        var f = resultBean?.f
+        val resultBean = getResultBean(district)
+        val f = resultBean?.f
         if(f != null)
         {
             val f0 = f.f0
-            var f1 = f.f1
+            val f1 = f.f1
             val datetime = LocalDateTime.parse(f0, DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
 
             for((index, forecast) in f1.withIndex())

@@ -20,15 +20,12 @@ import kotlin.jvm.internal.iterator
  *
  */
 
-class HttpUtil()
+object HttpUtil
 {
-    companion object{
-        val logger = LoggerFactory.getLogger(HttpUtil::class.java)
-    }
-
+    val logger = LoggerFactory.getLogger(HttpUtil::class.java)
 }
 
-fun sendGetRequestViaHttpClient(baseUrl: String, params: HashMap<String, Any>, headers: HashMap<String, String>, charset: Charset): String?
+fun HttpUtil.sendGetRequestViaHttpClient(baseUrl: String, params: HashMap<String, Any>, headers: HashMap<String, String>, charset: Charset): String?
 {
 
     var url = if (baseUrl.startsWith("http://") || baseUrl.startsWith("https://")) baseUrl
@@ -60,7 +57,7 @@ fun sendGetRequestViaHttpClient(baseUrl: String, params: HashMap<String, Any>, h
 }
 
 
-fun sendGetRequest(url: String, params: HashMap<String, Any> = HashMap(), charset: Charset = Charset.forName("utf-8"), headers: HashMap<String, String> = HashMap()): String
+fun HttpUtil.sendGetRequest(url: String, params: HashMap<String, Any> = HashMap(), charset: Charset = Charset.forName("utf-8"), headers: HashMap<String, String> = HashMap()): String
 {
 
     var url = if (url.startsWith("http://") || url.startsWith("https://")) url
@@ -89,7 +86,7 @@ fun sendGetRequest(url: String, params: HashMap<String, Any> = HashMap(), charse
     return answer.toString()
 }
 
-fun sendPostRequest(url: String, params: HashMap<String, Any>, charset: Charset = Charset.forName("UTF-8")): String
+fun HttpUtil.sendPostRequest(url: String, params: HashMap<String, Any>, charset: Charset = Charset.forName("UTF-8")): String
 {
 
 //    val log = LoggerFactory.getLogger(AppStarter::class.java)

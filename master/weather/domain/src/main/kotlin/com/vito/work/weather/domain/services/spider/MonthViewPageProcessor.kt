@@ -24,7 +24,7 @@ open class MonthViewPageProcessor : PageProcessor
     override fun process(page: Page?)
     {
         val path = "//div[@class='tqtongji2']/ul[@class!='t1']/li"
-        var html = page?.html !!
+        val html = page?.html !!
         val checkDatePath = html.xpath("$path[1]/a").match()
         page?.putField("date",html.xpath(if (checkDatePath) "$path[1]/a/text()" else "$path[1]/text()").all())
         page?.putField("max",html.xpath("$path[2]/text()").all())

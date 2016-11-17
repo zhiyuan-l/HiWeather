@@ -3,8 +3,8 @@ version '1.0-SNAPSHOT'
 
 buildscript {
 
-    ext.kotlin_version = '1.0.1' // Required for Kotlin integration
-    ext.SpringBootStarterVersion = "1.3.3.RELEASE"
+    ext.kotlin_version = '1.0.4' // Required for Kotlin integration
+    ext.SpringBootStarterVersion = "1.3.5.RELEASE"
 
     repositories {
         jcenter()
@@ -35,13 +35,12 @@ repositories {
     mavenCentral()
 }
 
+configurations {
+    compile.exclude module: 'slf4j-log4j12'
+}
+
 dependencies {
 
-    configurations.all {
-        exclude module: 'slf4j-log4j12'
-    }
-
-    providedRuntime 'org.springframework.boot:spring-boot-starter-tomcat'
     compile project(":domain")
 
     compile group: 'javax.servlet', name: 'javax.servlet-api', version: '4.0.0-b01'
@@ -51,6 +50,7 @@ dependencies {
 
     compile "org.springframework.boot:spring-boot-starter-web:${SpringBootStarterVersion}"
     compile "org.springframework.boot:spring-boot-starter-thymeleaf:${SpringBootStarterVersion}"
+    compile 'org.springframework.boot:spring-boot-starter-tomcat'
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-tomcat', version: '1.3.5.RELEASE'
     compile "org.springframework.boot:spring-boot-starter-security:${SpringBootStarterVersion}"
     compile("org.springframework.boot:spring-boot-devtools")
@@ -58,7 +58,7 @@ dependencies {
 
     // webmagic 爬虫
     compile 'us.codecraft:webmagic-core:0.5.3'
-    compile ('us.codecraft:webmagic-extension:0.5.3')
+    compile('us.codecraft:webmagic-extension:0.5.3')
 
     compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.6.5-2")
 

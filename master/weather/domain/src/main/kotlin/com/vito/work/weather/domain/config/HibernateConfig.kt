@@ -18,10 +18,10 @@ import javax.persistence.EntityManagerFactory
 open class HibernateConfig
 {
     @Bean
-    open fun sessionFactory(entityManagerFactory: EntityManagerFactory): SessionFactory
-            = entityManagerFactory.unwrap(SessionFactory::class.java)
+    open fun EntityManagerFactory.sessionFactory(): SessionFactory
+            = unwrap(SessionFactory::class.java)
 
     @Bean
-    open fun hibernateTemplate(sessionFactory: SessionFactory): HibernateTemplate
-            = HibernateTemplate(sessionFactory)
+    open fun SessionFactory.hibernateTemplate(): HibernateTemplate
+            = HibernateTemplate(this)
 }

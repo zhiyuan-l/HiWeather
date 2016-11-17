@@ -4,7 +4,6 @@ import com.vito.work.weather.domain.beans.api.LocationData
 import com.vito.work.weather.domain.beans.api.LocationInfo
 import com.vito.work.weather.domain.beans.api.locationInfoParser
 import com.vito.work.weather.domain.config.Constant
-import com.vito.work.weather.domain.config.SpiderStatus
 import com.vito.work.weather.domain.daos.LocationDao
 import com.vito.work.weather.domain.entities.City
 import com.vito.work.weather.domain.entities.District
@@ -13,19 +12,21 @@ import com.vito.work.weather.domain.services.spider.AQICityPageProcessor
 import com.vito.work.weather.domain.util.cnweather.getResultBean
 import com.vito.work.weather.domain.util.http.BusinessError
 import com.vito.work.weather.domain.util.http.BusinessException
+import com.vito.work.weather.domain.util.http.HttpUtil
 import com.vito.work.weather.domain.util.http.sendGetRequestViaHttpClient
 import org.jetbrains.annotations.Contract
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import us.codecraft.webmagic.ResultItems
 import us.codecraft.webmagic.Spider
+import us.codecraft.webmagic.scheduler.QueueScheduler
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.nio.charset.Charset
 import java.util.*
 import javax.annotation.PreDestroy
+import javax.annotation.Resource
 
 /**
  * Created by lingzhiyuan.
@@ -37,8 +38,11 @@ import javax.annotation.PreDestroy
 
 @Service(value = "locationService")
 @Transactional
-open class LocationService @Autowired constructor(val locationDao: LocationDao)
+open class LocationService: UseLock(), SpiderTask
 {
+
+    @Resource
+    lateinit var locationDao: LocationDao
 
     @PreDestroy
     open fun destroy()
@@ -95,7 +99,7 @@ open class LocationService @Autowired constructor(val locationDao: LocationDao)
      * */
     open fun findCities(provinces: List<Province>): List<City>
     {
-        var cities = mutableListOf<City>()
+        val cities = mutableListOf<City>()
         for (province in provinces)
         {
             cities.addAll(locationDao.findCities(province.id) as List<City>)
@@ -129,6 +133,41 @@ open class LocationService @Autowired constructor(val locationDao: LocationDao)
         }
     }
 
+    override fun executeTask() {
+        try
+        {
+            lock()
+            val provinces = updateProvincesFromWeb()
+            provinces.forEach { locationDao.saveOrUpdate(it) }
+            val cities = updateCititesFromWebByProvinces(provinces)
+            cities.forEach { locationDao.saveOrUpdate(it) }
+            // 获取 tianqi.com上的所有区县
+            val districts = updateDistrictsFromWebByCitites(cities)
+            // 给有 aqi 数据的区县添加pinyin_aqi
+            updateAQIDistricts(districts)
+            // 从文件中筛选出中国天气网上有的区县
+            updateDistrictsFromFile(districts)
+            val newIds = mutableListOf<Long>()
+            val saveDistricts = districts.filter { it.id != 0L }
+            saveDistricts.forEach { newIds.add(it.id) }
+            val obsoleteData = locationDao.findObsoleteDistricts(newIds) ?: listOf()
+            locationDao.batchDelete(obsoleteData)
+            updateDistrictViaAPI(saveDistricts)
+            saveDistricts.forEach { locationDao.saveOrUpdate(it) }
+            logger.info("Location Updated")
+        }
+        catch(ex: Exception)
+        {
+            ex.printStackTrace()
+            throw BusinessException(BusinessError.ERROR_LOCATION_UPDATE_FAILED)
+        }
+        finally
+        {
+            spider.scheduler = QueueScheduler()
+            unlock()
+        }
+    }
+
     /**
      * 城市信息更新总入口
      *
@@ -142,37 +181,7 @@ open class LocationService @Autowired constructor(val locationDao: LocationDao)
      * */
     open fun updateAllLocationsFromWeb()
     {
-        try
-        {
-            SpiderStatus.LOCATION_UPDATE_STATUS = true
-            var provinces = updateProvincesFromWeb()
-            provinces.forEach { locationDao.saveOrUpdate(it) }
-            var cities = updateCititesFromWebByProvinces(provinces)
-            cities.forEach { locationDao.saveOrUpdate(it) }
-            // 获取 tianqi.com上的所有区县
-            var districts = updateDistrictsFromWebByCitites(cities)
-            // 给有 aqi 数据的区县添加pinyin_aqi
-            updateAQIDistricts(districts)
-            // 从文件中筛选出中国天气网上有的区县
-            updateDistrictsFromFile(districts)
-            var newIds = mutableListOf<Long>()
-            var saveDistricts = districts.filter { it.id != 0L }
-            saveDistricts.forEach { newIds.add(it.id) }
-            var obsoleteData = locationDao.findObsoleteDistricts(newIds) ?: listOf()
-            locationDao.batchDelete(obsoleteData)
-            updateDistrictViaAPI(saveDistricts)
-            saveDistricts.forEach { locationDao.saveOrUpdate(it) }
-            logger.info("Location Updated")
-        }
-        catch(ex: Exception)
-        {
-            ex.printStackTrace()
-            throw BusinessException(BusinessError.ERROR_LOCATION_UPDATE_FAILED)
-        }
-        finally
-        {
-            SpiderStatus.LOCATION_UPDATE_STATUS = false
-        }
+
     }
 
 } // end LocationService
@@ -184,12 +193,12 @@ private fun updateProvincesFromWeb(): List<Province>
 {
     var provinces = listOf<Province>()
 
-    var params = HashMap<String, Any>()
+    val params = HashMap<String, Any>()
     params.put("type", LocationData.LOCATION_INFO_TYPE_ZERO)
     // 获取原始的JSON数据, 结构为 List
-    var data: String = fetchAndConvertDataFromWeb(params)
+    val data: String = fetchAndConvertDataFromWeb(params)
     // 通过 mapper 转换成 LocationInfo 对象
-    var locationInfo = locationInfoParser(LocationData.LOCATION_INFO_TYPE_ZERO, data)
+    val locationInfo = locationInfoParser(LocationData.LOCATION_INFO_TYPE_ZERO, data)
     // 将对象中的数据保存到数据库中
     if (locationInfo != null)
     {
@@ -207,16 +216,16 @@ private fun updateProvincesFromWeb(): List<Province>
 private fun updateCititesFromWebByProvinces(provinces: List<Province>): MutableList<City>
 {
 
-    var cities = mutableListOf<City>()
+    val cities = mutableListOf<City>()
     for (province in provinces)
     {
-        var params = HashMap<String, Any>()
+        val params = HashMap<String, Any>()
         params.put("type", LocationData.LOCATION_INFO_TYPE_ONE)
         params.put("pid", province.id.toString())
-        var data = fetchAndConvertDataFromWeb(params)
+        val data = fetchAndConvertDataFromWeb(params)
 
         // 获取区域信息
-        var locationInfo = locationInfoParser(LocationData.LOCATION_INFO_TYPE_ONE, data)
+        val locationInfo = locationInfoParser(LocationData.LOCATION_INFO_TYPE_ONE, data)
         if (locationInfo != null)
         {
             cities.addAll(getCitiesFromLocationInfo(locationInfo, province.id))
@@ -233,17 +242,17 @@ private fun updateCititesFromWebByProvinces(provinces: List<Province>): MutableL
 @Contract("null->null")
 private fun updateDistrictsFromWebByCitites(citites: List<City>): List<District>
 {
-    var districts = mutableListOf<District>()
+    val districts = mutableListOf<District>()
     for (city in citites)
     {
-        var params = HashMap<String, Any>()
+        val params = HashMap<String, Any>()
         params.put("type", LocationData.LOCATION_INFO_TYPE_TWO)
         params.put("pid", city.province)
         params.put("cid", city.id)
-        var data = fetchAndConvertDataFromWeb(params)
+        val data = fetchAndConvertDataFromWeb(params)
 
         // 获取区域信息
-        var locationInfo = locationInfoParser(LocationData.LOCATION_INFO_TYPE_TWO, data)
+        val locationInfo = locationInfoParser(LocationData.LOCATION_INFO_TYPE_TWO, data)
         if (locationInfo != null)
         {
             districts.addAll(getDistrictsFromLocationInfo(locationInfo, city.id))
@@ -258,22 +267,21 @@ private fun updateDistrictsFromWebByCitites(citites: List<City>): List<District>
  * */
 private fun getProvincesFromLocationInfo(locationInfo: LocationInfo): List<Province>
 {
-    var provinces = mutableListOf<Province>()
-    var value = locationInfo.value.toSortedMap()
-    var pys = locationInfo.py.toSortedMap()
-    var ishots = locationInfo.ishot.toSortedMap()
+    val provinces = mutableListOf<Province>()
+    val value = locationInfo.value.toSortedMap()
+    val pys = locationInfo.py.toSortedMap()
+    val ishots = locationInfo.ishot.toSortedMap()
     for ((k, v) in value)
     {
-        var province = Province()
-        with(province) {
+        with(Province()) {
             id = k
             // 去除字母前缀
             title = v?.split(" ")?.last() !!
             pinyin = pys[k] !!
             ishot = ishots[k] !!
+            provinces.add(this)
         }
 
-        provinces.add(province)
     }
     return provinces
 }
@@ -283,23 +291,21 @@ private fun getProvincesFromLocationInfo(locationInfo: LocationInfo): List<Provi
  * */
 private fun getCitiesFromLocationInfo(locationInfo: LocationInfo, provinceId: Long): List<City>
 {
-    var value = locationInfo.value.toSortedMap()
-    var pys = locationInfo.py.toSortedMap()
-    var ishots = locationInfo.ishot.toSortedMap()
+    val value = locationInfo.value.toSortedMap()
+    val pys = locationInfo.py.toSortedMap()
+    val ishots = locationInfo.ishot.toSortedMap()
 
-    var cities = mutableListOf<City>()
+    val cities = mutableListOf<City>()
     for ((k, v) in value)
     {
-        var city: City = City()
-        with(city) {
+        with(City()) {
             id = k
             title = v?.split(" ")?.last() !!
             pinyin = pys[k] !!
             ishot = ishots[k] !!
             province = provinceId
+            cities.add(this)
         }
-
-        cities.add(city)
     }
 
     return cities
@@ -311,23 +317,22 @@ private fun getCitiesFromLocationInfo(locationInfo: LocationInfo, provinceId: Lo
 private fun getDistrictsFromLocationInfo(locationInfo: LocationInfo, cityId: Long): List<District>
 {
 
-    var districts = mutableListOf<District>()
+    val districts = mutableListOf<District>()
 
-    var value = locationInfo.value.toSortedMap()
-    var pys = locationInfo.py.toSortedMap()
-    var ishots = locationInfo.ishot.toSortedMap()
+    val value = locationInfo.value.toSortedMap()
+    val pys = locationInfo.py.toSortedMap()
+    val ishots = locationInfo.ishot.toSortedMap()
     for ((k, v) in value)
     {
-        var district = District()
-        with(district) {
+        with(District()) {
             id = k
             city = cityId
             title = v?.split(" ")?.last() !!
             pinyin = pys[k] !!
             ishot = ishots[k] !!
+            districts.add(this)
         }
 
-        districts.add(district)
     }
     return districts
 }
@@ -337,7 +342,7 @@ private fun getDistrictsFromLocationInfo(locationInfo: LocationInfo, cityId: Lon
  * */
 private fun fetchAndConvertDataFromWeb(params: HashMap<String, Any>): String
 {
-    var data = sendGetRequestViaHttpClient(Constant.LOCATION_SOURCE_URL, params, hashMapOf(), Charset.forName("utf-8"))
+    var data = HttpUtil.sendGetRequestViaHttpClient(Constant.LOCATION_SOURCE_URL, params, hashMapOf(), Charset.forName("utf-8"))
     data = data?.substring(data.indexOf('(') + 1, data.length - 1)?.removeSuffix(")")
 
     return data ?: throw BusinessException(BusinessError.ERROR_RESOURCE_NOT_FOUND)
@@ -351,15 +356,15 @@ private fun fetchAndConvertDataFromWeb(params: HashMap<String, Any>): String
  * */
 private fun updateAQIDistricts(districts: List<District>)
 {
-    var resultItems: ResultItems = LocationService.spider.get("http://www.tianqi.com/air/")
+    val resultItems: ResultItems = LocationService.spider.get("http://www.tianqi.com/air/")
 
-    var receivedUrls: List<String> = resultItems.get("urls")
-    var titles: List<String> = resultItems.get("titles")
-    var pinyins = mutableListOf<String>()
+    val receivedUrls: List<String> = resultItems.get("urls")
+    val titles: List<String> = resultItems.get("titles")
+    val pinyins = mutableListOf<String>()
 
     for (url in receivedUrls)
     {
-        var pinyin_aqi = url.substringAfter("/air/").removeSuffix(".html")
+        val pinyin_aqi = url.substringAfter("/air/").removeSuffix(".html")
         pinyins.add(pinyin_aqi)
     }
 
@@ -405,22 +410,20 @@ private fun updateDistrictViaAPI(districts: List<District>)
 private fun updateDistrictsFromFile(districts: List<District>)
 {
 
-    var strList = mutableListOf<String>()
-    var reader: InputStreamReader
-    var br: BufferedReader
+    val strList = mutableListOf<String>()
     try
     {
+        val br: BufferedReader
+        val reader: InputStreamReader
         reader = InputStreamReader(LocationService::class.java.getResourceAsStream(Constant.DISTRICT_API_FILE_LOCATION), "UTF-8")
         br = BufferedReader(reader)
-        var line = br.readLine()
-        while (line != null)
-        {
-            if (line.trim() != "")
+        do{
+            val line = br.readLine()
+            if (line.trim().isNotEmpty())
             {
                 strList.add(line)
             }
-            line = br.readLine()
-        }
+        } while (line != null)
         reader.close()
         br.close()
     }
@@ -430,26 +433,22 @@ private fun updateDistrictsFromFile(districts: List<District>)
         throw ex
     }
 
-    var tempDistricts = mutableListOf<TempDistrict>()
+    val tempDistricts = mutableListOf<TempDistrict>()
     for (str in strList)
     {
-        if (str.trim() != "")
+        if (str.trim().isNotEmpty())
         {
-            var tempList = str.trim().split(",")
-
-            tempDistricts.add(TempDistrict(tempList[0].toLong(), tempList[1], tempList[2], tempList[3]))
+            val infoList = str.trim().split(",")
+            tempDistricts.add(TempDistrict(infoList[0].toLong(), infoList[1], infoList[2], infoList[3]))
         }
     }
 
     districts.forEachIndexed { index, district ->
-        var tempDistrict = tempDistricts.firstOrNull { it.id == district.id }
-        if (tempDistrict != null)
-        {
-            district.title = tempDistrict.title
-        }
-        else
-        {
+        val tempDistrict = tempDistricts.firstOrNull { it.id == district.id }
+        if (tempDistrict == null) {
             district.id = 0L
+        } else {
+            district.title = tempDistrict.title
         }
     }
 

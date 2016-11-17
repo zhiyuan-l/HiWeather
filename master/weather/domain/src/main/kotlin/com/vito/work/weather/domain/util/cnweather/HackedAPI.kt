@@ -1,5 +1,6 @@
 package com.vito.work.weather.domain.util.cnweather
 
+import com.vito.work.weather.domain.util.http.HttpUtil
 import com.vito.work.weather.domain.util.http.sendGetRequestViaHttpClient
 import org.slf4j.LoggerFactory
 import java.nio.charset.Charset
@@ -39,10 +40,10 @@ private fun UrlBuilder(baseUrl: String, districtId: String): String
 
 fun invokeAPI(districtId: String): String
 {
-    var targetUrl = UrlBuilder(CNWEATHER_API_BASE_URL_NOW,districtId)
-    var refererUrl = UrlBuilder(CNWEATHER_API_REFERER_BASE_URL,districtId)
+    val targetUrl = UrlBuilder(CNWEATHER_API_BASE_URL_NOW,districtId)
+    val refererUrl = UrlBuilder(CNWEATHER_API_REFERER_BASE_URL,districtId)
     HackedAPI.logger.info("Invoking API: $targetUrl")
-    var result = sendGetRequestViaHttpClient(targetUrl, hashMapOf(), headers = hashMapOf("Referer" to refererUrl), charset = Charset.forName("utf-8"))
+    val result = HttpUtil.sendGetRequestViaHttpClient(targetUrl, hashMapOf(), headers = hashMapOf("Referer" to refererUrl), charset = Charset.forName("utf-8"))
     HackedAPI.logger.info("Received Data: $result")
     return result ?: ""
 }

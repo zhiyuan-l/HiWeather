@@ -33,7 +33,7 @@ class AQIViewPageProcessor: PageProcessor
 
     override fun process(page: Page?)
     {
-        var html = page?.html
+        val html = page?.html
 
         val path1= "//div[@class='num']/span/text()"
         if(html == null || html.xpath(path1).all().size == 0)
@@ -44,7 +44,7 @@ class AQIViewPageProcessor: PageProcessor
         page?.putField("aqi_value", html.xpath(path1))
 
         val path3 = "//table[@class='air_tab01']/tbody/tr"
-        var trs = html.xpath("$path3")
+        val trs = html.xpath(path3)
 
         page?.putField("stations", trs.xpath("//td[1]/a/text()").all())
         page?.putField("station_urls", trs.xpath("//td[1]/a/@href").all())

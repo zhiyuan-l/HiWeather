@@ -2,17 +2,20 @@ package com.vito.work.weather.domain.services
 
 import com.vito.work.weather.domain.config.Constant
 import com.vito.work.weather.domain.config.getAQITypeCodeByName
-import com.vito.work.weather.domain.daos.*
+import com.vito.work.weather.domain.daos.AQIDao
+import com.vito.work.weather.domain.daos.LocationDao
+import com.vito.work.weather.domain.daos.StationAQIDao
+import com.vito.work.weather.domain.daos.StationDao
 import com.vito.work.weather.domain.entities.AQI
 import com.vito.work.weather.domain.entities.District
 import com.vito.work.weather.domain.entities.Station
 import com.vito.work.weather.domain.entities.StationAQI
 import com.vito.work.weather.domain.services.spider.AQIViewPageProcessor
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import us.codecraft.webmagic.ResultItems
 import us.codecraft.webmagic.Spider
+import us.codecraft.webmagic.scheduler.QueueScheduler
 import us.codecraft.webmagic.selector.PlainText
 import java.lang.Integer.parseInt
 import java.sql.Date
@@ -20,6 +23,7 @@ import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.LocalDateTime
 import javax.annotation.PreDestroy
+import javax.annotation.Resource
 import javax.transaction.Transactional
 
 /**
@@ -32,8 +36,17 @@ import javax.transaction.Transactional
 
 @Service
 @Transactional
-open class AQIService @Autowired constructor(val aqiDao: AQIDao, val locationDao: LocationDao, val urlDao: UrlDao, val stationDao: StationDao, val stationAQIDao: StationAQIDao)
+open class AQIService: UseLock(), SpiderTask
 {
+
+    @Resource
+    lateinit var aqiDao: AQIDao
+    @Resource
+    lateinit var stationAQIDao: StationAQIDao
+    @Resource
+    lateinit var stationDao: StationDao
+    @Resource
+    lateinit var locationDao: LocationDao
 
     @PreDestroy
     open fun destroy()
@@ -51,23 +64,27 @@ open class AQIService @Autowired constructor(val aqiDao: AQIDao, val locationDao
 
     open fun findLatestAQI(districtId: Long): AQI?
     {
-        var result = aqiDao.findLatestByDistrict(districtId)
+        val result = aqiDao.findLatestByDistrict(districtId)
         return result
     }
 
-
-    open fun updateAQI(district: District): WebData
-    {
-        val targetUrl = AQIViewUrlBuilder(Constant.AQI_BASE_URL, district.pinyin_aqi)
+    override fun executeTask(){
         try
         {
-            var webData = fetchDataViaSpider(targetUrl, district)
-            saveWebdata(webData)
-            return webData
+            lock()
+            val districts = locationDao.findAQIDistrict()
+            districts?.forEach {
+                val targetUrl = AQIViewUrlBuilder(Constant.AQI_BASE_URL, it.pinyin_aqi)
+                val webData = fetchDataViaSpider(targetUrl, it)
+                saveWebdata(webData)
+            }
         }
         catch(ex: Exception)
         {
             throw ex
+        }finally {
+            spider.scheduler = QueueScheduler()
+            unlock()
         }
     }
 
@@ -90,11 +107,11 @@ open class AQIService @Autowired constructor(val aqiDao: AQIDao, val locationDao
         val stationNames = mutableListOf<String>()
         stations.forEach { stationNames.add(it.name_zh) }
 
-        var savedStations = stationDao.findByNames(stationNames) ?: mutableListOf()
+        val savedStations = stationDao.findByNames(stationNames) ?: mutableListOf()
 
         // 不存在则保存
         stations.forEach { iw ->
-            var station = savedStations.firstOrNull { iw.name_zh == it.name_zh }
+            val station = savedStations.firstOrNull { iw.name_zh == it.name_zh }
             if (station == null)
             {
                 savedStations.add(iw)
@@ -120,10 +137,10 @@ open class AQIService @Autowired constructor(val aqiDao: AQIDao, val locationDao
 
     open fun findStationAQI(districtId: Long): List<StationAQI>?
     {
-        var stations = stationDao.findByDistrict(districtId) ?: mutableListOf()
-        var ids = mutableListOf<Long>()
+        val stations = stationDao.findByDistrict(districtId) ?: mutableListOf()
+        val ids = mutableListOf<Long>()
         stations.forEach { ids.add(it.id) }
-        var result = stationAQIDao.findLatestByStations(ids)
+        val result = stationAQIDao.findLatestByStations(ids)
         result?.forEach { id -> stations.forEach { if (it.id == id.station) id.station_name = it.name_zh } }
         return result
     }
@@ -139,7 +156,7 @@ private fun AQIViewUrlBuilder(baseUrl: String, districtPinyin: String): String
     val urlSeparator = "/"
     val urlSuffix = ".html"
 
-    var urlBuffer: StringBuffer = StringBuffer()
+    val urlBuffer: StringBuffer = StringBuffer()
     if (! baseUrl.startsWith("http://") && ! baseUrl.startsWith("https://"))
     {
         urlBuffer.append("http://")
@@ -156,9 +173,9 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): WebData
 {
 
     var resultItems: ResultItems = ResultItems()
-    var stationAqis = mutableListOf<StationAQI>()
-    var aqi = AQI()
-    var stations = mutableListOf<Station>()
+    val stationAqis = mutableListOf<StationAQI>()
+    val aqi = AQI()
+    val stations = mutableListOf<Station>()
 
     try
     {
@@ -176,19 +193,19 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): WebData
 
     with(resultItems) {
 
-        var value: PlainText = get("aqi_value")
+        val value: PlainText = get("aqi_value")
 
         aqi.district = district.id
         aqi.value = parseIntegerData(value.toString())
         aqi.date = Date.valueOf(LocalDate.now())
         aqi.update_time = Timestamp.valueOf(LocalDateTime.now())
 
-        var stationNames: List<String> = get("stations")
-        var station_urls: List<String> = get("station_urls")
-        var station_values: List<String> = get("station_values")
-        var station_pm25: List<String> = get("station_pm25")
-        var station_o3: List<String> = get("station_o3")
-        var station_primary: List<String> = get("station_primary")
+        val stationNames: List<String> = get("stations")
+        val station_urls: List<String> = get("station_urls")
+        val station_values: List<String> = get("station_values")
+        val station_pm25: List<String> = get("station_pm25")
+        val station_o3: List<String> = get("station_o3")
+        val station_primary: List<String> = get("station_primary")
 
         for ((index, stationName) in stationNames.withIndex())
         {

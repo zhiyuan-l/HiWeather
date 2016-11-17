@@ -33,7 +33,7 @@ class AQICityPageProcessor: PageProcessor
 
     override fun process(page: Page?)
     {
-        var html = page?.html
+        val html = page?.html
 
         val path1= "//div[@class='meta']/ul/li/span[@class='td-2nd']/a"
         if(html == null || html.xpath(path1).all().size == 0)

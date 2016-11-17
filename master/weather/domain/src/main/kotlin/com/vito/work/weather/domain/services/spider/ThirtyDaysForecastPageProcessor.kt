@@ -27,7 +27,7 @@ open class ThirtyDaysForecastPageProcessor : PageProcessor
     override fun process(page: Page?)
     {
         val path = "//div[@class='today_30t']"
-        var html = page?.html !!
+        val html = page?.html !!
 
         page?.putField("date", html.xpath("$path/h4/span/text()").all())
         page?.putField("weather_day", html.xpath("$path/ul[1]/li[@class='t2']/span/text()").all())

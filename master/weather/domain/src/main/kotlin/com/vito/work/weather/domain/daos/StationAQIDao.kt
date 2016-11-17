@@ -22,12 +22,12 @@ open class StationAQIDao : BaseDao()
         {
             return null
         }
-        var criteria = sessionFactory.currentSession.createCriteria(StationAQI::class.java)
+        val criteria = sessionFactory.currentSession.createCriteria(StationAQI::class.java)
         criteria.add(Restrictions.`in`("station",stationIds))
         criteria.addOrder(Order.desc("datetime"))
         criteria.setMaxResults(stationIds.size)
 
-        var result = criteria.list() as List<StationAQI>?
+        val result = criteria.list() as List<StationAQI>?
 
         return result
     }

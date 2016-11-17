@@ -18,11 +18,11 @@ open class AQIDao : BaseDao()
 {
     open fun findLatestByDistrict(districtId: Long): AQI?
     {
-        var criteria = sessionFactory.currentSession.createCriteria(AQI::class.java)
+        val criteria = sessionFactory.currentSession.createCriteria(AQI::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         criteria.addOrder(Order.desc("update_time"))
         criteria.setMaxResults(1)
-        var list = criteria.list()
+        val list = criteria.list()
         if(list != null && list.size != 0){
             return list[0] as AQI
         }

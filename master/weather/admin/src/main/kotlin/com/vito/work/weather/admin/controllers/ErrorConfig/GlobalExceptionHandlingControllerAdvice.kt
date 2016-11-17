@@ -22,22 +22,20 @@ import org.springframework.web.bind.annotation.ResponseBody
  * 处理所有异常, 包括 GlobalErrorController抛出的异常
  * */
 @ControllerAdvice
-open class GlobalExceptionHandlingControllerAdvice
-{
+open class GlobalExceptionHandlingControllerAdvice {
 
-    companion object{
+    companion object {
         val logger: Logger = LoggerFactory.getLogger(GlobalExceptionHandlingControllerAdvice::class.java)
     }
 
     @ExceptionHandler(value = BusinessException::class)
     @ResponseBody
-    open fun exceptionHandler(exception: BusinessException): BaseResponse
-    {
+    open fun exceptionHandler(exception: BusinessException): BaseResponse {
         //        val statusName = "errorStatus"
         //        val messageName = "errorMessage"
 
-        var errorCode: Int
-        var errorMessage: String
+        val errorCode: Int
+        val errorMessage: String
 
         exception.printStackTrace()
 

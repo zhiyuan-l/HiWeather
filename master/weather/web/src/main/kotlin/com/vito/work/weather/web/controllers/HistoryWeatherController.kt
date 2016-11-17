@@ -3,14 +3,13 @@ package com.vito.work.weather.web.controllers
 import com.vito.work.weather.domain.config.Constant
 import com.vito.work.weather.domain.entities.HistoryWeather
 import com.vito.work.weather.domain.services.HistoryWeatherService
-import com.vito.work.weather.domain.services.LocationService
 import com.vito.work.weather.domain.util.http.ObjectResponse
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import java.time.LocalDate
+import javax.annotation.Resource
 
 /**
  * Created by lingzhiyuan.
@@ -22,8 +21,10 @@ import java.time.LocalDate
 
 @Controller
 @RequestMapping("/weather/history")
-open class HistoryWeatherController @Autowired constructor(val historyWeatherService: HistoryWeatherService, val locationService: LocationService)
+open class HistoryWeatherController
 {
+    @Resource
+    lateinit var historyWeatherService: HistoryWeatherService
 
     @RequestMapping("/")
     open fun index(): String

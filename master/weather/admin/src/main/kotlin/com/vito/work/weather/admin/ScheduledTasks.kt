@@ -31,19 +31,17 @@ import java.time.LocalDate
 
 @Component
 @EnableScheduling
-open class ScheduledTasks @Autowired constructor(val locationService: LocationService, val forecastWeatherService: ForecastWeatherService,val aqiService: AQIService, val historyWeatherService: HistoryWeatherService, val hourWeatherService: HourWeatherService, val instantWeatherService: InstantWeatherService){
+open class ScheduledTasks @Autowired constructor(val locationService: LocationService, val forecastWeatherService: ForecastWeatherService, val aqiService: AQIService, val historyWeatherService: HistoryWeatherService, val hourWeatherService: HourWeatherService, val instantWeatherService: InstantWeatherService) {
 
 
-    companion object{
+    companion object {
         val logger = LoggerFactory.getLogger(ScheduledTasks::class.java)
     }
 
     @Scheduled(cron = "0 0 7 * * * ") // 每天早上七点更新
-    open fun scheduledForecastWeatherUpdate()
-    {
+    open fun scheduledForecastWeatherUpdate() {
         // 如果正在更新,则跳过
-        if(SpiderStatus.FORECAST_UPDATE_STATUS == true)
-        {
+        if (SpiderStatus.FORECAST_UPDATE_STATUS == true) {
             logger.info("Skip Scheduled Task : Forecast Weather Is Updating")
             return
         }
@@ -52,20 +50,17 @@ open class ScheduledTasks @Autowired constructor(val locationService: LocationSe
 
         // 重置 Scheduler （清空Scheduler内已爬取的 url）
         ForecastWeatherService.spider.scheduler = QueueScheduler()
-        var districts = locationService.findDistricts()
+        val districts = locationService.findDistricts()
 
-        var cities = locationService.findCities() ?: listOf()
+        val cities = locationService.findCities() ?: listOf()
 
-        for(city in cities)
-        {
+        for (city in cities) {
             districts?.filter { it.city == city.id }?.forEach { district ->
 
-                try
-                {
+                try {
                     forecastWeatherService.updateFromWeb(city, district)
                 }
-                catch(ex: Exception)
-                {
+                catch(ex: Exception) {
                     ex.printStackTrace()
                     // 忽略更新时的异常
                 }
@@ -75,11 +70,9 @@ open class ScheduledTasks @Autowired constructor(val locationService: LocationSe
     }
 
     @Scheduled(cron = "0 0 0-23/3 * * * ") // 每天0-23点,每三小时检查一次
-    open fun scheduledTodayWeatherUpdate()
-    {
+    open fun scheduledTodayWeatherUpdate() {
         // 如果正在更新,则跳过
-        if(SpiderStatus.TODAY_WEATHER_STATUS == true)
-        {
+        if (SpiderStatus.TODAY_WEATHER_STATUS == true) {
             logger.info("Skip Scheduled Task : Today Weather Is Updating")
             return
         }
@@ -88,61 +81,33 @@ open class ScheduledTasks @Autowired constructor(val locationService: LocationSe
 
         // 重置 Scheduler （清空Scheduler内已爬取的 url）
         HourWeatherService.spider.scheduler = QueueScheduler()
-        var districts = locationService.findDistricts()
-        var cities = locationService.findCities() ?: listOf()
+        val districts = locationService.findDistricts()
+        val cities = locationService.findCities() ?: listOf()
 
         districts?.forEach { district ->
-            try
-            {
-                hourWeatherService.updateFromWeb(cities.first{ it.id == district.city}, district)
+            try {
+                hourWeatherService.updateFromWeb(cities.first { it.id == district.city }, district)
             }
-            catch(ex: Exception)
-            {
+            catch(ex: Exception) {
                 ex.printStackTrace()
                 // 忽略更新时的异常
             }
-         }
+        }
 
         logger.info("Success : Task Update Today Weather")
     }
 
     @Scheduled(cron = "0 0 0-23/3 * * * ") // 每天0-23点,每三小时检查一次
-    open fun scheduledAQIUpdate()
-    {
-        // 如果正在更新,则跳过
-        if(SpiderStatus.AQI_UPDATE_STATUS == true)
-        {
-            logger.info("Skip Scheduled Task : AQI Is Updating")
-            return
-        }
-
-        logger.info("Start : Executing Scheduled AQI Update")
-
-        // 重置 Scheduler （清空Scheduler内已爬取的 url）
-        AQIService.spider.scheduler = QueueScheduler()
-        val districts = locationService.findAQIDistrict() ?: listOf()
-        districts.forEach { it ->
-            try
-            {
-                aqiService.updateAQI(it)
-            }
-            catch(ex: Exception)
-            {
-                ex.printStackTrace()
-                // 忽略异常
-            }
-        }
-
+    open fun scheduledAQIUpdate() {
+        aqiService.executeTask()
         logger.info("Success : AQI Updated")
     }
 
 
     @Scheduled(cron = "0 0 12 ? * SUN") // 每周的周日中午十二点更新
-    open fun scheduledHistoryWeatherUpdate()
-    {
+    open fun scheduledHistoryWeatherUpdate() {
         // 如果正在更新,则跳过
-        if( SpiderStatus.HISTORY_UPDATE_STATUS == true)
-        {
+        if (SpiderStatus.HISTORY_UPDATE_STATUS == true) {
             logger.info("Skip Scheduled Task : History Weather Is Updating")
             return
         }
@@ -152,23 +117,19 @@ open class ScheduledTasks @Autowired constructor(val locationService: LocationSe
         // 重置 Scheduler (清空已爬取的 urls)
         HistoryWeatherService.spider.scheduler = QueueScheduler()
 
-        var provinces = mutableListOf<Province>()
-        var cities = mutableListOf<City>()
+        val provinces = mutableListOf<Province>()
+        val cities = mutableListOf<City>()
 
         provinces.addAll(locationService.findProvinces())
         cities.addAll(locationService.findCities(provinces))
-        for (city in cities)
-        {
+        for (city in cities) {
             var tempDate = Constant.SPIDER_HISTORY_START_DATE
-            while (tempDate <= LocalDate.now().minusMonths(1))
-            {
-                try
-                {
+            while (tempDate <= LocalDate.now().minusMonths(1)) {
+                try {
                     tempDate = tempDate.plusMonths(1)
                     historyWeatherService.updateFromWeb(city, tempDate)
                 }
-                catch(ex: Exception)
-                {
+                catch(ex: Exception) {
                     // 忽略更新时的异常
                     continue
                 }
@@ -179,32 +140,9 @@ open class ScheduledTasks @Autowired constructor(val locationService: LocationSe
 
     // 即时天气
     @Scheduled(cron = "0 0 0-23/1 * * *") // 每小时执行一次
-    open fun scheduledInstantWeatherUpdate()
-    {
-        // 如果正在更新,则跳过
-        if( SpiderStatus.INSTANT_WEATHER_UPDATE_STATUS == true)
-        {
-            logger.info("Skip Scheduled Task : Instant Weather Is Updating")
-            return
-        }
+    open fun scheduledInstantWeatherUpdate() {
 
-        logger.info("Start : Executing Scheduled Task Update Instant Weather")
-
-        val distrcts = locationService.findDistricts() ?: listOf()
-
-        SpiderStatus.INSTANT_WEATHER_UPDATE_STATUS = true
-        distrcts.forEach { district ->
-            try
-            {
-                instantWeatherService.updateFromWeb(district)
-            }
-            catch(ex: Exception)
-            {
-                ex.printStackTrace()
-                // 忽略错误
-            }
-        }
-        SpiderStatus.INSTANT_WEATHER_UPDATE_STATUS = false
+        instantWeatherService.executeTask()
         logger.info("Success : Task Update Instant Weather")
 
     }

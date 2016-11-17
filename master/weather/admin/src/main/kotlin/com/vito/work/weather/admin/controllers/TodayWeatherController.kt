@@ -5,11 +5,11 @@ import com.vito.work.weather.domain.services.HourWeatherService
 import com.vito.work.weather.domain.services.LocationService
 import com.vito.work.weather.domain.util.http.BusinessError
 import com.vito.work.weather.domain.util.http.BusinessException
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseBody
 import us.codecraft.webmagic.scheduler.QueueScheduler
+import javax.annotation.Resource
 
 /**
  * Created by lingzhiyuan.
@@ -21,16 +21,17 @@ import us.codecraft.webmagic.scheduler.QueueScheduler
 
 @Controller
 @RequestMapping("/weather/today")
-open class TodayWeatherController @Autowired constructor(val hourWeatherService: HourWeatherService, val locationService: LocationService)
-{
+open class TodayWeatherController {
+    @Resource
+    lateinit var locationService: LocationService
+    @Resource
+    lateinit var hourWeatherService: HourWeatherService
 
     @RequestMapping("/spider/update")
     @ResponseBody
-    open fun updateFromWeb()
-    {
+    open fun updateFromWeb() {
 
-        if (SpiderStatus.TODAY_WEATHER_STATUS == true)
-        {
+        if (SpiderStatus.TODAY_WEATHER_STATUS == true) {
             throw BusinessException(BusinessError.ERROR_TODAY_WEATHER_UPDATING)
         }
         // 重置 Scheduler （清空Scheduler内已爬取的 url）
@@ -40,12 +41,10 @@ open class TodayWeatherController @Autowired constructor(val hourWeatherService:
         val distrcts = locationService.findDistricts() ?: listOf()
 
         distrcts.forEach { district ->
-            try
-            {
+            try {
                 hourWeatherService.updateFromWeb(cities.first { it.id == district.city }, district)
             }
-            catch(ex: Exception)
-            {
+            catch(ex: Exception) {
                 ex.printStackTrace()
                 // 忽略错误
             }

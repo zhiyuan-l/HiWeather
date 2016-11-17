@@ -15,11 +15,9 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
  */
 
 @Order(SecurityProperties.ACCESS_OVERRIDE_ORDER)
-open class SecurityConfig : WebSecurityConfigurerAdapter()
-{
+open class SecurityConfig : WebSecurityConfigurerAdapter() {
 
-    override fun configure(http: HttpSecurity)
-    {
+    override fun configure(http: HttpSecurity) {
         http.authorizeRequests()
                 .antMatchers("/static/**").permitAll()
                 .anyRequest().access("hasRole('ADMIN')")
@@ -33,8 +31,7 @@ open class SecurityConfig : WebSecurityConfigurerAdapter()
                 .logout().logoutUrl("/logout").logoutSuccessUrl("/login").permitAll()
     }
 
-    override fun configure(auth: AuthenticationManagerBuilder)
-    {
+    override fun configure(auth: AuthenticationManagerBuilder) {
         auth.inMemoryAuthentication().withUser("admin").password("admin")
                 .roles("ADMIN", "USER")
         //.and().withUser("user").password("user").roles("USER")

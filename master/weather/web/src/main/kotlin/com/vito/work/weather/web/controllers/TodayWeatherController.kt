@@ -2,13 +2,12 @@ package com.vito.work.weather.web.controllers
 
 import com.vito.work.weather.domain.services.HourWeatherService
 import com.vito.work.weather.domain.services.InstantWeatherService
-import com.vito.work.weather.domain.services.LocationService
 import com.vito.work.weather.domain.util.http.ObjectResponse
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
+import javax.annotation.Resource
 
 /**
  * Created by lingzhiyuan.
@@ -20,8 +19,13 @@ import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
 @RequestMapping("/weather/today")
-open class TodayWeatherController @Autowired constructor(val instantWeatherService: InstantWeatherService, val hourWeatherService: HourWeatherService, val locationService: LocationService)
+open class TodayWeatherController
 {
+
+    @Resource
+    lateinit var instantWeatherService: InstantWeatherService
+    @Resource
+    lateinit var  hourWeatherService: HourWeatherService
 
     /**
      * 获取最新的24小时天气预报

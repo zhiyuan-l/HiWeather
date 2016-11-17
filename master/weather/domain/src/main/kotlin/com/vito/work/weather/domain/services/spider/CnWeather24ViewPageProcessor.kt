@@ -30,12 +30,12 @@ open class CnWeather24ViewPageProcessor : PageProcessor
     {
         page?.putField("ptime", page.html?.xpath("//sktq/@ptime"))
 
-        var hours = page?.html?.xpath("//sktq/qw/@h")?.all()
-        var temps = page?.html?.xpath("//sktq/qw/@wd")?.all()
-        var wds = page?.html?.xpath("//sktq/qw/@fx")?.all()
-        var wfs = page?.html?.xpath("//sktq/qw/@fl")?.all()
-        var preds = page?.html?.xpath("//sktq/qw/@js")?.all()
-        var humis = page?.html?.xpath("//sktq/qw/@sd")?.all()
+        val hours = page?.html?.xpath("//sktq/qw/@h")?.all()
+        val temps = page?.html?.xpath("//sktq/qw/@wd")?.all()
+        val wds = page?.html?.xpath("//sktq/qw/@fx")?.all()
+        val wfs = page?.html?.xpath("//sktq/qw/@fl")?.all()
+        val preds = page?.html?.xpath("//sktq/qw/@js")?.all()
+        val humis = page?.html?.xpath("//sktq/qw/@sd")?.all()
 
         page?.putField("hours", hours)
         page?.putField("temps", temps)

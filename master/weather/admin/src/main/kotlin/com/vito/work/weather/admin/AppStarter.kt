@@ -29,27 +29,23 @@ import javax.servlet.Filter
 @EntityScan(basePackages = arrayOf("com.vito.work.weather.domain.entities"))
 @EnableJpaRepositories(basePackages = arrayOf("com.vito.work.weather.domain.daos"))
 @ComponentScan(basePackages = arrayOf("com.vito.work.weather.admin", "com.vito.work.weather.domain"))
-open class AppStarter : SpringBootServletInitializer()
-{
+open class AppStarter : SpringBootServletInitializer() {
 
     @Bean
-    open fun errorAttributes(): DefaultErrorAttributes
-    {
+    open fun errorAttributes(): DefaultErrorAttributes {
         return DefaultErrorAttributes()
     }
 
     @Bean
-    open fun charsetFilter(): Filter
-    {
-        var charFilter = CharacterEncodingFilter()
+    open fun charsetFilter(): Filter {
+        val charFilter = CharacterEncodingFilter()
         charFilter.setEncoding("UTF-8")
         charFilter.setForceEncoding(true)
         return charFilter;
     }
 
     @Bean
-    open fun securityConfig(): SecurityConfig
-    {
+    open fun securityConfig(): SecurityConfig {
         return SecurityConfig()
     }
 
@@ -57,18 +53,15 @@ open class AppStarter : SpringBootServletInitializer()
     open fun objectMapperBuilder(): Jackson2ObjectMapperBuilder
             = Jackson2ObjectMapperBuilder().modulesToInstall(KotlinModule())
 
-    override fun configure(application: SpringApplicationBuilder): SpringApplicationBuilder
-    {
+    override fun configure(application: SpringApplicationBuilder): SpringApplicationBuilder {
         return application.sources(AppStarter::class.java);
     }
 
-    companion object
-    {
-        @JvmStatic fun main(args: Array<String>)
-        {
-            var application = SpringApplication(AppStarter::class.java)
+    companion object {
+        @JvmStatic fun main(args: Array<String>) {
+            val application = SpringApplication(AppStarter::class.java, *args)
             application.setAddCommandLineProperties(false)
-            application.run(*args)
+            application.run()
         }
     }
 }

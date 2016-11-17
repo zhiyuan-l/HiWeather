@@ -2,12 +2,12 @@ package com.vito.work.weather.web.controllers
 
 import com.vito.work.weather.domain.services.ForecastWeatherService
 import com.vito.work.weather.domain.util.http.ObjectResponse
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
 import java.time.LocalDate
+import javax.annotation.Resource
 
 /**
  * Created by lingzhiyuan.
@@ -19,8 +19,11 @@ import java.time.LocalDate
 
 @Controller
 @RequestMapping("/weather/forecast")
-open class ForecastWeatherController @Autowired constructor(val forecastWeatherService: ForecastWeatherService)
+open class ForecastWeatherController
 {
+
+    @Resource
+    lateinit var forecastWeatherService: ForecastWeatherService
 
     @RequestMapping("/")
     open fun index(): String

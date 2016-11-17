@@ -20,18 +20,18 @@ open class HourWeatherDao: BaseDao()
 {
     open fun findByDistrictDateTime(districtId: Long, dateTime: LocalDateTime): HourWeather?
     {
-        var time = LocalDateTime.of(dateTime.year, dateTime.month, dateTime.dayOfMonth, dateTime.hour, 0, 0,0)
-        var criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
+        val time = LocalDateTime.of(dateTime.year, dateTime.month, dateTime.dayOfMonth, dateTime.hour, 0, 0, 0)
+        val criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         criteria.add(Restrictions.eq("datetime", Timestamp.valueOf(time)))
         criteria.setMaxResults(1)
 
-        return criteria.list() as HourWeather
+        return criteria.list()[0] as HourWeather
     }
 
     open fun find24HByDistrict(districtId: Long): List<HourWeather>?
     {
-        var criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
+        val criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         // 根据时间降序排列
         criteria.addOrder(Order.desc("datetime"))
@@ -41,7 +41,7 @@ open class HourWeatherDao: BaseDao()
 
     open fun findByDistrictDatetimes(districtId: Long, datetimes: MutableList<Timestamp>): List<HourWeather>?
     {
-        var criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
+        val criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         // 根据时间降序排列
         criteria.add(Restrictions.`in`("datetime",datetimes))
@@ -53,7 +53,7 @@ open class HourWeatherDao: BaseDao()
      * */
     open fun findLatestByDistrictId(districtId: Long): HourWeather?
     {
-        var criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
+        val criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         criteria.add(Restrictions.lt("datetime", Timestamp.valueOf(LocalDateTime.now())))
         criteria.addOrder(Order.desc("datetime"))

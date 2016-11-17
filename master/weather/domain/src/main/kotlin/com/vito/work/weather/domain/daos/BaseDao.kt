@@ -19,11 +19,11 @@ open class BaseDao
     @Resource
     lateinit var sessionFactory: SessionFactory
 
-    open fun <T> findAll(clazz: Class<T>): MutableList<Any?>?
+    open fun <T> findAll(clazz: Class<T>): List<T?>?
     {
-        var session = sessionFactory.currentSession
-        var criteria = session.createCriteria(clazz)
-        return criteria.list()
+        val session = sessionFactory.currentSession
+        val criteria = session.createCriteria(clazz)
+        return criteria.list() as List<T?>
     }
 
     open fun <T> findById(clazz: Class<T>, id: Long): Any?

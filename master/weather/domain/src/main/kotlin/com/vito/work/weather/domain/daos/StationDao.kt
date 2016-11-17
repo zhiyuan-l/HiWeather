@@ -22,16 +22,15 @@ open class StationDao : BaseDao()
             return null
         }
 
-        var criteria = sessionFactory.currentSession.createCriteria(Station::class.java)
+        val criteria = sessionFactory.currentSession.createCriteria(Station::class.java)
         criteria.add(Restrictions.`in`("name_zh", names))
         return criteria.list() as MutableList<Station>
     }
 
     open fun findByDistrict(districtId: Long): List<Station>?
     {
-        var criteria = sessionFactory.currentSession.createCriteria(Station::class.java)
+        val criteria = sessionFactory.currentSession.createCriteria(Station::class.java)
         criteria.add(Restrictions.eq("district", districtId))
-        var result = criteria.list() as List<Station>?
-        return result
+        return criteria.list() as List<Station>?
     }
 }

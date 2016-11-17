@@ -19,7 +19,7 @@ open class LocationDao: BaseDao()
 {
     open fun findCities(provinceId: Long): MutableList<Any?>?
     {
-        var criteria: Criteria = sessionFactory.currentSession.createCriteria(City::class.java)
+        val criteria: Criteria = sessionFactory.currentSession.createCriteria(City::class.java)
         criteria.add(Restrictions.eq("province", provinceId))
 
         return criteria.list()
@@ -27,14 +27,14 @@ open class LocationDao: BaseDao()
 
     open fun findDistricts(cityId: Long): List<District>?
     {
-        var criteria: Criteria = sessionFactory.currentSession.createCriteria(District::class.java)
+        val criteria: Criteria = sessionFactory.currentSession.createCriteria(District::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         return criteria.list() as List<District>
     }
 
     open fun findAQIDistrict(): List<District>?
     {
-        var criteria: Criteria = sessionFactory.currentSession.createCriteria(District::class.java)
+        val criteria: Criteria = sessionFactory.currentSession.createCriteria(District::class.java)
         criteria.add(Restrictions.neOrIsNotNull("pinyin_aqi", ""))
 
         return criteria.list() as List<District>
@@ -42,7 +42,7 @@ open class LocationDao: BaseDao()
 
     open fun findObsoleteDistricts(newIds: MutableList<Long>): List<District>?
     {
-        var criteria: Criteria = sessionFactory.currentSession.createCriteria(District::class.java)
+        val criteria: Criteria = sessionFactory.currentSession.createCriteria(District::class.java)
         criteria.add(Restrictions.not(Restrictions.`in`("id", newIds)))
         return criteria.list() as List<District>
     }

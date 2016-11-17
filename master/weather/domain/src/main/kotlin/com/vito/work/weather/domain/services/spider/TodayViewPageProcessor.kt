@@ -29,7 +29,7 @@ open class TodayViewPageProcessor : PageProcessor
     override fun process(page: Page?)
     {
         val path = "//script"
-        var script = page?.html?.xpath("$path")?.all()!![17]
+        val script = page?.html?.xpath(path)?.all()!![17]
 
         if(script != null)
         {

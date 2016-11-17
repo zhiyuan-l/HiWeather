@@ -23,7 +23,7 @@ open class ForcastWeatherDao : BaseDao()
      * */
     open fun findByDistrictDate(districtId: Long, date: Date): ForecastWeather?
     {
-        var criteria: Criteria = sessionFactory.currentSession.createCriteria(ForecastWeather::class.java)
+        val criteria: Criteria = sessionFactory.currentSession.createCriteria(ForecastWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         criteria.add(Restrictions.eq("date", date))
 
@@ -44,7 +44,7 @@ open class ForcastWeatherDao : BaseDao()
         {
             return null
         }
-        var criteria: Criteria = sessionFactory.currentSession.createCriteria(ForecastWeather::class.java)
+        val criteria: Criteria = sessionFactory.currentSession.createCriteria(ForecastWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         criteria.add(Restrictions.`in`("date", dates))
 
@@ -56,7 +56,7 @@ open class ForcastWeatherDao : BaseDao()
      * */
     open fun findWeathersAfter(districtId: Long, date: Date, maxResult: Int): List<ForecastWeather>?
     {
-        var criteria: Criteria = sessionFactory.currentSession.createCriteria(ForecastWeather::class.java)
+        val criteria: Criteria = sessionFactory.currentSession.createCriteria(ForecastWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         criteria.add(Restrictions.ge("date", date))
         criteria.setMaxResults(maxResult)

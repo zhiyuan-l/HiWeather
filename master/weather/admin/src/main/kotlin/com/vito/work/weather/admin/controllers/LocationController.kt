@@ -1,15 +1,13 @@
 package com.vito.work.weather.admin.controllers
 
-import com.vito.work.weather.domain.config.SpiderStatus
 import com.vito.work.weather.domain.entities.City
 import com.vito.work.weather.domain.entities.Province
 import com.vito.work.weather.domain.services.LocationService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
-import us.codecraft.webmagic.scheduler.QueueScheduler
+import javax.annotation.Resource
 
 /**
  * Created by lingzhiyuan.
@@ -21,11 +19,13 @@ import us.codecraft.webmagic.scheduler.QueueScheduler
 
 @Controller
 @RequestMapping("/location")
-open class LocationController @Autowired constructor(val locationService: LocationService)
-{
+open class LocationController {
+
+    @Resource
+    lateinit var locationService: LocationService
+
     @RequestMapping("/")
-    open fun toManage(): String
-    {
+    open fun toManage(): String {
         return "location/index"
     }
 
@@ -34,8 +34,7 @@ open class LocationController @Autowired constructor(val locationService: Locati
      * */
     @RequestMapping("/provinces")
     @ResponseBody
-    fun getProvinces(): List<Province>?
-    {
+    fun getProvinces(): List<Province>? {
         return locationService.findProvinces()
     }
 
@@ -44,8 +43,7 @@ open class LocationController @Autowired constructor(val locationService: Locati
      * */
     @RequestMapping("/cities")
     @ResponseBody
-    fun getCitiesByProvinceId(@RequestParam(required = false, defaultValue = "0")provinceId: Long): List<City?>?
-    {
+    fun getCitiesByProvinceId(@RequestParam(required = false, defaultValue = "0") provinceId: Long): List<City?>? {
         return locationService.findCities(provinceId)
     }
 
@@ -62,17 +60,8 @@ open class LocationController @Autowired constructor(val locationService: Locati
      * */
     @RequestMapping("/spider/update")
     @ResponseBody
-    fun updateLocations(): Any
-    {
-        if(SpiderStatus.LOCATION_UPDATE_STATUS == true)
-        {
-            return false
-        }
-
-        LocationService.spider.scheduler = QueueScheduler()
-
-        locationService.updateAllLocationsFromWeb()
-
+    fun updateLocations(): Any {
+        locationService.executeTask()
         return true
     }
 

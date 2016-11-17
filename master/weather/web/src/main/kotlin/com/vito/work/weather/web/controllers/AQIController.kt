@@ -4,11 +4,11 @@ import com.vito.work.weather.domain.entities.District
 import com.vito.work.weather.domain.services.AQIService
 import com.vito.work.weather.domain.services.LocationService
 import com.vito.work.weather.domain.util.http.ObjectResponse
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
+import javax.annotation.Resource
 
 /**
  * Created by lingzhiyuan.
@@ -20,7 +20,12 @@ import org.springframework.web.bind.annotation.ResponseBody
 
 @Controller
 @RequestMapping("/weather/aqi")
-open class AQIController @Autowired constructor(val aqiService: AQIService, val locationService: LocationService){
+open class AQIController{
+
+    @Resource
+    lateinit var aqiService: AQIService
+    @Resource
+    lateinit var locationService: LocationService
 
     @RequestMapping("/")
     open fun index(): String

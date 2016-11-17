@@ -19,7 +19,7 @@ open class HistoryWeatherDao: BaseDao()
 {
     open fun findByCityDate(cityId: Long, date: Date): HistoryWeather?
     {
-        var criteria = sessionFactory.currentSession.createCriteria(HistoryWeather::class.java)
+        val criteria = sessionFactory.currentSession.createCriteria(HistoryWeather::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         criteria.add(Restrictions.eq("date", date))
         val list = criteria.list()
@@ -43,7 +43,7 @@ open class HistoryWeatherDao: BaseDao()
         val criteria = sessionFactory.currentSession.createCriteria(HistoryWeather::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         criteria.addOrder(Order.desc("max"))
-        var maxHigest = criteria.list()[0] as HistoryWeather?
+        val maxHigest = criteria.list()[0] as HistoryWeather?
 
         return maxHigest
     }

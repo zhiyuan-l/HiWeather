@@ -2,15 +2,12 @@ package com.vito.work.weather.domain.services
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vito.work.weather.domain.config.Constant
-import com.vito.work.weather.domain.config.SpiderStatus
 import com.vito.work.weather.domain.daos.HourWeatherDao
-import com.vito.work.weather.domain.daos.LocationDao
 import com.vito.work.weather.domain.entities.City
 import com.vito.work.weather.domain.entities.District
 import com.vito.work.weather.domain.entities.HourWeather
 import com.vito.work.weather.domain.services.spider.CnWeather24ViewPageProcessor
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import us.codecraft.webmagic.ResultItems
@@ -21,6 +18,7 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import javax.annotation.PreDestroy
+import javax.annotation.Resource
 
 /**
  * Created by lingzhiyuan.
@@ -34,8 +32,11 @@ import javax.annotation.PreDestroy
 
 @Service("hourWeatherService")
 @Transactional
-open class HourWeatherService @Autowired constructor(val hourWeatherDao: HourWeatherDao, val locationDao: LocationDao)
+open class HourWeatherService: UseLock(), SpiderTask
 {
+
+    @Resource
+    lateinit var hourWeatherDao: HourWeatherDao
 
     @PreDestroy
     open fun destroy()
@@ -58,7 +59,7 @@ open class HourWeatherService @Autowired constructor(val hourWeatherDao: HourWea
     open fun findHourWeather(district: District, dateTime: LocalDateTime): HourWeather?
     {
 
-        var hourWeather: HourWeather? = hourWeatherDao.findByDistrictDateTime(district.id, dateTime)
+        val hourWeather: HourWeather? = hourWeatherDao.findByDistrictDateTime(district.id, dateTime)
 
         return hourWeather !!
     }
@@ -68,7 +69,7 @@ open class HourWeatherService @Autowired constructor(val hourWeatherDao: HourWea
      * */
     open fun find24HWeather(districtId: Long): List<HourWeather>?
     {
-        var list = hourWeatherDao.find24HByDistrict(districtId)
+        val list = hourWeatherDao.find24HByDistrict(districtId)
         return list
     }
 
@@ -86,11 +87,11 @@ open class HourWeatherService @Autowired constructor(val hourWeatherDao: HourWea
      * */
     open fun updateFromWeb(city: City, district: District)
     {
-        var targetUrl = urlBuilder( Constant.CNWEATHER_24H_API_BASE_URL,district.id)//todayViewUrlBuilder(Constant.TODAY_BASE_URL, city.pinyin, district)
+        val targetUrl = urlBuilder( Constant.CNWEATHER_24H_API_BASE_URL,district.id)//todayViewUrlBuilder(Constant.TODAY_BASE_URL, city.pinyin, district)
         try
         {
-            SpiderStatus.TODAY_WEATHER_STATUS = true
-            var hws = fetchDataFromCnWeather(targetUrl, district)
+            lock()
+            val hws = fetchDataFromCnWeather(targetUrl, district)
             saveHourWeather(hws)
         }
         catch(ex: Exception)
@@ -99,8 +100,12 @@ open class HourWeatherService @Autowired constructor(val hourWeatherDao: HourWea
         }
         finally
         {
-            SpiderStatus.TODAY_WEATHER_STATUS = false
+            unlock()
         }
+    }
+
+    override fun executeTask() {
+
     }
 
 
@@ -116,13 +121,13 @@ open class HourWeatherService @Autowired constructor(val hourWeatherDao: HourWea
      * */
     open fun saveHourWeather(hourWeathers: List<HourWeather>)
     {
-        var savedWeathers: MutableList<HourWeather> = mutableListOf()
+        val savedWeathers: MutableList<HourWeather> = mutableListOf()
         val datetimes = mutableListOf<Timestamp>()
         hourWeathers.forEach { datetimes.add(it.datetime) }
 
         savedWeathers.addAll(hourWeatherDao.findByDistrictDatetimes(hourWeathers[0].district, datetimes) ?: listOf())
 
-        var weathersToSave = mutableListOf<HourWeather>()
+        val weathersToSave = mutableListOf<HourWeather>()
 
         for (hw in hourWeathers)
         {
@@ -172,22 +177,22 @@ private fun urlBuilder(baseUrl: String, districtId: Long): String
 private fun fetchDataFromCnWeather(targetUrl: String, district: District): List<HourWeather>
 {
 
-    var hws = mutableListOf<HourWeather>()
-    var resultItems: ResultItems = HourWeatherService.spider.get(targetUrl)
+    val hws = mutableListOf<HourWeather>()
+    val resultItems: ResultItems = HourWeatherService.spider.get(targetUrl)
 
     with(resultItems){
-        var ptime: PlainText = get<PlainText>("ptime")
-        var hours: List<String> = get("hours")
-        var temps: List<String> = get("temps")
-        var wds: List<String> = get("wds")
-        var wfs: List<String> = get("wfs")
-        var preds: List<String> = get("preds")
-        var humis: List<String> = get("humis")
+        val ptime: PlainText = get<PlainText>("ptime")
+        val hours: List<String> = get("hours")
+        val temps: List<String> = get("temps")
+        val wds: List<String> = get("wds")
+        val wfs: List<String> = get("wfs")
+        val preds: List<String> = get("preds")
+        val humis: List<String> = get("humis")
 
-        var startTime = LocalDateTime.parse(ptime.firstSourceText, DateTimeFormatter.ofPattern("yy-MM-dd HH:mm"))
+        val startTime = LocalDateTime.parse(ptime.firstSourceText, DateTimeFormatter.ofPattern("yy-MM-dd HH:mm"))
         hours.forEachIndexed { index, hour ->
 
-            var weather = HourWeather()
+            val weather = HourWeather()
             with(weather){
                 this.district = district.id
                 precipitation = (if(preds[index] != "") preds[index] else "-1").toDouble()
@@ -223,7 +228,7 @@ private fun fetchDataFromCnWeather(targetUrl: String, district: District): List<
 private fun todayViewUrlBuilder(baseUrl: String, cityPinyin: String, district: District): String
 {
 
-    var urlBuffer: StringBuffer = StringBuffer()
+    val urlBuffer: StringBuffer = StringBuffer()
 
     with(urlBuffer){
         if (! baseUrl.startsWith("http://") && ! baseUrl.startsWith("https://"))
@@ -258,8 +263,8 @@ private fun todayViewUrlBuilder(baseUrl: String, cityPinyin: String, district: D
 private fun fetchDataViaSpider(targetUrl: String, district: District): List<HourWeather>
 {
 
-    var resultItems: ResultItems?
-    var hws = mutableListOf<HourWeather>()
+    val resultItems: ResultItems?
+    val hws = mutableListOf<HourWeather>()
 
     try
     {
@@ -279,12 +284,12 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): List<Hour
     val hvalue: String = resultItems["hvalue"]
     val aqi: String = resultItems["aqi"]
 
-    var mapper: ObjectMapper = ObjectMapper()
-    var dateSpans = mapper.readValue(tdate.toString(), Array<String>::class.java)
-    var tvalues = mapper.readValue(tvalue, Array<Int>::class.java)
-    var pvalues = mapper.readValue(pvalue, Array<Double>::class.java)
-    var hvalues = mapper.readValue(hvalue, Array<Int>::class.java)
-    var aqis = mapper.readValue(aqi, Array<Int>::class.java)
+    val mapper: ObjectMapper = ObjectMapper()
+    val dateSpans = mapper.readValue(tdate.toString(), Array<String>::class.java)
+    val tvalues = mapper.readValue(tvalue, Array<Int>::class.java)
+    val pvalues = mapper.readValue(pvalue, Array<Double>::class.java)
+    val hvalues = mapper.readValue(hvalue, Array<Int>::class.java)
+    val aqis = mapper.readValue(aqi, Array<Int>::class.java)
     val now = LocalDateTime.now()
     val startTime = LocalDateTime.of(now.year, now.monthValue, now.dayOfMonth, parseInt(dateSpans[0].substringAfter(">").substringBefore("</span>")), 0, 0, 0)
     for ((index, span) in dateSpans.withIndex())

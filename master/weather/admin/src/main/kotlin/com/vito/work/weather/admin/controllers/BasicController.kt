@@ -3,9 +3,9 @@ package com.vito.work.weather.admin.controllers
 import com.vito.work.weather.domain.services.ForecastWeatherService
 import com.vito.work.weather.domain.services.HourWeatherService
 import com.vito.work.weather.domain.services.LocationService
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
+import javax.annotation.Resource
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -17,30 +17,32 @@ import javax.servlet.http.HttpServletRequest
  */
 
 @Controller
-open class BasicController @Autowired constructor(val forecastWeatherService: ForecastWeatherService, val hourWeatherService: HourWeatherService, val locationService: LocationService)
-{
+open class BasicController {
+
+    @Resource
+    lateinit var forecastWeatherService: ForecastWeatherService
+    @Resource
+    lateinit var hourWeatherService: HourWeatherService
+    @Resource
+    lateinit var locationService: LocationService
 
     @RequestMapping("/")
-    open fun toIndex(): String
-    {
+    open fun toIndex(): String {
         return "index"
     }
 
     @RequestMapping("/test")
-    open fun test()
-    {
+    open fun test() {
 
     }
 
     @RequestMapping("/login")
-    open fun login(): String
-    {
+    open fun login(): String {
         return "login"
     }
 
     @RequestMapping("/logout")
-    open fun logout(request: HttpServletRequest): String
-    {
+    open fun logout(request: HttpServletRequest): String {
         request.logout()
         return "login"
     }
