@@ -3,10 +3,8 @@ package com.vito.work.weather.web
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
+import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.autoconfigure.web.DefaultErrorAttributes
-import org.springframework.boot.builder.SpringApplicationBuilder
-import org.springframework.boot.context.web.SpringBootServletInitializer
-import org.springframework.boot.orm.jpa.EntityScan
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
@@ -28,7 +26,7 @@ import javax.servlet.Filter
 @EntityScan(basePackages = arrayOf("com.vito.work.weather.domain.entities"))
 @EnableJpaRepositories(basePackages = arrayOf("com.vito.work.weather.domain.daos"))
 @ComponentScan(basePackages = arrayOf("com.vito.work.weather.web", "com.vito.work.weather.domain"))
-open class AppStarter: SpringBootServletInitializer()
+open class AppStarter
 {
 
     @Bean
@@ -49,11 +47,6 @@ open class AppStarter: SpringBootServletInitializer()
     @Bean
     open fun objectMapperBuilder(): Jackson2ObjectMapperBuilder
             = Jackson2ObjectMapperBuilder().modulesToInstall(KotlinModule())
-
-    override fun configure(application: SpringApplicationBuilder): SpringApplicationBuilder
-    {
-        return application.sources(AppStarter::class.java);
-    }
 
     companion object
     {

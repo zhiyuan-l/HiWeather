@@ -4,15 +4,19 @@ version '1.0-SNAPSHOT'
 buildscript {
 
     ext.kotlin_version = '1.0.4' // Required for Kotlin integration
-    ext.SpringBootStarterVersion = "1.3.5.RELEASE"
+    ext.SpringBootStarterVersion = "1.4.2.RELEASE"
 
     repositories {
-        jcenter()
+        maven { url 'http://maven.aliyun.com/mvn/repository/' }
+        maven { url "https://repo.spring.io/plugins-snapshot" }
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:$SpringBootStarterVersion"
-        classpath 'org.springframework:springloaded:1.2.0.RELEASE'
+        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+        classpath group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: "$SpringBootStarterVersion"
+
     }
 }
 
@@ -32,7 +36,10 @@ idea {
 sourceCompatibility = 1.8
 
 repositories {
-    mavenCentral()
+    maven { url 'http://maven.aliyun.com/mvn/repository/' }
+    maven { url "https://repo.spring.io/plugins-snapshot" }
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
 }
 
 configurations {
@@ -46,23 +53,19 @@ dependencies {
     compile "org.jetbrains:annotations:15.0"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-
-    compile "org.springframework.boot:spring-boot-starter-web:${SpringBootStarterVersion}"
-    compile "org.springframework.boot:spring-boot-starter-thymeleaf:${SpringBootStarterVersion}"
-    compile 'org.springframework.boot:spring-boot-starter-tomcat'
+    compile "org.springframework.boot:spring-boot-starter-data-jpa"
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
     compile("org.springframework.boot:spring-boot-devtools")
-    compile 'net.sourceforge.nekohtml:nekohtml:1.9.22'
+    compile 'net.sourceforge.nekohtml:nekohtml'
 
     // webmagic 爬虫
     compile 'us.codecraft:webmagic-core:0.5.3'
     compile ('us.codecraft:webmagic-extension:0.5.3')
 
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.6.5-2")
+    compile("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-    compile 'org.apache.httpcomponents:httpclient:4.5.2'
-    compile 'commons-lang:commons-lang:2.6'
-
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'junit', name: 'junit'
 }
 
 

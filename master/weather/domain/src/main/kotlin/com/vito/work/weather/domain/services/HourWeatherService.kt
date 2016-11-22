@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import us.codecraft.webmagic.ResultItems
 import us.codecraft.webmagic.Spider
+import us.codecraft.webmagic.scheduler.QueueScheduler
 import us.codecraft.webmagic.selector.PlainText
 import java.lang.Integer.parseInt
 import java.sql.Timestamp
@@ -96,10 +97,11 @@ open class HourWeatherService: UseLock(), SpiderTask
         }
         catch(ex: Exception)
         {
-            throw ex
+            ex.printStackTrace()
         }
         finally
         {
+            spider.scheduler = QueueScheduler()
             unlock()
         }
     }

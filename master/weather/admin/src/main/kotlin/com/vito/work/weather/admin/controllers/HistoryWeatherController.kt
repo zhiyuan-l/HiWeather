@@ -49,15 +49,9 @@ open class HistoryWeatherController {
     open fun updateHistoryFromWeb(@RequestParam(required = true) type: Int,
                                   @RequestParam(required = false, defaultValue = "0") provinceId: Long,
                                   @RequestParam(required = false, defaultValue = "0") cityId: Long) {
-        if (SpiderStatus.HISTORY_UPDATE_STATUS == true) {
-            throw BusinessException(BusinessError.ERROR_HISTORY_WEATHER_UPDATING)
-        }
 
-        // 重置 Scheduler (清空已爬取的 urls)
-        HistoryWeatherService.spider.scheduler = QueueScheduler()
-
-        var provinces = mutableListOf<Province>()
-        var cities = mutableListOf<City>()
+        val provinces = mutableListOf<Province>()
+        val cities = mutableListOf<City>()
 
         when (type) {
             Constant.HISTORY_WEATHER_UPDATE_TYPE_ALL      -> {

@@ -212,7 +212,7 @@ private fun forecastViewUrlBuilder(baseUrl: String, cityPinyin: String, district
 private fun fetchDataViaSpider(targetUrl: String, district: District): List<ForecastWeather>
 {
 
-    val resultItems: ResultItems
+    var resultItems: ResultItems? = null
     val fws = mutableListOf<ForecastWeather>()
 
     try
@@ -221,15 +221,15 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): List<Fore
     }
     catch(ex: Exception)
     {
-        throw ex
+        ex.printStackTrace()
     }
 
-    if (resultItems.request == null)
+    if (resultItems?.request == null)
     {
         throw Exception("Request Can't Be Null")
     }
 
-    with(resultItems){
+    with(resultItems!!){
         val dateStrs: List<String> = get("date")
         val maxes: List<String> = get("max")
         val mines: List<String> = get("min")
@@ -243,7 +243,7 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): List<Fore
         // Get Date Strings
         val dates = mutableListOf<Date>()
         // 将所有的 string 转换成日期存储到数组中
-        dateStrs.forEach { dates.add(Date.valueOf(LocalDate.parse(it.toString().split(" ").get(0).replace("月", "").replace("日", "").trim().plus(LocalDate.now().year), DateTimeFormatter.ofPattern("MMddyyyy")))) }
+        dateStrs.forEach { dates.add(Date.valueOf(LocalDate.parse(it.toString().split(" ")[0].replace("月", "").replace("日", "").trim().plus(LocalDate.now().year), DateTimeFormatter.ofPattern("MMddyyyy")))) }
 
         for ((index, date) in dates.withIndex())
         {

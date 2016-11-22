@@ -76,7 +76,9 @@ open class AQIService: UseLock(), SpiderTask
             districts?.forEach {
                 val targetUrl = AQIViewUrlBuilder(Constant.AQI_BASE_URL, it.pinyin_aqi)
                 val webData = fetchDataViaSpider(targetUrl, it)
-                saveWebdata(webData)
+                if(webData != null){
+                    saveWebdata(webData)
+                }
             }
         }
         catch(ex: Exception)
@@ -169,7 +171,7 @@ private fun AQIViewUrlBuilder(baseUrl: String, districtPinyin: String): String
     return urlBuffer.toString()
 }
 
-private fun fetchDataViaSpider(targetUrl: String, district: District): WebData
+private fun fetchDataViaSpider(targetUrl: String, district: District): WebData?
 {
 
     var resultItems: ResultItems = ResultItems()
@@ -180,15 +182,15 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): WebData
     try
     {
         resultItems = AQIService.spider.get(targetUrl)
+        if (resultItems.request == null)
+        {
+            throw Exception("Request Can't Be Null")
+        }
     }
     catch(ex: Exception)
     {
-        throw ex
-    }
-
-    if (resultItems.request == null)
-    {
-        throw Exception("Request Can't Be Null")
+        ex.printStackTrace()
+        return null
     }
 
     with(resultItems) {

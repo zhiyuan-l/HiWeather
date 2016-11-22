@@ -4,18 +4,21 @@ version '1.0-SNAPSHOT'
 buildscript {
 
     ext.kotlin_version = '1.0.4' // Required for Kotlin integration
-    ext.SpringBootStarterVersion = "1.3.5.RELEASE"
+    ext.SpringBootStarterVersion = "1.4.2.RELEASE"
 
     repositories {
-        jcenter()
+        maven { url 'http://maven.aliyun.com/mvn/repository/' }
+        maven { url "https://repo.spring.io/plugins-snapshot" }
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "org.springframework.boot:spring-boot-gradle-plugin:$SpringBootStarterVersion"
+        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+        classpath group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: "$SpringBootStarterVersion"
 
     }
 }
-
 
 apply plugin: 'idea'
 apply plugin: 'kotlin' // Required for Kotlin integration
@@ -25,7 +28,10 @@ apply plugin: 'application'
 sourceCompatibility = 1.8
 
 repositories {
-    mavenCentral()
+    maven { url 'http://maven.aliyun.com/mvn/repository/' }
+    maven { url "https://repo.spring.io/plugins-snapshot" }
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
 }
 
 dependencies {
@@ -33,23 +39,20 @@ dependencies {
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
-    compile "org.springframework" +
-            ".boot:spring-boot-starter-data-jpa:${SpringBootStarterVersion}"
-    compile 'org.springframework.security:spring-security-core:4.0.4.RELEASE'
-    compile 'org.springframework:spring-web:4.2.5.RELEASE'
+    compile "org.springframework.boot:spring-boot-starter-data-jpa"
+    compile 'org.springframework.security:spring-security-core'
+    compile 'org.springframework:spring-web'
 
     // webmagic 爬虫
     compile 'us.codecraft:webmagic-core:0.5.3'
     compile ('us.codecraft:webmagic-extension:0.5.3')
-    compile 'mysql:mysql-connector-java:5.1.38'
-    compile 'org.hibernate:hibernate-java8:5.1.0.Final'
+    compile 'mysql:mysql-connector-java'
 
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin:2.6.5-2")
+    compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
 
-    compile 'org.apache.httpcomponents:httpclient:4.5.2'
-    compile 'commons-codec:commons-codec:1.10'
+    compile("com.fasterxml.jackson.module:jackson-module-kotlin")
 
-    testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'junit', name: 'junit'
 }
 
 

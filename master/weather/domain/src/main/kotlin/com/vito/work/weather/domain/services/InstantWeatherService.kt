@@ -61,56 +61,57 @@ open class InstantWeatherService: UseLock(), SpiderTask
     }
 
     override fun executeTask() {
-        try
-        {
+        try {
             lock()
             val distrcts: List<District?> = locationDao.findAll(District::class.java) ?: listOf<District>()
             distrcts.forEach {
-                val weather: InstantWeather = fetchAndSaveInstantWeather(it?.id?:-1)
-                instantWeatherDao.saveOrUpdate(weather)
+                val weather: InstantWeather? = fetchAndSaveInstantWeather(it?.id?:-1)
+                if(weather != null){
+                    instantWeatherDao.saveOrUpdate(weather)
+                }
             }
-        }
-        catch(ex: Exception)
-        {
-            throw ex
-        }
-        finally
-        {
+        } catch(ex: Exception) {
+            ex.printStackTrace()
+        } finally {
             unlock()
         }
     }
 }
 
-private fun fetchAndSaveInstantWeather(districtId: Long): InstantWeather
+private fun fetchAndSaveInstantWeather(districtId: Long): InstantWeather?
 {
     val jsonDataList = invokeAPI(districtId.toString()).removePrefix("var dataSK =").replace("SD", "sd2")
 
     val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-    val weatherModel = mapper.readValue(jsonDataList, CnWeatherNowAPIModel::class.java)
-    val weather = InstantWeather()
+    val weather: InstantWeather
+    try{
+        val weatherModel = mapper.readValue(jsonDataList, CnWeatherNowAPIModel::class.java)
+        weather = InstantWeather()
+        with(weatherModel) wm@{
+            val date = LocalDate.now()
+            val time = LocalTime.parse(this@wm.time.trim(), DateTimeFormatter.ofPattern("HH:mm"))
+            val datetime = LocalDateTime.of(date, time)
 
-    with(weatherModel) wm@{
-        val date = LocalDate.now()
-        val time = LocalTime.parse(this@wm.time.trim(), DateTimeFormatter.ofPattern("HH:mm"))
-        val datetime = LocalDateTime.of(date, time)
+            this@wm.date = this@wm.date?.split("(")?.first()?.trim() ?: "${LocalDate.now().monthValue}月${LocalDate.now().dayOfMonth}日"
+            this@wm.sd = if(this@wm.sd.trim() != "暂无实况" && this@wm.sd.trim() != "") this@wm.sd.trim().removeSuffix("%") else "-1"
+            this@wm.WS = this@wm.WS.replace("级", "").trim()
 
-        this@wm.date = this@wm.date?.split("(")?.first()?.trim() ?: "${LocalDate.now().monthValue}月${LocalDate.now().dayOfMonth}日"
-        this@wm.sd = if(this@wm.sd.trim() != "暂无实况" && this@wm.sd.trim() != "") this@wm.sd.trim().removeSuffix("%") else "-1"
-        this@wm.WS = this@wm.WS.replace("级", "").trim()
-
-        with(weather) w@{
-            aqi = if(!this@wm.aqi.isNullOrBlank() && this@wm.aqi?.trim() != "?") this@wm.aqi!!.trim().toInt() else -1
-            pm25 = if(!this@wm.aqi_pm25.isNullOrBlank()) this@wm.aqi_pm25!!.trim().toInt() else -1
-            this.weather = if(this@wm.weathercode.trim() != "暂无实况") this@wm.weathercode.trim().substring(1).toInt() else Weather.UNKNOWN.code
-            this.datetime = Timestamp.valueOf(datetime)
-            precipitation = if(!this@wm.rain.isNullOrBlank() && this@wm.rain?.trim() != "暂无实况") this@wm.rain!!.trim().toDouble() else -1.0
-            humidity = if(this@wm.sd != "") this@wm.sd.trim().toInt() else -1
-            district = this@wm.city.trim().toLong()
-            temperature = if(this@wm.temp != "") this@wm.temp.toDouble() else -273.0
-            wind_direction = findByWindDirectionName(this@wm.WD).code
-            wind_force = chooseLevel(this@wm.WS.toInt()).code
+            with(weather) w@{
+                aqi = if(!this@wm.aqi.isNullOrBlank() && this@wm.aqi?.trim() != "?") this@wm.aqi!!.trim().toInt() else -1
+                pm25 = if(!this@wm.aqi_pm25.isNullOrBlank()) this@wm.aqi_pm25!!.trim().toInt() else -1
+                this.weather = if(this@wm.weathercode.trim() != "暂无实况") this@wm.weathercode.trim().substring(1).toInt() else Weather.UNKNOWN.code
+                this.datetime = Timestamp.valueOf(datetime)
+                precipitation = if(!this@wm.rain.isNullOrBlank() && this@wm.rain?.trim() != "暂无实况") this@wm.rain!!.trim().toDouble() else -1.0
+                humidity = if(this@wm.sd != "") this@wm.sd.trim().toInt() else -1
+                district = this@wm.city.trim().toLong()
+                temperature = if(this@wm.temp != "") this@wm.temp.toDouble() else -273.0
+                wind_direction = findByWindDirectionName(this@wm.WD).code
+                wind_force = chooseLevel(this@wm.WS.toInt()).code
+            }
         }
-
+    }catch (ex: Exception){
+        ex.printStackTrace()
+        return null
     }
     return weather
 }

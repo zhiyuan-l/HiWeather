@@ -17,9 +17,6 @@ class SpiderStatus
         var FORECAST_UPDATE_STATUS: Boolean = false
         var HISTORY_UPDATE_STATUS: Boolean = false
         var TODAY_WEATHER_STATUS: Boolean = false
-        var AQI_UPDATE_STATUS: Boolean = false
-        var LOCATION_UPDATE_STATUS: Boolean = false
-        var INSTANT_WEATHER_UPDATE_STATUS: Boolean = false
     }
 
 }

@@ -2,8 +2,10 @@ package com.vito.work.weather.domain.services
 
 import com.vito.work.weather.domain.config.Constant
 import com.vito.work.weather.domain.daos.HistoryWeatherDao
+import com.vito.work.weather.domain.daos.LocationDao
 import com.vito.work.weather.domain.entities.City
 import com.vito.work.weather.domain.entities.HistoryWeather
+import com.vito.work.weather.domain.entities.Province
 import com.vito.work.weather.domain.services.spider.MonthViewPageProcessor
 import com.vito.work.weather.domain.util.http.BusinessError
 import com.vito.work.weather.domain.util.http.BusinessException
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import us.codecraft.webmagic.ResultItems
 import us.codecraft.webmagic.Spider
+import us.codecraft.webmagic.scheduler.QueueScheduler
 import java.sql.Date
 import java.sql.Timestamp
 import java.time.LocalDate
@@ -29,11 +32,13 @@ import javax.annotation.Resource
 
 @Service("historyWeatherService")
 @Transactional
-open class HistoryWeatherService: UseLock()
+open class HistoryWeatherService: UseLock(), SpiderTask
 {
 
     @Resource
     lateinit var historyWeatherDao: HistoryWeatherDao
+    @Resource
+    lateinit var locationDao: LocationDao
 
     @PreDestroy
     open fun destroy()
@@ -48,7 +53,36 @@ open class HistoryWeatherService: UseLock()
         var spider: Spider = Spider.create(MonthViewPageProcessor())
                 .thread(Constant.SPIDER_THREAD_COUNT)
 
-        val logger = LoggerFactory.getLogger(HistoryWeatherService::class.java)
+        private val logger = LoggerFactory.getLogger(HistoryWeatherService::class.java)
+    }
+
+    override fun executeTask() {
+
+        val provinces = mutableListOf<Province>()
+        val cities = mutableListOf<City>()
+
+        try {
+            lock()
+            HistoryWeatherService.spider.scheduler = QueueScheduler()
+            provinces.addAll(locationDao.findAll(Province::class.java)?.filterNotNull() ?: listOf())
+            cities.addAll(locationDao.findAll(City::class.java)?.filterNotNull() ?: listOf())
+            for (city in cities) {
+                var tempDate = Constant.SPIDER_HISTORY_START_DATE
+                while (tempDate <= LocalDate.now().minusMonths(1)) {
+                    try {
+                        tempDate = tempDate.plusMonths(1)
+                        updateFromWeb(city, tempDate)
+                    } catch(ex: Exception) {
+                        // 忽略更新时的异常
+                        continue
+                    }
+                }
+            }
+        }catch (ex: Exception){
+            throw ex
+        }finally {
+            unlock()
+        }
     }
 
     /**
@@ -78,6 +112,7 @@ open class HistoryWeatherService: UseLock()
         {
             throw ex
         }finally {
+            spider.scheduler = QueueScheduler()
             unlock()
         }
     }

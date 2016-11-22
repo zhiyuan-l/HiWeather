@@ -99,12 +99,12 @@ open class LocationService: UseLock(), SpiderTask
      * */
     open fun findCities(provinces: List<Province>): List<City>
     {
-        val cities = mutableListOf<City>()
-        for (province in provinces)
+        var cities: List<City>? = listOf()
+        for ((id) in provinces)
         {
-            cities.addAll(locationDao.findCities(province.id) as List<City>)
+            cities = locationDao.findCities(id)?.filterIsInstance<City>()
         }
-        return cities
+        return cities ?: listOf()
     }
 
     /**
@@ -166,22 +166,6 @@ open class LocationService: UseLock(), SpiderTask
             spider.scheduler = QueueScheduler()
             unlock()
         }
-    }
-
-    /**
-     * 城市信息更新总入口
-     *
-     * Step 1: 更新省份
-     * Step 2: 更新城市
-     * Step 3: 更新区县
-     * Step 4: 更新区县的 pinyin_aqi
-     * Step 5: 从文件中更新区县的 id_api
-     * Step 6: 删除已经废弃的区县
-     * Step 7: 调用中国天气网的 api 更新区县的坐标等信息
-     * */
-    open fun updateAllLocationsFromWeb()
-    {
-
     }
 
 } // end LocationService
