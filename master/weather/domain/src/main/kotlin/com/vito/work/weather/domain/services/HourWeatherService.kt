@@ -32,7 +32,7 @@ import javax.annotation.Resource
 
 @Service("hourWeatherService")
 @Transactional
-open class HourWeatherService: SpiderTask()
+open class HourWeatherService: AbstractSpiderTask()
 {
 
     @Resource
@@ -46,32 +46,21 @@ open class HourWeatherService: SpiderTask()
 
     companion object
     {
-//        var spider: Spider = Spider.create(TodayViewPageProcessor()).thread(Constant.SPIDER_THREAD_COUNT)
-        var spider: Spider = Spider.create(CnWeather24ViewPageProcessor()).thread(Constant.SPIDER_THREAD_COUNT)
-
-        val logger = LoggerFactory.getLogger(HourWeatherService::class.java)
+        var spider: Spider = Spider.create(CnWeather24ViewPageProcessor()).thread(Constant.SPIDER_THREAD_COUNT) !!
+        val logger = LoggerFactory.getLogger(HourWeatherService::class.java) !!
     }
 
     /**
      * 根据时间和区县找出一个节点的天气
      *  一个节点的时间精确到小时, 小时以下为0
      * */
-    open fun findHourWeather(district: District, dateTime: LocalDateTime): HourWeather?
-    {
-
-        val hourWeather: HourWeather? = hourWeatherDao.findByDistrictDateTime(district.id, dateTime)
-
-        return hourWeather !!
-    }
+    open fun findHourWeather(district: District, dateTime: LocalDateTime)
+            = hourWeatherDao.findByDistrictDateTime(district.id, dateTime)
 
     /**
      * 查出最新的二十四小时天气预报
      * */
-    open fun find24HWeather(districtId: Long): List<HourWeather>?
-    {
-        val list = hourWeatherDao.find24HByDistrict(districtId)
-        return list
-    }
+    open fun find24HWeather(districtId: Long): List<HourWeather>? = hourWeatherDao.find24HByDistrict(districtId)
 
     /**
      * 爬虫更新的入口
@@ -85,7 +74,8 @@ open class HourWeatherService: SpiderTask()
      *
      * @return  hws     获取到并保存成功的结果集
      * */
-    fun execute(district: District) {
+    open val execute = {
+        district:District ->
         try {
             task(){
                 val targetUrl = urlBuilder( Constant.CNWEATHER_24H_API_BASE_URL,district.id)
@@ -111,45 +101,29 @@ open class HourWeatherService: SpiderTask()
     open fun saveHourWeather(hourWeathers: List<HourWeather>)
     {
         val savedWeathers: MutableList<HourWeather> = mutableListOf()
-        val datetimes = mutableListOf<Timestamp>()
-        hourWeathers.forEach { datetimes.add(it.datetime) }
-
-        savedWeathers.addAll(hourWeatherDao.findByDistrictDatetimes(hourWeathers[0].district, datetimes) ?: listOf())
+        val dates = mutableListOf<Timestamp>()
+        hourWeathers.forEach { dates.add(it.datetime) }
+        savedWeathers.addAll(hourWeatherDao.findByDistrictDatetimes(hourWeathers[0].district, dates) ?: listOf())
 
         val weathersToSave = mutableListOf<HourWeather>()
 
-        for (hw in hourWeathers)
-        {
-            val temp = savedWeathers.firstOrNull {
-                it.district == hw.district && it.datetime == hw.datetime
-            }
-
-            if (temp == null)
-            {
-                // 若不存在相同时间,相同区域的天气, 则保存为新项
-                weathersToSave.add(hw)
-            }
-            else
-            {
-                with(temp){
-                    // 否则, 更新属性
-                    aqi = hw.aqi
-                    humidity = hw.humidity
-                    temperature = hw.temperature
-                    precipitation = hw.precipitation
-                    update_time = hw.update_time
-                }
-
-                weathersToSave.add(temp)
-            }
+        hourWeathers.forEach {
+            hw ->
+            // 存在则更新，否则新增
+            savedWeathers.firstOrNull {
+                sw ->
+                sw.district == hw.district && sw.datetime == hw.datetime
+            }?.apply {
+                aqi = hw.aqi
+                humidity = hw.humidity
+                temperature = hw.temperature
+                precipitation = hw.precipitation
+                update_time = hw.update_time
+                weathersToSave.add(this)
+            } ?: weathersToSave.add(hw)
         }
-
-        for (it in weathersToSave)
-        {
-            hourWeatherDao saveOrUpdate it
-        }
+        weathersToSave.forEach { hourWeatherDao save it }
     }
-
 }
 
 /**

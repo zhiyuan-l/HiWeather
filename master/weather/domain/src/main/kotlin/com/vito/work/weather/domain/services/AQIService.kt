@@ -36,7 +36,7 @@ import javax.transaction.Transactional
 
 @Service
 @Transactional
-open class AQIService: SpiderTask()
+open class AQIService: AbstractSpiderTask()
 {
 
     @Resource
@@ -62,13 +62,12 @@ open class AQIService: SpiderTask()
         val logger = LoggerFactory.getLogger(AQIService::class.java)
     }
 
-    open fun findLatestAQI(districtId: Long): AQI?
-    {
-        val result = aqiDao.findLatestByDistrict(districtId)
-        return result
+    open val findLatestAQI = {
+        districtId: Long ->
+        aqiDao.findLatestByDistrict(districtId)
     }
 
-    open fun execute(){
+    open val execute = {
         try {
             task(){
                 val districts = locationDao.findAQIDistrict()
@@ -94,53 +93,44 @@ open class AQIService: SpiderTask()
      *  若有, 则更新旧项
      *  没有, 则保存为新项
      * */
-    open fun saveWebdata(webData: WebData)
-    {
+    open val saveWebdata = {
+        webData: WebData ->
+            val aqi = webData.aqi
+            val stationAQIs = webData.stationAQIs
+            val stations = webData.stations
+            val stationNames = mutableListOf<String>()
+            stations.forEach { stationNames.add(it.name_zh) }
+            val savedStations = stationDao.findByNames(stationNames) ?: mutableListOf()
 
-        val aqi = webData.aqi
-        val stationAQIs = webData.stationAQIs
-        val stations = webData.stations
-
-        val stationNames = mutableListOf<String>()
-        stations.forEach { stationNames.add(it.name_zh) }
-
-        val savedStations = stationDao.findByNames(stationNames) ?: mutableListOf()
-
-        // 不存在则保存
-        stations.forEach { iw ->
-            val station = savedStations.firstOrNull { iw.name_zh == it.name_zh }
-            if (station == null)
-            {
-                savedStations.add(iw)
+            // 不存在则保存
+            stations.forEach { iw ->
+                val station = savedStations.firstOrNull { iw.name_zh == it.name_zh }
+                if (station == null)
+                {
+                    savedStations.add(iw)
+                }
+                else
+                {
+                    station.district = iw.district
+                    station.name_en = iw.name_en
+                    station.name_zh = iw.name_zh
+                    savedStations.add(station)
+                }
             }
-            else
-            {
-                station.district = iw.district
-                station.name_en = iw.name_en
-                station.name_zh = iw.name_zh
-                savedStations.add(station)
-            }
+            aqiDao save aqi
+            savedStations.forEach { stationDao save it }
+            stationAQIs.forEach { iw -> iw.station = savedStations.firstOrNull { iw.station_name == it.name_zh }?.id ?: 0L }
+            stationAQIs.forEach { stationAQIDao save it }
         }
 
-        aqiDao saveOrUpdate aqi
-
-        savedStations.forEach { stationDao saveOrUpdate it }
-
-        stationAQIs.forEach { iw -> iw.station = savedStations.firstOrNull { iw.station_name == it.name_zh }?.id ?: 0L }
-
-        stationAQIs.forEach { stationAQIDao saveOrUpdate it }
-
-    }
-
-    open fun findStationAQI(districtId: Long): List<StationAQI>?
-    {
-        val stations = stationDao.findByDistrict(districtId) ?: mutableListOf()
-        val ids = mutableListOf<Long>()
-        stations.forEach { ids.add(it.id) }
-        val result = stationAQIDao.findLatestByStations(ids)
-        result?.forEach { id -> stations.forEach { if (it.id == id.station) id.station_name = it.name_zh } }
-        return result
-    }
+        open val findStationAQI = {
+            districtId: Long ->
+            val stations = stationDao.findByDistrict(districtId) ?: mutableListOf()
+            val ids = mutableListOf<Long>()
+            stations.forEach { ids.add(it.id) }
+            val result = stationAQIDao.findLatestByStations(ids)
+            result?.forEach { id -> stations.forEach { if (it.id == id.station) id.station_name = it.name_zh } }
+        }
 }
 
 /**

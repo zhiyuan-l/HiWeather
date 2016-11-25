@@ -32,7 +32,7 @@ import javax.annotation.Resource
 
 @Service("historyWeatherService")
 @Transactional
-open class HistoryWeatherService: SpiderTask()
+open class HistoryWeatherService: AbstractSpiderTask()
 {
 
     @Resource
@@ -56,7 +56,7 @@ open class HistoryWeatherService: SpiderTask()
         private val logger = LoggerFactory.getLogger(HistoryWeatherService::class.java)
     }
 
-    fun execute() {
+    open fun execute() {
         task(){
             val provinces = mutableListOf<Province>()
             val cities = mutableListOf<City>()
@@ -92,7 +92,7 @@ open class HistoryWeatherService: SpiderTask()
      *
      * 执行更新和和保存操作
      * */
-    open fun updateFromWeb(city: City, date: LocalDate)
+    open val updateFromWeb = fun (city: City, date: LocalDate)
     {
         try {
             task(){
@@ -108,7 +108,7 @@ open class HistoryWeatherService: SpiderTask()
     /**
      * 执行保存历史天气的操作
      * */
-    open fun saveHistoryWeather(weathers: List<HistoryWeather>, city: City)
+    open val saveHistoryWeather = fun (weathers: List<HistoryWeather>, city: City)
     {
         val dates = mutableListOf<Date>()
         weathers.forEach { dates.add(it.date) }
@@ -135,10 +135,10 @@ open class HistoryWeatherService: SpiderTask()
             }
         }
 
-        savedWeathers.forEach { historyWeatherDao saveOrUpdate it }
+        savedWeathers.forEach { historyWeatherDao save it }
     }
 
-    open fun findHistoryWeathersOfToday(cityId: Long): List<HistoryWeather>
+    open val findHistoryWeathersOfToday = fun (cityId: Long): List<HistoryWeather>
     {
         val now = LocalDate.now()
 
@@ -153,7 +153,7 @@ open class HistoryWeatherService: SpiderTask()
         return result
     }
 
-    open fun findHistoryTops(cityId: Long): List<HistoryWeather>
+    open val findHistoryTops = fun (cityId: Long): List<HistoryWeather>
     {
 
         val result = mutableListOf<HistoryWeather>()
@@ -170,47 +170,34 @@ open class HistoryWeatherService: SpiderTask()
     /**
      * 根据城市的 id查找某一天的历史天气
      * */
-    open fun findByDate(cityId: Long,date: LocalDate): HistoryWeather?
-    {
-        val weather = historyWeatherDao.findByCityDate(cityId, Date.valueOf(date))
-        return weather
+    open val findByDate: (Long, LocalDate) -> HistoryWeather? = {
+        cityId,date ->
+        historyWeatherDao.findByCityDate(cityId, Date.valueOf(date))
     }
 
     /**
      * 根据城市的 id 查出某一个月所有的历史天气
      * */
-    open fun findByMonth(cityId: Long, date: LocalDate): List<HistoryWeather>?
-    {
+    open val findByMonth: (Long,LocalDate) -> List<HistoryWeather>? = {
+    cityId, date ->
         val dates = mutableListOf<Date>()
 
         // 这个月的起始日期
         val startDate = date.minusDays(date.dayOfMonth.toLong()-1)
-        for(offset in 0..date.lengthOfMonth()-1)
-        {
-            dates.add(Date.valueOf(startDate.plusDays(offset.toLong())))
-        }
-
-        val list: List<HistoryWeather>?
-
-        list = historyWeatherDao.findByCityDates(cityId, dates)
-
-        return list
+        (0.. date.lengthOfMonth() - 1).forEach { offset -> dates.add(Date.valueOf(startDate.plusDays(offset.toLong()))) }
+        historyWeatherDao.findByCityDates(cityId, dates)
     }
-
 }
 
 
 /**
  * URL Builder
  * */
-private fun monthViewUrlBuilder(baseUrl: String, cityPinyin: String, date: LocalDate): String
-{
+private val monthViewUrlBuilder : (String, String, LocalDate)-> String = {
+    baseUrl, cityPinyin,date ->
     val urlSeparator = "/"
     val urlSuffix = ".html"
-
-    val urlBuffer: StringBuffer = StringBuffer()
-
-    with(urlBuffer){
+    StringBuffer().apply {
         if (! baseUrl.startsWith("http://") && ! baseUrl.startsWith("https://"))
         {
             append("http://")
@@ -223,19 +210,15 @@ private fun monthViewUrlBuilder(baseUrl: String, cityPinyin: String, date: Local
         val month = date.monthValue
         append(if (month >= 10) month else "0$month")
         append(urlSuffix)
-    }
-
-    return urlBuffer.toString()
+    }.toString()
 }
-
-
 
 /**
  * 解析获取到的结果集
  * 一个 url 代表一个城市一个月的历史天气
  *
  * */
-private fun fetchDataViaSpider(targetUrl: String, city: City): List<HistoryWeather>
+private val fetchDataViaSpider = fun (targetUrl: String, city: City): List<HistoryWeather>
 {
     val resultItems: ResultItems?
     val hws = mutableListOf<HistoryWeather>()

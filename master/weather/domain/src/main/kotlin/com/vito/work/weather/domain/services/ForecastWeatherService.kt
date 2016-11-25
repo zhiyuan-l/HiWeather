@@ -31,7 +31,7 @@ import javax.annotation.Resource
 
 @Service("forecastWeatherService")
 @Transactional
-open class ForecastWeatherService: SpiderTask()
+open class ForecastWeatherService: AbstractSpiderTask()
 {
     @Resource
     lateinit var forcastWeatherDao: ForcastWeatherDao
@@ -132,7 +132,7 @@ open class ForecastWeatherService: SpiderTask()
             }
         }
 
-        savedWeathers.forEach { forcastWeatherDao saveOrUpdate it }
+        savedWeathers.forEach { forcastWeatherDao save it }
     }
 
     /**

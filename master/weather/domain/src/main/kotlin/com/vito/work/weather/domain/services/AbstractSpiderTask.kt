@@ -7,7 +7,7 @@ package com.vito.work.weather.domain.services
  * Description:
  *
  */
-abstract class SpiderTask {
+abstract class AbstractSpiderTask {
 
     var lock: Boolean = false
 

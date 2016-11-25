@@ -19,10 +19,10 @@ open class BaseDao
     @Resource
     lateinit var sessionFactory: SessionFactory
 
-    inline fun <reified T> findAll(): List<T>? {
+    inline fun <reified T> findAll(): List<T> {
         val session = sessionFactory.currentSession
         val criteria = session.createCriteria(T::class.javaClass)
-        return criteria.list()?.filterIsInstance<T>()
+        return criteria.list()?.filterIsInstance<T>() ?: listOf()
     }
 
     inline fun <reified T> findById(id: Long)
@@ -31,15 +31,24 @@ open class BaseDao
     inline fun <reified T> getById(id: Long)
             = hibernateTemplate.get(T::class.javaClass, id) as T?
 
-    open infix fun saveOrUpdate(`object`: Any)
-            = hibernateTemplate.saveOrUpdate(`object`)
+    open infix fun save(target: Any?) = {
+        if(target != null){
+            hibernateTemplate.saveOrUpdate(target)
+        }
+    }
 
-    open infix fun update(`object`: Any)
-            = hibernateTemplate.update(`object`)
+    open infix fun update(target: Any?) = {
+        if(target != null){
+            hibernateTemplate.update(target)
+        }
+    }
 
-    open infix fun batchDelete(list: List<Any>)
-            = hibernateTemplate.deleteAll(list)
+    open infix fun batchDelete(list: List<Any>?)
+            = hibernateTemplate.deleteAll(list ?: listOf<Any?>())
 
-    open infix fun delete(`object`: Any)
-            = hibernateTemplate.delete(`object`)
+    open infix fun delete(target: Any?) = {
+        if(target != null){
+            hibernateTemplate.delete(target)
+        }
+    }
 }

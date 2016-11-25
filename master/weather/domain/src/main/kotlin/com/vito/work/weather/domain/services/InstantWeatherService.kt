@@ -35,7 +35,7 @@ import javax.annotation.Resource
 
 @Service("instantWeatherService")
 @Transactional
-open class InstantWeatherService: SpiderTask()
+open class InstantWeatherService: AbstractSpiderTask()
 {
     @Resource
     lateinit var instantWeatherDao: InstantWeatherDao
@@ -66,7 +66,7 @@ open class InstantWeatherService: SpiderTask()
             distrcts.forEach {
                 val weather: InstantWeather? = fetchAndSaveInstantWeather(it?.id?:-1)
                 if(weather != null){
-                    instantWeatherDao saveOrUpdate weather
+                    instantWeatherDao save weather
                 }
             }
         }
