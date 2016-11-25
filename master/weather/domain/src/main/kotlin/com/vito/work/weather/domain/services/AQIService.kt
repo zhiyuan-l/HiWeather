@@ -146,7 +146,6 @@ open class AQIService: UseLock(), SpiderTask
         result?.forEach { id -> stations.forEach { if (it.id == id.station) id.station_name = it.name_zh } }
         return result
     }
-
 }
 
 /**
@@ -154,8 +153,6 @@ open class AQIService: UseLock(), SpiderTask
  * */
 private fun AQIViewUrlBuilder(baseUrl: String, districtPinyin: String): String
 {
-
-    val urlSeparator = "/"
     val urlSuffix = ".html"
 
     val urlBuffer: StringBuffer = StringBuffer()

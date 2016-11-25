@@ -38,8 +38,8 @@ open class AppStarter
     @Bean
     open fun charsetFilter(): Filter
     {
-        var charFilter = CharacterEncodingFilter()
-        charFilter.setEncoding("UTF-8")
+        val charFilter = CharacterEncodingFilter()
+        charFilter.encoding = "UTF-8"
         charFilter.setForceEncoding(true)
         return charFilter;
     }
