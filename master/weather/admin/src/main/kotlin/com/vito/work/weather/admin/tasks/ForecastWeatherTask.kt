@@ -47,7 +47,7 @@ open class ForecastWeatherTask @Autowired constructor(val locationService: Locat
             districts?.filter { it.city == city.id }?.forEach { district ->
 
                 try {
-                    forecastWeatherService.updateFromWeb(city, district)
+                    forecastWeatherService.execute(city, district)
                 }
                 catch(ex: Exception) {
                     ex.printStackTrace()

@@ -24,7 +24,7 @@ import javax.annotation.Resource
  */
 
 @Controller
-@RequestMapping("/weather/forecast")
+@RequestMapping("/admin/weather/forecast")
 open class ForecastWeatherController {
 
     @Resource
@@ -73,7 +73,7 @@ open class ForecastWeatherController {
 
         for (city in cities) {
             try {
-                districts?.filter { it.city == city.id }?.forEach { forecastWeatherService.updateFromWeb(city, it) }
+                districts?.filter { it.city == city.id }?.forEach { forecastWeatherService.execute(city, it) }
             }
             catch(ex: Exception) {
                 // 忽略更新的异常

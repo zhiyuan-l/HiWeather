@@ -39,8 +39,8 @@ open class LocationController
     @ResponseBody
     fun getProvinces(): ObjectResponse
     {
-        var provinces = locationService.findProvinces()
-        var response = ObjectResponse(provinces)
+        val provinces = locationService.findProvinces()
+        val response = ObjectResponse(provinces)
         return response
     }
 
@@ -51,8 +51,8 @@ open class LocationController
     @ResponseBody
     fun getCitiesByProvinceId(@RequestParam(required = false, defaultValue = "0")provinceId: Long): ObjectResponse
     {
-        var cities = locationService.findCities(provinceId)
-        var response = ObjectResponse(cities)
+        val cities = locationService.findCities(provinceId)
+        val response = ObjectResponse(cities)
         return response
     }
 
@@ -63,8 +63,8 @@ open class LocationController
     @ResponseBody
     fun getDistrictByCityId(@RequestParam(required = false, defaultValue = "0") cityId: Long): ObjectResponse
     {
-        var districts = locationService.findDistricts(cityId)
-        var response = ObjectResponse(districts)
+        val districts = locationService.findDistricts(cityId)
+        val response = ObjectResponse(districts)
         return response
     }
 

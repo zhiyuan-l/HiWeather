@@ -35,7 +35,7 @@ import javax.annotation.Resource
 
 @Service("instantWeatherService")
 @Transactional
-open class InstantWeatherService: UseLock(), SpiderTask
+open class InstantWeatherService: SpiderTask()
 {
     @Resource
     lateinit var instantWeatherDao: InstantWeatherDao
@@ -60,20 +60,15 @@ open class InstantWeatherService: UseLock(), SpiderTask
         return weather
     }
 
-    override fun executeTask() {
-        try {
-            lock()
-            val distrcts: List<District?> = locationDao.findAll(District::class.java) ?: listOf<District>()
+    fun execute() {
+        task(){
+            val distrcts: List<District?> = locationDao.findAll<District>() ?: listOf()
             distrcts.forEach {
                 val weather: InstantWeather? = fetchAndSaveInstantWeather(it?.id?:-1)
                 if(weather != null){
-                    instantWeatherDao.saveOrUpdate(weather)
+                    instantWeatherDao saveOrUpdate weather
                 }
             }
-        } catch(ex: Exception) {
-            ex.printStackTrace()
-        } finally {
-            unlock()
         }
     }
 }

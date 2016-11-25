@@ -38,7 +38,7 @@ import javax.annotation.Resource
 
 @Service(value = "locationService")
 @Transactional
-open class LocationService: UseLock(), SpiderTask
+open class LocationService: SpiderTask()
 {
 
     @Resource
@@ -62,7 +62,7 @@ open class LocationService: UseLock(), SpiderTask
      * */
     open fun findProvinces(): List<Province>
     {
-        return locationDao.findAll(Province::class.java) as List<Province>
+        return locationDao.findAll()?: listOf()
     }
 
     /**
@@ -70,7 +70,7 @@ open class LocationService: UseLock(), SpiderTask
      * @param provinceId 省份的 id
      * */
     open fun getProvince(provinceId: Long)
-            = locationDao.findById(Province::class.java, provinceId) as Province?
+            = locationDao.findById<Province>(provinceId)
 
     /**
      * 获取所有城市
@@ -81,9 +81,9 @@ open class LocationService: UseLock(), SpiderTask
 
         if (provinceId == 0L)
         {
-            return locationDao.findAll(City::class.java) as List<City>?
+            return locationDao.findAll()
         }
-        return locationDao.findCities(provinceId) as List<City>?
+        return locationDao.findCities(provinceId)?.filterIsInstance<City>()
     }
 
     /**
@@ -91,7 +91,7 @@ open class LocationService: UseLock(), SpiderTask
      * @param cityId 城市的 id
      * */
     open fun getCity(cityId: Long)
-            = locationDao.findById(City::class.java, cityId) as City?
+            = locationDao.findById<City>(cityId)
 
     /**
      * 根据省份列表查询出城市列表
@@ -115,56 +115,35 @@ open class LocationService: UseLock(), SpiderTask
     {
         if (cityId == 0L)
         {
-            return locationDao.findAll(District::class.java) as List<District>
+            return locationDao.findAll<District>()
         }
-        return locationDao.findDistricts(cityId) as List<District>
+        return locationDao.findDistricts(cityId)
     }
 
-    open fun findAQIDistrict(): List<District>?
-    {
-        return locationDao.findAQIDistrict()
-    }
-
-    open fun saveAllDistricts(districts: List<District>)
-    {
-        for (it in districts)
-        {
-            locationDao.saveOrUpdate(it)
-        }
-    }
-
-    override fun executeTask() {
-        try
-        {
-            lock()
-            val provinces = updateProvincesFromWeb()
-            provinces.forEach { locationDao.saveOrUpdate(it) }
-            val cities = updateCititesFromWebByProvinces(provinces)
-            cities.forEach { locationDao.saveOrUpdate(it) }
-            // 获取 tianqi.com上的所有区县
-            val districts = updateDistrictsFromWebByCitites(cities)
-            // 给有 aqi 数据的区县添加pinyin_aqi
-            updateAQIDistricts(districts)
-            // 从文件中筛选出中国天气网上有的区县
-            updateDistrictsFromFile(districts)
-            val newIds = mutableListOf<Long>()
-            val saveDistricts = districts.filter { it.id != 0L }
-            saveDistricts.forEach { newIds.add(it.id) }
-            val obsoleteData = locationDao.findObsoleteDistricts(newIds) ?: listOf()
-            locationDao.batchDelete(obsoleteData)
-            updateDistrictViaAPI(saveDistricts)
-            saveDistricts.forEach { locationDao.saveOrUpdate(it) }
-            logger.info("Location Updated")
-        }
-        catch(ex: Exception)
-        {
-            ex.printStackTrace()
-            throw BusinessException(BusinessError.ERROR_LOCATION_UPDATE_FAILED)
-        }
-        finally
-        {
+    fun execute() {
+        try {
+            task(){
+                val provinces = updateProvincesFromWeb()
+                provinces.forEach { locationDao saveOrUpdate it }
+                val cities = updateCititesFromWebByProvinces(provinces)
+                cities.forEach { locationDao saveOrUpdate it }
+                // 获取 tianqi.com上的所有区县
+                val districts = updateDistrictsFromWebByCitites(cities)
+                // 给有 aqi 数据的区县添加pinyin_aqi
+                updateAQIDistricts(districts)
+                // 从文件中筛选出中国天气网上有的区县
+                updateDistrictsFromFile(districts)
+                val newIds = mutableListOf<Long>()
+                val saveDistricts = districts.filter { it.id != 0L }
+                saveDistricts.forEach { newIds.add(it.id) }
+                val obsoleteData = locationDao.findObsoleteDistricts(newIds) ?: listOf()
+                locationDao batchDelete obsoleteData
+                updateDistrictViaAPI(saveDistricts)
+                saveDistricts.forEach { locationDao saveOrUpdate it }
+                logger.info("Location Updated")
+            }
+        }finally {
             spider.scheduler = QueueScheduler()
-            unlock()
         }
     }
 

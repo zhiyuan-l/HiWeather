@@ -26,7 +26,7 @@ open class AqiTask @Autowired constructor(val locationService: LocationService, 
 
     @Scheduled(cron = "0 0 0-23/3 * * ?") // 每天0-23点,每三小时检查一次
     open fun scheduledAQIUpdate() {
-        aqiService.executeTask()
+        aqiService.execute()
         logger.info("Success : AQI Updated")
     }
 }

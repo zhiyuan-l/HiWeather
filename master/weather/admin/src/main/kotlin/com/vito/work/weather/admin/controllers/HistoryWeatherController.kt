@@ -1,7 +1,6 @@
 package com.vito.work.weather.admin.controllers
 
 import com.vito.work.weather.domain.config.Constant
-import com.vito.work.weather.domain.config.SpiderStatus
 import com.vito.work.weather.domain.entities.City
 import com.vito.work.weather.domain.entities.Province
 import com.vito.work.weather.domain.services.HistoryWeatherService
@@ -12,7 +11,6 @@ import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseBody
-import us.codecraft.webmagic.scheduler.QueueScheduler
 import java.time.LocalDate
 import javax.annotation.Resource
 
@@ -25,7 +23,7 @@ import javax.annotation.Resource
  */
 
 @Controller
-@RequestMapping("/weather/history")
+@RequestMapping("/admin/weather/history")
 open class HistoryWeatherController {
 
     @Resource

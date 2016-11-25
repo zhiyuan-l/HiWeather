@@ -17,7 +17,7 @@ import javax.annotation.Resource
 
 
 @Controller
-@RequestMapping("/aqi")
+@RequestMapping("/admin/aqi")
 open class AQIController {
 
     @Resource
@@ -26,7 +26,7 @@ open class AQIController {
     @RequestMapping("/spider/update")
     @ResponseBody
     open fun updateAQIFromWeb(): ObjectResponse {
-        aqiService.executeTask()
+        aqiService.execute()
         return ObjectResponse("true")
     }
 

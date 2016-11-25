@@ -41,9 +41,9 @@ open class AQIController{
     open fun stationAQI(@RequestParam cityId: Long): ObjectResponse
     {
 
-        var district = locationService.findDistricts(cityId)?.firstOrNull{ it.pinyin_aqi != ""} ?: District()
-        var data = aqiService.findStationAQI(district.id)
-        var response = ObjectResponse(data)
+        val district = locationService.findDistricts(cityId)?.firstOrNull{ it.pinyin_aqi != ""} ?: District()
+        val data = aqiService.findStationAQI(district.id)
+        val response = ObjectResponse(data)
         return response
     }
 
@@ -54,9 +54,9 @@ open class AQIController{
     @ResponseBody
     open fun instantAQI(@RequestParam cityId: Long): ObjectResponse
     {
-        var district = locationService.findDistricts(cityId)?.firstOrNull{ it.pinyin_aqi != ""} ?: District()
-        var data = aqiService.findLatestAQI(district.id)
-        var response = ObjectResponse(data)
+        val district = locationService.findDistricts(cityId)?.firstOrNull{ it.pinyin_aqi != ""} ?: District()
+        val data = aqiService.findLatestAQI(district.id)
+        val response = ObjectResponse(data)
         return response
     }
 

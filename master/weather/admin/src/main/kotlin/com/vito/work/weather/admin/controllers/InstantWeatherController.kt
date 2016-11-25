@@ -16,7 +16,7 @@ import javax.annotation.Resource
  */
 
 @Controller
-@RequestMapping("/weather/instant")
+@RequestMapping("/admin/weather/instant")
 open class InstantWeatherController {
 
     @Resource
@@ -28,7 +28,7 @@ open class InstantWeatherController {
     @RequestMapping("/spider/update")
     @ResponseBody
     open fun updateFromWeb() {
-        instantWeatherService.executeTask()
+        instantWeatherService.execute()
     }
 
 }

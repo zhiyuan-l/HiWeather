@@ -23,14 +23,6 @@ open class AQIDao : BaseDao()
         criteria.addOrder(Order.desc("update_time"))
         criteria.setMaxResults(1)
         val list = criteria.list()
-        if(list != null && list.size != 0){
-            return list[0] as AQI
-        }
-        else
-        {
-            return AQI()
-        }
+        return if(list != null && list.size != 0) list[0] as AQI else AQI()
     }
-
-
 }

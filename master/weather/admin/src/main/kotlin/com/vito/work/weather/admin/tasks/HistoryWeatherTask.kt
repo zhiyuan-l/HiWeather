@@ -30,7 +30,7 @@ open class HistoryWeatherTask @Autowired constructor(val locationService: Locati
 
         logger.info("Start : Executing Scheduled Task Update History Weather")
 
-        historyWeatherService.executeTask()
+        historyWeatherService.execute()
 
         logger.info("Success : Task Update History Weather")
     }

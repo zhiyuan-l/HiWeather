@@ -43,7 +43,7 @@ open class HourWeatherTask @Autowired constructor(val locationService: LocationS
 
         districts?.forEach { district ->
             try {
-                hourWeatherService.updateFromWeb(cities.first { it.id == district.city }, district)
+                hourWeatherService.execute(district)
             }
             catch(ex: Exception) {
                 ex.printStackTrace()

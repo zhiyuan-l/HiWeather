@@ -36,7 +36,7 @@ import javax.transaction.Transactional
 
 @Service
 @Transactional
-open class AQIService: UseLock(), SpiderTask
+open class AQIService: SpiderTask()
 {
 
     @Resource
@@ -68,25 +68,20 @@ open class AQIService: UseLock(), SpiderTask
         return result
     }
 
-    override fun executeTask(){
-        try
-        {
-            lock()
-            val districts = locationDao.findAQIDistrict()
-            districts?.forEach {
-                val targetUrl = AQIViewUrlBuilder(Constant.AQI_BASE_URL, it.pinyin_aqi)
-                val webData = fetchDataViaSpider(targetUrl, it)
-                if(webData != null){
-                    saveWebdata(webData)
+    open fun execute(){
+        try {
+            task(){
+                val districts = locationDao.findAQIDistrict()
+                districts?.forEach {
+                    val targetUrl = AQIViewUrlBuilder(Constant.AQI_BASE_URL, it.pinyin_aqi)
+                    val webData = fetchDataViaSpider(targetUrl, it)
+                    if(webData != null){
+                        saveWebdata(webData)
+                    }
                 }
             }
-        }
-        catch(ex: Exception)
-        {
-            throw ex
         }finally {
             spider.scheduler = QueueScheduler()
-            unlock()
         }
     }
 
@@ -127,13 +122,13 @@ open class AQIService: UseLock(), SpiderTask
             }
         }
 
-        aqiDao.saveOrUpdate(aqi)
+        aqiDao saveOrUpdate aqi
 
-        savedStations.forEach { stationDao.saveOrUpdate(it) }
+        savedStations.forEach { stationDao saveOrUpdate it }
 
         stationAQIs.forEach { iw -> iw.station = savedStations.firstOrNull { iw.station_name == it.name_zh }?.id ?: 0L }
 
-        stationAQIs.forEach { stationAQIDao.saveOrUpdate(it) }
+        stationAQIs.forEach { stationAQIDao saveOrUpdate it }
 
     }
 

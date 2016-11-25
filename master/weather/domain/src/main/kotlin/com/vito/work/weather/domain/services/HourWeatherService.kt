@@ -3,7 +3,6 @@ package com.vito.work.weather.domain.services
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vito.work.weather.domain.config.Constant
 import com.vito.work.weather.domain.daos.HourWeatherDao
-import com.vito.work.weather.domain.entities.City
 import com.vito.work.weather.domain.entities.District
 import com.vito.work.weather.domain.entities.HourWeather
 import com.vito.work.weather.domain.services.spider.CnWeather24ViewPageProcessor
@@ -33,7 +32,7 @@ import javax.annotation.Resource
 
 @Service("hourWeatherService")
 @Transactional
-open class HourWeatherService: UseLock(), SpiderTask
+open class HourWeatherService: SpiderTask()
 {
 
     @Resource
@@ -86,28 +85,16 @@ open class HourWeatherService: UseLock(), SpiderTask
      *
      * @return  hws     获取到并保存成功的结果集
      * */
-    open fun updateFromWeb(city: City, district: District)
-    {
-        val targetUrl = urlBuilder( Constant.CNWEATHER_24H_API_BASE_URL,district.id)//todayViewUrlBuilder(Constant.TODAY_BASE_URL, city.pinyin, district)
-        try
-        {
-            lock()
-            val hws = fetchDataFromCnWeather(targetUrl, district)
-            saveHourWeather(hws)
-        }
-        catch(ex: Exception)
-        {
-            ex.printStackTrace()
-        }
-        finally
-        {
+    fun execute(district: District) {
+        try {
+            task(){
+                val targetUrl = urlBuilder( Constant.CNWEATHER_24H_API_BASE_URL,district.id)
+                val hws = fetchDataFromCnWeather(targetUrl, district)
+                saveHourWeather(hws)
+            }
+        }finally {
             spider.scheduler = QueueScheduler()
-            unlock()
         }
-    }
-
-    override fun executeTask() {
-
     }
 
 
@@ -159,7 +146,7 @@ open class HourWeatherService: UseLock(), SpiderTask
 
         for (it in weathersToSave)
         {
-            hourWeatherDao.saveOrUpdate(it)
+            hourWeatherDao saveOrUpdate it
         }
     }
 

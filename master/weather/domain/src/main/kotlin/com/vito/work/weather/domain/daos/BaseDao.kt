@@ -19,43 +19,27 @@ open class BaseDao
     @Resource
     lateinit var sessionFactory: SessionFactory
 
-    open fun <T> findAll(clazz: Class<T>): List<T?>?
-    {
+    inline fun <reified T> findAll(): List<T>? {
         val session = sessionFactory.currentSession
-        val criteria = session.createCriteria(clazz)
-        return criteria.list() as List<T?>
+        val criteria = session.createCriteria(T::class.javaClass)
+        return criteria.list()?.filterIsInstance<T>()
     }
 
-    open fun <T> findById(clazz: Class<T>, id: Long): Any?
-    {
-        return hibernateTemplate.get(clazz, id)
-    }
+    inline fun <reified T> findById(id: Long)
+            =hibernateTemplate.get(T::class.javaClass, id) as T?
 
-    open fun <T> getById(clazz: Class<T>, id: Long): T
-    {
-        val `object` = hibernateTemplate.get(clazz, id)
-        return `object`
+    inline fun <reified T> getById(id: Long)
+            = hibernateTemplate.get(T::class.javaClass, id) as T?
 
-    }
+    open infix fun saveOrUpdate(`object`: Any)
+            = hibernateTemplate.saveOrUpdate(`object`)
 
-    open fun saveOrUpdate(`object`: Any)
-    {
-        hibernateTemplate.saveOrUpdate(`object`)
-    }
+    open infix fun update(`object`: Any)
+            = hibernateTemplate.update(`object`)
 
-    open fun update(`object`: Any)
-    {
-        hibernateTemplate.update(`object`)
-    }
+    open infix fun batchDelete(list: List<Any>)
+            = hibernateTemplate.deleteAll(list)
 
-    open fun batchDelete(list: List<Any>)
-    {
-        hibernateTemplate.deleteAll(list)
-    }
-
-    open fun delete(`object`: Any)
-    {
-        hibernateTemplate.delete(`object`)
-    }
-
+    open infix fun delete(`object`: Any)
+            = hibernateTemplate.delete(`object`)
 }

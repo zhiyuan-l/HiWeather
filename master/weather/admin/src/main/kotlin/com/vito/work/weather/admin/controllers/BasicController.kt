@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest
  */
 
 @Controller
+@RequestMapping("/admin")
 open class BasicController {
 
     @Resource
@@ -29,11 +30,6 @@ open class BasicController {
     @RequestMapping("/")
     open fun toIndex(): String {
         return "index"
-    }
-
-    @RequestMapping("/test")
-    open fun test() {
-
     }
 
     @RequestMapping("/login")

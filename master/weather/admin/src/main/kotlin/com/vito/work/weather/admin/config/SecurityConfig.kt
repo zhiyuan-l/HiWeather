@@ -22,13 +22,13 @@ open class SecurityConfig : WebSecurityConfigurerAdapter() {
                 .antMatchers("/static/**").permitAll()
                 .anyRequest().access("hasRole('ADMIN')")
                 .and()
-                .formLogin().defaultSuccessUrl("/")
-                .loginPage("/login")
+                .formLogin().defaultSuccessUrl("/admin/")
+                .loginPage("/admin/login")
                 .usernameParameter("username").passwordParameter("password")
-                .failureUrl("/login?error")
+                .failureUrl("/admin/login?error")
                 .permitAll()
                 .and()
-                .logout().logoutUrl("/logout").logoutSuccessUrl("/login").permitAll()
+                .logout().logoutUrl("/admin/logout").logoutSuccessUrl("/admin/login").permitAll()
     }
 
     override fun configure(auth: AuthenticationManagerBuilder) {

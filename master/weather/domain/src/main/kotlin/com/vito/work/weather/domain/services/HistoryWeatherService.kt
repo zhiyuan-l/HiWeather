@@ -32,7 +32,7 @@ import javax.annotation.Resource
 
 @Service("historyWeatherService")
 @Transactional
-open class HistoryWeatherService: UseLock(), SpiderTask
+open class HistoryWeatherService: SpiderTask()
 {
 
     @Resource
@@ -56,16 +56,13 @@ open class HistoryWeatherService: UseLock(), SpiderTask
         private val logger = LoggerFactory.getLogger(HistoryWeatherService::class.java)
     }
 
-    override fun executeTask() {
-
-        val provinces = mutableListOf<Province>()
-        val cities = mutableListOf<City>()
-
-        try {
-            lock()
+    fun execute() {
+        task(){
+            val provinces = mutableListOf<Province>()
+            val cities = mutableListOf<City>()
             HistoryWeatherService.spider.scheduler = QueueScheduler()
-            provinces.addAll(locationDao.findAll(Province::class.java)?.filterNotNull() ?: listOf())
-            cities.addAll(locationDao.findAll(City::class.java)?.filterNotNull() ?: listOf())
+            provinces.addAll(locationDao.findAll<Province>()?.filterNotNull() ?: listOf())
+            cities.addAll(locationDao.findAll<City>()?.filterNotNull() ?: listOf())
             for (city in cities) {
                 var tempDate = Constant.SPIDER_HISTORY_START_DATE
                 while (tempDate <= LocalDate.now().minusMonths(1)) {
@@ -78,10 +75,6 @@ open class HistoryWeatherService: UseLock(), SpiderTask
                     }
                 }
             }
-        }catch (ex: Exception){
-            throw ex
-        }finally {
-            unlock()
         }
     }
 
@@ -101,19 +94,14 @@ open class HistoryWeatherService: UseLock(), SpiderTask
      * */
     open fun updateFromWeb(city: City, date: LocalDate)
     {
-        val targetUrl = monthViewUrlBuilder(Constant.HISTORY_WEATHER_BASE_URL, city.pinyin, date)
-        try
-        {
-            lock()
-            val hws = fetchDataViaSpider(targetUrl, city)
-            saveHistoryWeather(hws, city)
-        }
-        catch(ex: Exception)
-        {
-            throw ex
+        try {
+            task(){
+                val targetUrl = monthViewUrlBuilder(Constant.HISTORY_WEATHER_BASE_URL, city.pinyin, date)
+                val hws = fetchDataViaSpider(targetUrl, city)
+                saveHistoryWeather(hws, city)
+            }
         }finally {
             spider.scheduler = QueueScheduler()
-            unlock()
         }
     }
 
@@ -147,7 +135,7 @@ open class HistoryWeatherService: UseLock(), SpiderTask
             }
         }
 
-        savedWeathers.forEach { historyWeatherDao.saveOrUpdate(it) }
+        savedWeathers.forEach { historyWeatherDao saveOrUpdate it }
     }
 
     open fun findHistoryWeathersOfToday(cityId: Long): List<HistoryWeather>

@@ -52,7 +52,7 @@ open class AppStarter
     {
         @JvmStatic fun main(args: Array<String>)
         {
-            var application = SpringApplication(AppStarter::class.java)
+            val application = SpringApplication(AppStarter::class.java)
             application.setAddCommandLineProperties(false)
             application.run(*args)
         }

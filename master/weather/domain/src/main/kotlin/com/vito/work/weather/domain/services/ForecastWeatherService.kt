@@ -31,7 +31,7 @@ import javax.annotation.Resource
 
 @Service("forecastWeatherService")
 @Transactional
-open class ForecastWeatherService: UseLock()
+open class ForecastWeatherService: SpiderTask()
 {
     @Resource
     lateinit var forcastWeatherDao: ForcastWeatherDao
@@ -47,7 +47,7 @@ open class ForecastWeatherService: UseLock()
         var spider: Spider = Spider.create(ThirtyDaysForecastPageProcessor())
                 .thread(Constant.SPIDER_THREAD_COUNT)
 
-        val logger = LoggerFactory.getLogger(ForecastWeatherService::class.java)
+        val logger = LoggerFactory.getLogger(ForecastWeatherService::class.java) !!
     }
 
     /**
@@ -79,22 +79,13 @@ open class ForecastWeatherService: UseLock()
      * @return  fws     获取到的天气
      *
      * */
-    open fun updateFromWeb(city: City, district: District)
-    {
-        val targetUrl = forecastViewUrlBuilder(Constant.FORCAST_WEATHER_BASE_URL, city.pinyin, district.pinyin)
-        try
-        {
-            lock()
+    open fun execute(city: City, district: District){
+        task(){
+            val targetUrl = forecastViewUrlBuilder(Constant.FORCAST_WEATHER_BASE_URL, city.pinyin, district.pinyin)
             val fws = fetchDataViaSpider(targetUrl, district)
             saveWeathers(fws, district)
             val fws2 = fetchDataViaAPI(district)
             saveWeathers(fws2,district)
-        }
-        catch(ex: Exception)
-        {
-            throw ex
-        }finally {
-            unlock()
         }
     }
 
@@ -141,7 +132,7 @@ open class ForecastWeatherService: UseLock()
             }
         }
 
-        savedWeathers.forEach { forcastWeatherDao.saveOrUpdate(it) }
+        savedWeathers.forEach { forcastWeatherDao saveOrUpdate it }
     }
 
     /**

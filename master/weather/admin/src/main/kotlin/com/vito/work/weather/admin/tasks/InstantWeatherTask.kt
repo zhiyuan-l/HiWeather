@@ -28,7 +28,7 @@ open class InstantWeatherTask @Autowired constructor(val locationService: Locati
     @Scheduled(cron = "0 0 0-23/1 * * ?")
     open fun scheduledInstantWeatherUpdate() {
 
-        instantWeatherService.executeTask()
+        instantWeatherService.execute()
         logger.info("Success : Task Update Instant Weather")
 
     }

@@ -20,7 +20,7 @@ import javax.annotation.Resource
  */
 
 @Controller
-@RequestMapping("/weather/today")
+@RequestMapping("/admin/weather/today")
 open class TodayWeatherController {
     @Resource
     lateinit var locationService: LocationService
@@ -42,7 +42,7 @@ open class TodayWeatherController {
 
         distrcts.forEach { district ->
             try {
-                hourWeatherService.updateFromWeb(cities.first { it.id == district.city }, district)
+                hourWeatherService.execute(district)
             }
             catch(ex: Exception) {
                 ex.printStackTrace()

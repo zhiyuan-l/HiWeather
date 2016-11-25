@@ -18,7 +18,7 @@ import javax.annotation.Resource
  */
 
 @Controller
-@RequestMapping("/location")
+@RequestMapping("/admin/location")
 open class LocationController {
 
     @Resource
@@ -61,7 +61,7 @@ open class LocationController {
     @RequestMapping("/spider/update")
     @ResponseBody
     fun updateLocations(): Any {
-        locationService.executeTask()
+        locationService.execute()
         return true
     }
 

@@ -34,8 +34,8 @@ open class TodayWeatherController
     @ResponseBody
     open fun find24HWeather(@RequestParam(required = true)districtId: Long): ObjectResponse
     {
-        var weathers = hourWeatherService.find24HWeather(districtId)
-        var response = ObjectResponse(weathers)
+        val weathers = hourWeatherService.find24HWeather(districtId)
+        val response = ObjectResponse(weathers)
         return response
     }
 
@@ -46,8 +46,8 @@ open class TodayWeatherController
     @ResponseBody
     open fun findLatestInstantWeather(@RequestParam(required = true)districtId: Long): ObjectResponse
     {
-        var weather = instantWeatherService.findLatestInstantWeather(districtId)
-        var response = ObjectResponse(weather)
+        val weather = instantWeatherService.findLatestInstantWeather(districtId)
+        val response = ObjectResponse(weather)
         return response
     }
 

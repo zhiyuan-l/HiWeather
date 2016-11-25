@@ -39,8 +39,8 @@ open class HistoryWeatherController
     @ResponseBody
     open fun today(@RequestParam cityId: Long): ObjectResponse
     {
-        var list = historyWeatherService.findHistoryWeathersOfToday(cityId)
-        var response = ObjectResponse(list)
+        val list = historyWeatherService.findHistoryWeathersOfToday(cityId)
+        val response = ObjectResponse(list)
         return response
     }
 
@@ -51,8 +51,8 @@ open class HistoryWeatherController
     @ResponseBody
     open fun tops(@RequestParam cityId: Long): ObjectResponse
     {
-        var list = historyWeatherService.findHistoryTops(cityId)
-        var response = ObjectResponse(list)
+        val list = historyWeatherService.findHistoryTops(cityId)
+        val response = ObjectResponse(list)
         return response
     }
 
@@ -77,7 +77,7 @@ open class HistoryWeatherController
                 data = historyWeatherService.findByMonth(cityId, LocalDate.parse(date)) ?: listOf<HistoryWeather>()
             }
         }
-        var response = ObjectResponse(data)
+        val response = ObjectResponse(data)
         return response
     }
 }

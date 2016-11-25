@@ -59,7 +59,7 @@
         <!-- logout button -->
         <div id="logout" class="btn-header transparent pull-right">
             <span>
-                <a th:href="@{/logout}" title="Sign Out" data-action="userLogout"
+                <a th:href="@{/admin/logout}" title="Sign Out" data-action="userLogout"
                    data-logout-msg="您确认要退出吗?"><i class="fa fa-sign-out"></i></a>
             </span>
         </div>
@@ -96,27 +96,11 @@
     <nav>
         <ul>
             <li class="active">
-                <a th:href="@{/}"><i class="fa fa-lg fa-fw fa-home"></i> 首页</a>
+                <a th:href="@{/admin/}"><i class="fa fa-lg fa-fw fa-home"></i> 首页</a>
             </li>
             <li class="">
-                <a th:href="@{/location/}"><i class="fa fa-lg fa-fw fa-map"></i> <span
+                <a th:href="@{/admin/location/}"><i class="fa fa-lg fa-fw fa-map"></i> <span
                         class="menu-item-parent">区域</span></a>
-            </li>
-            <li class="">
-                <a th:href="@{/weather/current/}"><i class="fa fa-lg fa-fw fa-sun-o"></i> <span
-                        class="menu-item-parent">即时天气</span></a>
-            </li>
-            <li class="">
-                <a th:href="@{/weather/forecast/}"><i class="fa fa-lg fa-fw fa-calendar"></i> <span
-                        class="menu-item-parent">未来天气</span></a>
-            </li>
-            <li class="">
-                <a th:href="@{/weather/history/}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> <span
-                        class="menu-item-parent">历史天气</span></a>
-            </li>
-            <li class="">
-                <a th:href="@{/weather/aqi/}"><i class="fa fa-lg fa-fw fa-line-chart"></i> <span
-                        class="menu-item-parent">空气质量</span></a>
             </li>
         </ul>
     </nav>
@@ -715,10 +699,10 @@
     $(document).ready(function () {
         pageSetUp();
 
-        var provinces = getProvinces(/*[[@{/location/provinces}]]*/"")
+        var provinces = getProvinces(/*[[@{/admin/location/provinces}]]*/"")
 
-        var cities = getCities(provinces, /*[[@{/location/cities}]]*/"")
-        var districts = getDistricts(cities, /*[[@{/location/districts}]]*/"")
+        var cities = getCities(provinces, /*[[@{/admin/location/cities}]]*/"")
+        var districts = getDistricts(cities, /*[[@{/admin/location/districts}]]*/"")
 
         $('#province_count').text(provinces.length)
         $('#city_count').text(cities.length)
@@ -740,7 +724,7 @@
             var $t = $(this);
             $t.attr('disabled', "true");
             $.ajax({
-                url: /*[[@{/location/spider/update}]]*/"",
+                url: /*[[@{/admin/location/spider/update}]]*/"",
                 dateType: "json",
                 success: function (data) {
                     window.location.reload()
@@ -776,7 +760,7 @@
             var $t = $(this);
             $t.attr('disabled', "true");
             $.ajax({
-                url: /*[[@{/weather/instant/spider/update}]]*/"",
+                url: /*[[@{/admin/weather/instant/spider/update}]]*/"",
                 dateType: "json",
                 success: function (data) {
                     window.location.reload()
@@ -811,7 +795,7 @@
             var $t = $(this);
             $t.attr('disabled', "true");
             $.ajax({
-                url: /*[[@{/weather/forecast/spider/update}]]*/"",
+                url: /*[[@{/admin/weather/forecast/spider/update}]]*/"",
                 data: {type: 10},
                 dateType: "json",
                 success: function (data) {
@@ -847,7 +831,7 @@
             var $t = $(this);
             $t.attr('disabled', "true");
             $.ajax({
-                url: /*[[@{/weather/today/spider/update}]]*/"",
+                url: /*[[@{/admin/weather/today/spider/update}]]*/"",
                 data: {type: 10},
                 dateType: "json",
                 success: function (data) {
@@ -883,7 +867,7 @@
             var $t = $(this);
             $t.attr('disabled', "true");
             $.ajax({
-                url: /*[[@{/weather/history/spider/update}]]*/"",
+                url: /*[[@{/admin/weather/history/spider/update}]]*/"",
                 data: {type: 10},
                 dateType: "json",
                 success: function (data) {
@@ -919,7 +903,7 @@
             var $t = $(this);
             $t.attr('disabled', "true");
             $.ajax({
-                url: /*[[@{/aqi/spider/update}]]*/"",
+                url: /*[[@{/admin/aqi/spider/update}]]*/"",
                 dateType: "json",
                 success: function (data) {
                     window.location.reload()
@@ -942,8 +926,6 @@
 
 
     })
-
-
     /*]]>*/
 </script>
 
