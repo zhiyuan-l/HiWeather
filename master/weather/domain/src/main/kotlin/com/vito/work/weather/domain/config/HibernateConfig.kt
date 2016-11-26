@@ -15,8 +15,7 @@ import javax.persistence.EntityManagerFactory
  */
 
 @Configuration
-open class HibernateConfig
-{
+open class HibernateConfig {
     @Bean
     open fun EntityManagerFactory.sessionFactory(): SessionFactory
             = unwrap(SessionFactory::class.java)

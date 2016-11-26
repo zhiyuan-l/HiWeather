@@ -21,14 +21,12 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/weather/history")
-open class HistoryWeatherController
-{
+open class HistoryWeatherController {
     @Resource
     lateinit var historyWeatherService: HistoryWeatherService
 
     @RequestMapping("/")
-    open fun index(): String
-    {
+    open fun index(): String {
         return "weather/history/index"
     }
 
@@ -37,8 +35,7 @@ open class HistoryWeatherController
      * */
     @RequestMapping("/today")
     @ResponseBody
-    open fun today(@RequestParam cityId: Long): ObjectResponse
-    {
+    open fun today(@RequestParam cityId: Long): ObjectResponse {
         val list = historyWeatherService.findHistoryWeathersOfToday(cityId)
         val response = ObjectResponse(list)
         return response
@@ -49,8 +46,7 @@ open class HistoryWeatherController
      * */
     @RequestMapping("/tops")
     @ResponseBody
-    open fun tops(@RequestParam cityId: Long): ObjectResponse
-    {
+    open fun tops(@RequestParam cityId: Long): ObjectResponse {
         val list = historyWeatherService.findHistoryTops(cityId)
         val response = ObjectResponse(list)
         return response
@@ -62,18 +58,14 @@ open class HistoryWeatherController
      * */
     @RequestMapping("/query")
     @ResponseBody
-    open fun query(@RequestParam cityId: Long, @RequestParam date: String, @RequestParam(required = true) type: Int): ObjectResponse
-    {
+    open fun query(@RequestParam cityId: Long, @RequestParam date: String, @RequestParam(required = true) type: Int): ObjectResponse {
         var data: Any = listOf<Any>()
 
-        when(type)
-        {
-            Constant.HISTORY_QUERY_TYPE_DAY ->
-            {
+        when (type) {
+            Constant.HISTORY_QUERY_TYPE_DAY   -> {
                 data = listOf(historyWeatherService.findByDate(cityId, LocalDate.parse(date)))
             }
-            Constant.HISTORY_QUERY_TYPE_MONTH ->
-            {
+            Constant.HISTORY_QUERY_TYPE_MONTH -> {
                 data = historyWeatherService.findByMonth(cityId, LocalDate.parse(date)) ?: listOf<HistoryWeather>()
             }
         }

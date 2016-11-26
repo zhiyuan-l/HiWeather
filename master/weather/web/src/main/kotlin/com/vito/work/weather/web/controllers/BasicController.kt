@@ -12,11 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping
  */
 
 @Controller
-open class BasicController
-{
+open class BasicController {
     @RequestMapping("/")
-    open fun toIndex(): String
-    {
+    open fun toIndex(): String {
         return "index"
     }
 

@@ -25,14 +25,14 @@ data class AQI(
         var id: Long = 0L,
         // 日期
         var date: Date = Date(0),
-        var value: Int = -1, // 数值
+        var value: Int = - 1, // 数值
         var PM25: Int = 0, //pm2.5 数值
-        var O3: Int = 0,  // 臭氧数值
+        var O3: Int = 0, // 臭氧数值
         var SO2: Int = 0,
         var NO2: Int = 0,
         var CO: Int = 0,
         var PM10: Int = 0,
         var major: Int = 0, // 主要污染物
-        var district: Long = 0L,  // 区县
+        var district: Long = 0L, // 区县
         var update_time: Timestamp = Timestamp.valueOf(LocalDateTime.now()) // 更新的时间
-             )
+              )

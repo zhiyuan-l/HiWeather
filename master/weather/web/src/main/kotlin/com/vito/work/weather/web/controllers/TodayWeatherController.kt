@@ -19,21 +19,19 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/weather/today")
-open class TodayWeatherController
-{
+open class TodayWeatherController {
 
     @Resource
     lateinit var instantWeatherService: InstantWeatherService
     @Resource
-    lateinit var  hourWeatherService: HourWeatherService
+    lateinit var hourWeatherService: HourWeatherService
 
     /**
      * 获取最新的24小时天气预报
      * */
     @RequestMapping("/24h")
     @ResponseBody
-    open fun find24HWeather(@RequestParam(required = true)districtId: Long): ObjectResponse
-    {
+    open fun find24HWeather(@RequestParam(required = true) districtId: Long): ObjectResponse {
         val weathers = hourWeatherService.find24HWeather(districtId)
         val response = ObjectResponse(weathers)
         return response
@@ -44,8 +42,7 @@ open class TodayWeatherController
      * */
     @RequestMapping("/now")
     @ResponseBody
-    open fun findLatestInstantWeather(@RequestParam(required = true)districtId: Long): ObjectResponse
-    {
+    open fun findLatestInstantWeather(@RequestParam(required = true) districtId: Long): ObjectResponse {
         val weather = instantWeatherService.findLatestInstantWeather(districtId)
         val response = ObjectResponse(weather)
         return response

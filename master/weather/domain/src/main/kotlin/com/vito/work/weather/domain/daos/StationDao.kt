@@ -13,12 +13,9 @@ import org.springframework.stereotype.Repository
  */
 
 @Repository
-open class StationDao : BaseDao()
-{
-    open fun findByNames(names: List<String>): MutableList<Station>?
-    {
-        if(names.size == 0)
-        {
+open class StationDao : BaseDao() {
+    open fun findByNames(names: List<String>): MutableList<Station>? {
+        if (names.size == 0) {
             return null
         }
 
@@ -27,8 +24,7 @@ open class StationDao : BaseDao()
         return criteria.list() as MutableList<Station>
     }
 
-    open fun findByDistrict(districtId: Long): List<Station>?
-    {
+    open fun findByDistrict(districtId: Long): List<Station>? {
         val criteria = sessionFactory.currentSession.createCriteria(Station::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         return criteria.list() as List<Station>?

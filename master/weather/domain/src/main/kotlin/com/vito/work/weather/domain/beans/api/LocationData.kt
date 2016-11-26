@@ -12,9 +12,9 @@ import java.util.*
  *
  */
 
-class LocationData{
+class LocationData {
 
-    companion object{
+    companion object {
         val LOCATION_INFO_TYPE_ZERO: Int = 0
         val LOCATION_INFO_TYPE_ONE: Int = 1
         val LOCATION_INFO_TYPE_TWO: Int = 2
@@ -35,15 +35,13 @@ data class LocationInfo(
  *  将获取到的区域信息 JSON 数据通过 OBJECT MAPPER 转换成对应的对象
  *  由于 data 的结构为 List , 且获取的 JSON 信息中只有一个对象有效, 因此只对其中一个元素进行转换
  *  */
-fun locationInfoParser(type: Int, data: String): LocationInfo?
-{
+fun locationInfoParser(type: Int, data: String): LocationInfo? {
 
     // 有效信息的位置
     var infoIndex: Int = 1
 
     // 根据数据接口不同判断有效信息所在的元素
-    when(type)
-    {
+    when (type) {
         LocationData.LOCATION_INFO_TYPE_ZERO                                     -> infoIndex = 1
         LocationData.LOCATION_INFO_TYPE_ONE, LocationData.LOCATION_INFO_TYPE_TWO -> infoIndex = 0
     }
@@ -55,13 +53,10 @@ fun locationInfoParser(type: Int, data: String): LocationInfo?
     var writer = StringWriter()
     mapper.writeValue(writer, list[infoIndex])
     var tempData: String = writer.toString()
-    try
-    {
+    try {
         locationInfo = mapper.readValue(tempData,
                                         LocationInfo::class.java)
-    }
-    catch (ex: Exception)
-    {
+    } catch (ex: Exception) {
         // 转换失败则跳过
         locationInfo = null
     }

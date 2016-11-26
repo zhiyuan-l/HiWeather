@@ -20,8 +20,8 @@ import java.time.format.DateTimeFormatter
  *
  */
 
-class API{
-    companion object{
+class API {
+    companion object {
         val logger = LoggerFactory.getLogger(API::class.java)
     }
 }
@@ -32,8 +32,7 @@ class API{
  * @property    FORECAST_F  基础天气预报接口, 只包含城市
  * @property    FORECAST_V  常规天气预报接口, 包含区县及城市
  * */
-enum class APIType(val type: Int, val title: String)
-{
+enum class APIType(val type: Int, val title: String) {
     INDEX_F(0, "index_f"),
     INDEX_V(1, "index_v"),
     FORECAST_F(3, "forecast_f"),
@@ -42,39 +41,32 @@ enum class APIType(val type: Int, val title: String)
 
 data class ReqeustBean(val areaids: List<Long>, val type: APIType, val datetime: LocalDateTime, val appid: String, val private_key: String)
 
-fun getResultBean(district: District): CnWeatherModel?
-{
+fun getResultBean(district: District): CnWeatherModel? {
     val districtIds = mutableListOf(district.id)
 
     val requestBean = ReqeustBean(districtIds, APIType.FORECAST_V, LocalDateTime.now(), Constant.CNWEATHER_APPID, Constant.CNWEATHER_PRIVATE_KEY)
 
-    try
-    {
+    try {
         var result = invokeAPI(Constant.CNWEATHER_BASE_URL, requestBean)
         var mapper = ObjectMapper()
         var resultBean = mapper.readValue(result, CnWeatherModel::class.java)
         return resultBean
-    }
-    catch(ex: Exception)
-    {
+    } catch(ex: Exception) {
         ex.printStackTrace()
         throw ex
     }
 }
 
-private fun invokeAPI(baseUrl: String, requestBean: ReqeustBean): String?
-{
+private fun invokeAPI(baseUrl: String, requestBean: ReqeustBean): String? {
     val url = urlBuilder(baseUrl, requestBean)
     val result: String? = HttpUtil.sendGetRequestViaHttpClient(url, hashMapOf(), hashMapOf(), Charset.forName("utf-8"))
-    if(result != null)
-    {
+    if (result != null) {
         API.logger.info(result)
     }
     return result
 }
 
-private fun urlBuilder(baseUrl: String, requestBean: ReqeustBean): String
-{
+private fun urlBuilder(baseUrl: String, requestBean: ReqeustBean): String {
 
     val url = StringBuffer()
 

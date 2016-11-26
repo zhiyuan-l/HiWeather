@@ -8,7 +8,6 @@ package com.vito.work.weather.domain.util.http
  *
  */
 
-open class BusinessException(val error: BusinessError): RuntimeException()
-{
+open class BusinessException(val error: BusinessError) : RuntimeException() {
     private val serialVersionUID: Long = Long.MIN_VALUE
 }

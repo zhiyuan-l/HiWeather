@@ -36,4 +36,4 @@ data class InstantWeather(
         var wind_force: Int = 0,
         // 空气质量
         var aqi: Int = 0
-                          )
+                         )

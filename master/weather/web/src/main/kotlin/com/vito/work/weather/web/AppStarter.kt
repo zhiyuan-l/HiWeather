@@ -26,18 +26,15 @@ import javax.servlet.Filter
 @EntityScan(basePackages = arrayOf("com.vito.work.weather.domain.entities"))
 @EnableJpaRepositories(basePackages = arrayOf("com.vito.work.weather.domain.daos"))
 @ComponentScan(basePackages = arrayOf("com.vito.work.weather.web", "com.vito.work.weather.domain"))
-open class AppStarter
-{
+open class AppStarter {
 
     @Bean
-    open fun errorAttributes(): DefaultErrorAttributes
-    {
+    open fun errorAttributes(): DefaultErrorAttributes {
         return DefaultErrorAttributes()
     }
 
     @Bean
-    open fun charsetFilter(): Filter
-    {
+    open fun charsetFilter(): Filter {
         val charFilter = CharacterEncodingFilter()
         charFilter.encoding = "UTF-8"
         charFilter.setForceEncoding(true)
@@ -48,10 +45,8 @@ open class AppStarter
     open fun objectMapperBuilder(): Jackson2ObjectMapperBuilder
             = Jackson2ObjectMapperBuilder().modulesToInstall(KotlinModule())
 
-    companion object
-    {
-        @JvmStatic fun main(args: Array<String>)
-        {
+    companion object {
+        @JvmStatic fun main(args: Array<String>) {
             val application = SpringApplication(AppStarter::class.java)
             application.setAddCommandLineProperties(false)
             application.run(*args)

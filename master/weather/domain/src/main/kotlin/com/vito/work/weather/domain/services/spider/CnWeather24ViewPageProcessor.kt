@@ -13,21 +13,18 @@ import us.codecraft.webmagic.processor.PageProcessor
  *
  */
 
-open class CnWeather24ViewPageProcessor : PageProcessor
-{
-    companion object{
+open class CnWeather24ViewPageProcessor : PageProcessor {
+    companion object {
         val logger = LoggerFactory.getLogger(CnWeather24ViewPageProcessor::class.java)
     }
 
     private var site: Site = Site.me().setSleepTime(5).setRetryTimes(5).setCycleRetryTimes(3)
 
-    override fun getSite(): Site?
-    {
+    override fun getSite(): Site? {
         return site
     }
 
-    override fun process(page: Page?)
-    {
+    override fun process(page: Page?) {
         page?.putField("ptime", page.html?.xpath("//sktq/@ptime"))
 
         val hours = page?.html?.xpath("//sktq/qw/@h")?.all()

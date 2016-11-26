@@ -44,8 +44,7 @@ open class HourWeatherTask @Autowired constructor(val locationService: LocationS
         districts?.forEach { district ->
             try {
                 hourWeatherService.execute(district)
-            }
-            catch(ex: Exception) {
+            } catch(ex: Exception) {
                 ex.printStackTrace()
                 // 忽略更新时的异常
             }

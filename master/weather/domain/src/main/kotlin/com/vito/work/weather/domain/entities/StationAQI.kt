@@ -26,6 +26,6 @@ data class StationAQI(
         var value: Int = 0, // 数值
         var PM25: Int = 0, //pm2.5 数值
         var PM10: Int = 0,
-        var O3: Int = 0,  // 臭氧数值
+        var O3: Int = 0, // 臭氧数值
         var major: Int = 0 // 主要污染物
                      )

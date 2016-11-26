@@ -10,14 +10,13 @@ package com.vito.work.weather.domain.util.http
 
 open class BaseResponse(var status: BaseResponseStatus)
 
-open class ListResponse(var data: List<Any>): BaseResponse(BaseResponseStatus.SUCCESS)
+open class ListResponse(var data: List<Any>) : BaseResponse(BaseResponseStatus.SUCCESS)
 
-open class ObjectResponse(var data: Any?): BaseResponse(BaseResponseStatus.SUCCESS)
+open class ObjectResponse(var data: Any?) : BaseResponse(BaseResponseStatus.SUCCESS)
 
-open class ErrorResponse(var errorCode: Int, var errorMessage: String): BaseResponse(BaseResponseStatus.FAIL)
+open class ErrorResponse(var errorCode: Int, var errorMessage: String) : BaseResponse(BaseResponseStatus.FAIL)
 
-enum class BaseResponseStatus(val status: Int)
-{
+enum class BaseResponseStatus(val status: Int) {
     SUCCESS(200),
     FAIL(400)
 }

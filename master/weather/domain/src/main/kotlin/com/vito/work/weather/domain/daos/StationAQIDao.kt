@@ -14,16 +14,13 @@ import org.springframework.stereotype.Repository
  */
 
 @Repository
-open class StationAQIDao : BaseDao()
-{
-    open fun findLatestByStations(stationIds: List<Long>): List<StationAQI>?
-    {
-        if(stationIds.size == 0)
-        {
+open class StationAQIDao : BaseDao() {
+    open fun findLatestByStations(stationIds: List<Long>): List<StationAQI>? {
+        if (stationIds.size == 0) {
             return null
         }
         val criteria = sessionFactory.currentSession.createCriteria(StationAQI::class.java)
-        criteria.add(Restrictions.`in`("station",stationIds))
+        criteria.add(Restrictions.`in`("station", stationIds))
         criteria.addOrder(Order.desc("datetime"))
         criteria.setMaxResults(stationIds.size)
 

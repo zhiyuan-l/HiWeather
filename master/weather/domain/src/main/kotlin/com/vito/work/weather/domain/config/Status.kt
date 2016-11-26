@@ -9,10 +9,9 @@ package com.vito.work.weather.domain.config
  * 爬虫更新任务的状态（锁）
  *
  */
-class SpiderStatus
-{
+class SpiderStatus {
 
-    companion object{
+    companion object {
 
         var FORECAST_UPDATE_STATUS: Boolean = false
         var HISTORY_UPDATE_STATUS: Boolean = false

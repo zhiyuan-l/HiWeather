@@ -8,8 +8,7 @@ package com.vito.work.weather.domain.config
  *
  */
 
-enum class AQIPrimaryType(val code: Int, val name_1: String, val name_2: String = "NONE")
-{
+enum class AQIPrimaryType(val code: Int, val name_1: String, val name_2: String = "NONE") {
 
     PM25(1, "PM2.5", "P2.5"),
     PM10(2, "PM10", "P10"),
@@ -21,12 +20,9 @@ enum class AQIPrimaryType(val code: Int, val name_1: String, val name_2: String 
 
 }
 
-fun getAQITypeCodeByName(name: String): AQIPrimaryType
-{
-    for(it in AQIPrimaryType.values())
-    {
-        if(it.name_1 == name.trim() || it.name_2 == name.trim())
-        {
+fun getAQITypeCodeByName(name: String): AQIPrimaryType {
+    for (it in AQIPrimaryType.values()) {
+        if (it.name_1 == name.trim() || it.name_2 == name.trim()) {
             return it
         }
 

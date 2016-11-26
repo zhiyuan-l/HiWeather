@@ -16,10 +16,8 @@ import java.time.LocalDateTime
  */
 
 @Repository
-open class HourWeatherDao: BaseDao()
-{
-    open fun findByDistrictDateTime(districtId: Long, dateTime: LocalDateTime): HourWeather?
-    {
+open class HourWeatherDao : BaseDao() {
+    open fun findByDistrictDateTime(districtId: Long, dateTime: LocalDateTime): HourWeather? {
         val time = LocalDateTime.of(dateTime.year, dateTime.month, dateTime.dayOfMonth, dateTime.hour, 0, 0, 0)
         val criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
@@ -29,8 +27,7 @@ open class HourWeatherDao: BaseDao()
         return criteria.list()[0] as HourWeather
     }
 
-    open fun find24HByDistrict(districtId: Long): List<HourWeather>?
-    {
+    open fun find24HByDistrict(districtId: Long): List<HourWeather>? {
         val criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         // 根据时间降序排列
@@ -39,20 +36,18 @@ open class HourWeatherDao: BaseDao()
         return criteria.list() as List<HourWeather>?
     }
 
-    open fun findByDistrictDatetimes(districtId: Long, datetimes: MutableList<Timestamp>): List<HourWeather>?
-    {
+    open fun findByDistrictDatetimes(districtId: Long, datetimes: MutableList<Timestamp>): List<HourWeather>? {
         val criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         // 根据时间降序排列
-        criteria.add(Restrictions.`in`("datetime",datetimes))
+        criteria.add(Restrictions.`in`("datetime", datetimes))
         return criteria.list() as List<HourWeather>?
     }
 
     /**
      * 查找最新的天气, 但是必须要早于现在
      * */
-    open fun findLatestByDistrictId(districtId: Long): HourWeather?
-    {
+    open fun findLatestByDistrictId(districtId: Long): HourWeather? {
         val criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         criteria.add(Restrictions.lt("datetime", Timestamp.valueOf(LocalDateTime.now())))

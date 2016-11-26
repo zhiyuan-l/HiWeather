@@ -36,8 +36,7 @@ import javax.transaction.Transactional
 
 @Service
 @Transactional
-open class AQIService: AbstractSpiderTask()
-{
+open class AQIService : AbstractSpiderTask() {
 
     @Resource
     lateinit var aqiDao: AQIDao
@@ -49,13 +48,11 @@ open class AQIService: AbstractSpiderTask()
     lateinit var locationDao: LocationDao
 
     @PreDestroy
-    open fun destroy()
-    {
+    open fun destroy() {
         spider.close()
     }
 
-    companion object
-    {
+    companion object {
         var spider: Spider = Spider.create(AQIViewPageProcessor())
                 .thread(Constant.SPIDER_THREAD_COUNT)
 
@@ -69,17 +66,17 @@ open class AQIService: AbstractSpiderTask()
 
     open val execute = {
         try {
-            task(){
+            task() {
                 val districts = locationDao.findAQIDistrict()
                 districts?.forEach {
                     val targetUrl = AQIViewUrlBuilder(Constant.AQI_BASE_URL, it.pinyin_aqi)
                     val webData = fetchDataViaSpider(targetUrl, it)
-                    if(webData != null){
+                    if (webData != null) {
                         saveWebdata(webData)
                     }
                 }
             }
-        }finally {
+        } finally {
             spider.scheduler = QueueScheduler()
         }
     }
@@ -95,54 +92,49 @@ open class AQIService: AbstractSpiderTask()
      * */
     open val saveWebdata = {
         webData: WebData ->
-            val aqi = webData.aqi
-            val stationAQIs = webData.stationAQIs
-            val stations = webData.stations
-            val stationNames = mutableListOf<String>()
-            stations.forEach { stationNames.add(it.name_zh) }
-            val savedStations = stationDao.findByNames(stationNames) ?: mutableListOf()
+        val aqi = webData.aqi
+        val stationAQIs = webData.stationAQIs
+        val stations = webData.stations
+        val stationNames = mutableListOf<String>()
+        stations.forEach { stationNames.add(it.name_zh) }
+        val savedStations = stationDao.findByNames(stationNames) ?: mutableListOf()
 
-            // 不存在则保存
-            stations.forEach { iw ->
-                val station = savedStations.firstOrNull { iw.name_zh == it.name_zh }
-                if (station == null)
-                {
-                    savedStations.add(iw)
-                }
-                else
-                {
-                    station.district = iw.district
-                    station.name_en = iw.name_en
-                    station.name_zh = iw.name_zh
-                    savedStations.add(station)
-                }
+        // 不存在则保存
+        stations.forEach { iw ->
+            val station = savedStations.firstOrNull { iw.name_zh == it.name_zh }
+            if (station == null) {
+                savedStations.add(iw)
+            } else {
+                station.district = iw.district
+                station.name_en = iw.name_en
+                station.name_zh = iw.name_zh
+                savedStations.add(station)
             }
-            aqiDao save aqi
-            savedStations.forEach { stationDao save it }
-            stationAQIs.forEach { iw -> iw.station = savedStations.firstOrNull { iw.station_name == it.name_zh }?.id ?: 0L }
-            stationAQIs.forEach { stationAQIDao save it }
         }
+        aqiDao save aqi
+        savedStations.forEach { stationDao save it }
+        stationAQIs.forEach { iw -> iw.station = savedStations.firstOrNull { iw.station_name == it.name_zh }?.id ?: 0L }
+        stationAQIs.forEach { stationAQIDao save it }
+    }
 
-        open val findStationAQI = {
-            districtId: Long ->
-            val stations = stationDao.findByDistrict(districtId) ?: mutableListOf()
-            val ids = mutableListOf<Long>()
-            stations.forEach { ids.add(it.id) }
-            val result = stationAQIDao.findLatestByStations(ids)
-            result?.forEach { id -> stations.forEach { if (it.id == id.station) id.station_name = it.name_zh } }
-        }
+    open val findStationAQI = {
+        districtId: Long ->
+        val stations = stationDao.findByDistrict(districtId) ?: mutableListOf()
+        val ids = mutableListOf<Long>()
+        stations.forEach { ids.add(it.id) }
+        val result = stationAQIDao.findLatestByStations(ids)
+        result?.forEach { id -> stations.forEach { if (it.id == id.station) id.station_name = it.name_zh } }
+    }
 }
 
 /**
  * URL Builder
  * */
-private fun AQIViewUrlBuilder(baseUrl: String, districtPinyin: String): String
-{
+private fun AQIViewUrlBuilder(baseUrl: String, districtPinyin: String): String {
     val urlSuffix = ".html"
 
     val urlBuffer: StringBuffer = StringBuffer()
-    if (! baseUrl.startsWith("http://") && ! baseUrl.startsWith("https://"))
-    {
+    if (! baseUrl.startsWith("http://") && ! baseUrl.startsWith("https://")) {
         urlBuffer.append("http://")
     }
 
@@ -153,24 +145,19 @@ private fun AQIViewUrlBuilder(baseUrl: String, districtPinyin: String): String
     return urlBuffer.toString()
 }
 
-private fun fetchDataViaSpider(targetUrl: String, district: District): WebData?
-{
+private fun fetchDataViaSpider(targetUrl: String, district: District): WebData? {
 
     var resultItems: ResultItems = ResultItems()
     val stationAqis = mutableListOf<StationAQI>()
     val aqi = AQI()
     val stations = mutableListOf<Station>()
 
-    try
-    {
+    try {
         resultItems = AQIService.spider.get(targetUrl)
-        if (resultItems.request == null)
-        {
+        if (resultItems.request == null) {
             throw Exception("Request Can't Be Null")
         }
-    }
-    catch(ex: Exception)
-    {
+    } catch(ex: Exception) {
         ex.printStackTrace()
         return null
     }
@@ -191,8 +178,7 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): WebData?
         val station_o3: List<String> = get("station_o3")
         val station_primary: List<String> = get("station_primary")
 
-        for ((index, stationName) in stationNames.withIndex())
-        {
+        for ((index, stationName) in stationNames.withIndex()) {
             val stationAQI = StationAQI()
             val station = Station()
             with(station) {
@@ -220,14 +206,10 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): WebData?
     return result
 }
 
-private fun parseIntegerData(data: String): Int
-{
-    try
-    {
+private fun parseIntegerData(data: String): Int {
+    try {
         return parseInt(data.split("：").last().replace("μg/m3", "").trim())
-    }
-    catch(ex: Exception)
-    {
+    } catch(ex: Exception) {
         return - 1
     }
 }

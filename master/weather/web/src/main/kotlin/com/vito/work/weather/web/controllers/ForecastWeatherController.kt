@@ -19,15 +19,13 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/weather/forecast")
-open class ForecastWeatherController
-{
+open class ForecastWeatherController {
 
     @Resource
     lateinit var forecastWeatherService: ForecastWeatherService
 
     @RequestMapping("/")
-    open fun index(): String
-    {
+    open fun index(): String {
         return "weather/forecast/index"
     }
 
@@ -36,8 +34,7 @@ open class ForecastWeatherController
      * */
     @RequestMapping("/three")
     @ResponseBody
-    open fun findThreeDaysWeather(@RequestParam(required = true)districtId: Long): ObjectResponse
-    {
+    open fun findThreeDaysWeather(@RequestParam(required = true) districtId: Long): ObjectResponse {
         val weathers = forecastWeatherService.findThreeDaysWeather(districtId)
         return ObjectResponse(weathers)
     }
@@ -47,8 +44,7 @@ open class ForecastWeatherController
      * */
     @RequestMapping("/30d")
     @ResponseBody
-    open fun findThirtyDaysWeather(@RequestParam(required = true)districtId: Long): ObjectResponse
-    {
+    open fun findThirtyDaysWeather(@RequestParam(required = true) districtId: Long): ObjectResponse {
         val weathers = forecastWeatherService.findThirtyDaysWeather(districtId)
         return ObjectResponse(weathers)
     }
@@ -58,8 +54,7 @@ open class ForecastWeatherController
      * */
     @RequestMapping("/today")
     @ResponseBody
-    open fun findTodayForecastWeather(@RequestParam(required = true)districtId: Long): ObjectResponse
-    {
+    open fun findTodayForecastWeather(@RequestParam(required = true) districtId: Long): ObjectResponse {
         val weather = forecastWeatherService.findByDate(districtId, LocalDate.now())
         return ObjectResponse(weather)
     }

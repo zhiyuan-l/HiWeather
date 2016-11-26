@@ -20,20 +20,17 @@ import kotlin.jvm.internal.iterator
  *
  */
 
-object HttpUtil
-{
+object HttpUtil {
     val logger = LoggerFactory.getLogger(HttpUtil::class.java)
 }
 
-fun HttpUtil.sendGetRequestViaHttpClient(baseUrl: String, params: HashMap<String, Any>, headers: HashMap<String, String>, charset: Charset): String?
-{
+fun HttpUtil.sendGetRequestViaHttpClient(baseUrl: String, params: HashMap<String, Any>, headers: HashMap<String, String>, charset: Charset): String? {
 
     var url = if (baseUrl.startsWith("http://") || baseUrl.startsWith("https://")) baseUrl
     else
         "http://$baseUrl"
     var it = iterator(params.keys.toTypedArray())
-    while (it.hasNext())
-    {
+    while (it.hasNext()) {
         var key = it.next()
         var value = params.get(key)
         url = "$url&$key=$value"
@@ -57,23 +54,20 @@ fun HttpUtil.sendGetRequestViaHttpClient(baseUrl: String, params: HashMap<String
 }
 
 
-fun HttpUtil.sendGetRequest(url: String, params: HashMap<String, Any> = HashMap(), charset: Charset = Charset.forName("utf-8"), headers: HashMap<String, String> = HashMap()): String
-{
+fun HttpUtil.sendGetRequest(url: String, params: HashMap<String, Any> = HashMap(), charset: Charset = Charset.forName("utf-8"), headers: HashMap<String, String> = HashMap()): String {
 
     var url = if (url.startsWith("http://") || url.startsWith("https://")) url
     else
         "http://$url"
     var it = iterator(params.keys.toTypedArray())
-    while (it.hasNext())
-    {
+    while (it.hasNext()) {
         var key = it.next()
         var value = params.get(key)
         url = "$url&$key=$value"
     }
     var urlObj = URL(url)
     var connection = urlObj.openConnection()
-    for((k, v) in headers)
-    {
+    for ((k, v) in headers) {
         connection.addRequestProperty(k, v)
     }
     connection.doOutput = true
@@ -86,8 +80,7 @@ fun HttpUtil.sendGetRequest(url: String, params: HashMap<String, Any> = HashMap(
     return answer.toString()
 }
 
-fun HttpUtil.sendPostRequest(url: String, params: HashMap<String, Any>, charset: Charset = Charset.forName("UTF-8")): String
-{
+fun HttpUtil.sendPostRequest(url: String, params: HashMap<String, Any>, charset: Charset = Charset.forName("UTF-8")): String {
 
 //    val log = LoggerFactory.getLogger(AppStarter::class.java)
     var data = ""
@@ -95,8 +88,7 @@ fun HttpUtil.sendPostRequest(url: String, params: HashMap<String, Any>, charset:
     else
         "http://$url"
     var it = iterator(params.keys.toTypedArray())
-    while (it.hasNext())
-    {
+    while (it.hasNext()) {
         var key = it.next()
         var value = params.get(key)
         data = "$data&$key=$value"

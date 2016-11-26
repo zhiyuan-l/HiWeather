@@ -17,22 +17,22 @@ abstract class UseLock {
     var start: Instant? = null
     var end: Instant? = null
 
-    fun lock(){
-        if(isLocked) throw IllegalStateException("Already Locked")
+    fun lock() {
+        if (isLocked) throw IllegalStateException("Already Locked")
         start = Instant.now()
         isLocked = true
     }
 
-    fun unlock(){
+    fun unlock() {
         end = Instant.now()
         isLocked = false
     }
 
     fun getDuration(): Duration {
-        if(isLocked){
+        if (isLocked) {
             throw IllegalStateException("Lock Is On")
         }
-        if(start == null || end == null){
+        if (start == null || end == null) {
             throw IllegalStateException("Lock hasn't run yet")
         }
         return Duration.between(start, end)

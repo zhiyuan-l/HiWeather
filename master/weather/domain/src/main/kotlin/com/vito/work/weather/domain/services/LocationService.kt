@@ -101,7 +101,7 @@ open class LocationService : AbstractSpiderTask() {
     val execute = {
         try {
             task() {
-                updateProvincesFromWeb().apply{
+                updateProvincesFromWeb().apply {
                     forEach { locationDao save it }
                     updateCititesFromWebByProvinces(this).apply {
                         forEach { locationDao save it }
@@ -124,8 +124,7 @@ open class LocationService : AbstractSpiderTask() {
                 }
                 logger.info("Location Updated")
             }
-        }
-        finally {
+        } finally {
             spider.scheduler = QueueScheduler()
         }
     }
@@ -317,8 +316,7 @@ private fun updateDistrictViaAPI(districts: List<District>) {
                 it.zipcode = c.c12
                 it.altitude = c.c15.toDouble()
             }
-        }
-        catch(ex: Exception) {
+        } catch(ex: Exception) {
             ex.printStackTrace()
         }
     }
@@ -348,8 +346,7 @@ private fun updateDistrictsFromFile(districts: List<District>) {
         while (line != null)
         reader.close()
         br.close()
-    }
-    catch(ex: Exception) {
+    } catch(ex: Exception) {
         ex.printStackTrace()
         throw ex
     }
@@ -366,8 +363,7 @@ private fun updateDistrictsFromFile(districts: List<District>) {
         val tempDistrict = tempDistricts.firstOrNull { it.id == district.id }
         if (tempDistrict == null) {
             district.id = 0L
-        }
-        else {
+        } else {
             district.title = tempDistrict.title
         }
     }

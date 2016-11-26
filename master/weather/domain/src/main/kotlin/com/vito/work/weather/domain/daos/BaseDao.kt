@@ -1,6 +1,7 @@
 package com.vito.work.weather.domain.daos
 
 import org.hibernate.SessionFactory
+import org.springframework.data.repository.NoRepositoryBean
 import org.springframework.orm.hibernate5.HibernateTemplate
 import javax.annotation.Resource
 
@@ -12,8 +13,8 @@ import javax.annotation.Resource
  *
  */
 
-open class BaseDao
-{
+@NoRepositoryBean
+abstract class BaseDao {
     @Resource
     lateinit var hibernateTemplate: HibernateTemplate
     @Resource
@@ -26,28 +27,28 @@ open class BaseDao
     }
 
     inline fun <reified T> findById(id: Long)
-            =hibernateTemplate.get(T::class.javaClass, id) as T?
+            = hibernateTemplate.get(T::class.javaClass, id) as T?
 
     inline fun <reified T> getById(id: Long)
             = hibernateTemplate.get(T::class.javaClass, id) as T?
 
-    open infix fun save(target: Any?) = {
-        if(target != null){
+    infix inline fun <reified T> save(target: T?) = {
+        if (target != null) {
             hibernateTemplate.saveOrUpdate(target)
         }
     }
 
-    open infix fun update(target: Any?) = {
-        if(target != null){
+    infix inline fun <reified T> update(target: T?) = {
+        if (target != null) {
             hibernateTemplate.update(target)
         }
     }
 
-    open infix fun batchDelete(list: List<Any>?)
+    infix inline fun <reified T> batchDelete(list: List<T>?)
             = hibernateTemplate.deleteAll(list ?: listOf<Any?>())
 
-    open infix fun delete(target: Any?) = {
-        if(target != null){
+    infix inline fun <reified T> delete(target: T?) = {
+        if (target != null) {
             hibernateTemplate.delete(target)
         }
     }

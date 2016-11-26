@@ -11,21 +11,18 @@ import us.codecraft.webmagic.processor.PageProcessor
  * Description:
  *
  */
-open class ThirtyDaysForecastPageProcessor : PageProcessor
-{
+open class ThirtyDaysForecastPageProcessor : PageProcessor {
 
     private var site: Site = Site.me()
             .setSleepTime(5)
             .setRetryTimes(5)
             .setCycleRetryTimes(5)
 
-    override fun getSite(): Site?
-    {
+    override fun getSite(): Site? {
         return site
     }
 
-    override fun process(page: Page?)
-    {
+    override fun process(page: Page?) {
         val path = "//div[@class='today_30t']"
         val html = page?.html !!
 

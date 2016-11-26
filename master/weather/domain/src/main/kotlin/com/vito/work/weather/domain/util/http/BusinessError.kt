@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus
  *
  */
 
-enum class BusinessError(val code: Int, val message: String){
+enum class BusinessError(val code: Int, val message: String) {
 
 
     ERROR_DEFAULT_INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR.value(), "服务器内部错误"),

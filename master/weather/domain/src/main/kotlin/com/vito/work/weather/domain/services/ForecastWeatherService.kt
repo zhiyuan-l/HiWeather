@@ -31,19 +31,16 @@ import javax.annotation.Resource
 
 @Service("forecastWeatherService")
 @Transactional
-open class ForecastWeatherService: AbstractSpiderTask()
-{
+open class ForecastWeatherService : AbstractSpiderTask() {
     @Resource
     lateinit var forcastWeatherDao: ForcastWeatherDao
 
     @PreDestroy
-    open fun destroy()
-    {
+    open fun destroy() {
         spider.close()
     }
 
-    companion object
-    {
+    companion object {
         var spider: Spider = Spider.create(ThirtyDaysForecastPageProcessor())
                 .thread(Constant.SPIDER_THREAD_COUNT)
 
@@ -57,10 +54,9 @@ open class ForecastWeatherService: AbstractSpiderTask()
      *
      * @return  返回获取到的天气
      * */
-    open fun findThreeDaysWeather(districtId: Long): List<ForecastWeather>?
-    {
+    open fun findThreeDaysWeather(districtId: Long): List<ForecastWeather>? {
         val MAX_RESULT = 3
-        val list = forcastWeatherDao.findWeathersAfter(districtId,Date.valueOf(LocalDate.now().plusDays(1)), MAX_RESULT)
+        val list = forcastWeatherDao.findWeathersAfter(districtId, Date.valueOf(LocalDate.now().plusDays(1)), MAX_RESULT)
         return list
     }
 
@@ -79,13 +75,13 @@ open class ForecastWeatherService: AbstractSpiderTask()
      * @return  fws     获取到的天气
      *
      * */
-    open fun execute(city: City, district: District){
-        task(){
+    open fun execute(city: City, district: District) {
+        task() {
             val targetUrl = forecastViewUrlBuilder(Constant.FORCAST_WEATHER_BASE_URL, city.pinyin, district.pinyin)
             val fws = fetchDataViaSpider(targetUrl, district)
             saveWeathers(fws, district)
             val fws2 = fetchDataViaAPI(district)
-            saveWeathers(fws2,district)
+            saveWeathers(fws2, district)
         }
     }
 
@@ -98,36 +94,31 @@ open class ForecastWeatherService: AbstractSpiderTask()
      *  若有, 则更新旧项
      *  没有, 则保存为新项
      * */
-    open fun saveWeathers(weathers: List<ForecastWeather>, district: District)
-    {
+    open fun saveWeathers(weathers: List<ForecastWeather>, district: District) {
         val dates = mutableListOf<Date>()
         val savedWeathers: MutableList<ForecastWeather> = mutableListOf()
         weathers.forEach { dates.add(it.date) }
         val temp = forcastWeatherDao.findByDistrictDates(district.id, dates)
-        if (temp != null)
-        {
+        if (temp != null) {
             savedWeathers.addAll(temp)
         }
         weathers.forEach { new ->
             val ori = savedWeathers.firstOrNull() { it -> it.district == new.district && it.date == new.date }
-            if (ori == null )
-            {
+            if (ori == null) {
                 savedWeathers.add(new)
-            }
-            else
-            {
-                with(ori){
-                    max = if(new.max == -273) max else new.max
-                    min = if(new.min == -273) min else new.min
-                    weather_day = if(new.weather_day == Weather.UNKNOWN.code.toString()) weather_day else new.weather_day
-                    weather_night = if(new.weather_night == Weather.UNKNOWN.code.toString()) weather_night else new.weather_night
-                    wind_direction_day = if(new.wind_direction_day == WindDirection.NOWIND.code) wind_direction_day else new.wind_direction_day
-                    wind_direction_night = if(new.wind_direction_night == WindDirection.NOWIND.code) wind_direction_night else new.wind_direction_night
-                    wind_force_day = if(new.wind_force_day == WindForce.LEVEL_ZERO.code.toString()) wind_force_day else new.wind_force_day
-                    wind_force_night = if(new.wind_force_night == WindForce.LEVEL_ZERO.code.toString()) wind_force_night else new.wind_force_night
+            } else {
+                with(ori) {
+                    max = if (new.max == - 273) max else new.max
+                    min = if (new.min == - 273) min else new.min
+                    weather_day = if (new.weather_day == Weather.UNKNOWN.code.toString()) weather_day else new.weather_day
+                    weather_night = if (new.weather_night == Weather.UNKNOWN.code.toString()) weather_night else new.weather_night
+                    wind_direction_day = if (new.wind_direction_day == WindDirection.NOWIND.code) wind_direction_day else new.wind_direction_day
+                    wind_direction_night = if (new.wind_direction_night == WindDirection.NOWIND.code) wind_direction_night else new.wind_direction_night
+                    wind_force_day = if (new.wind_force_day == WindForce.LEVEL_ZERO.code.toString()) wind_force_day else new.wind_force_day
+                    wind_force_night = if (new.wind_force_night == WindForce.LEVEL_ZERO.code.toString()) wind_force_night else new.wind_force_night
                     update_time = new.update_time
-                    sunrise = if(new.sunrise == "") sunrise else new.sunrise
-                    sunset = if(new.sunset == "") sunset else new.sunset
+                    sunrise = if (new.sunrise == "") sunrise else new.sunrise
+                    sunset = if (new.sunset == "") sunset else new.sunset
                 }
             }
         }
@@ -138,8 +129,7 @@ open class ForecastWeatherService: AbstractSpiderTask()
     /**
      * 获取特定日期的天气预报
      * */
-    open fun findByDate(districtId: Long, date: LocalDate): ForecastWeather?
-    {
+    open fun findByDate(districtId: Long, date: LocalDate): ForecastWeather? {
         val result = forcastWeatherDao.findByDistrictDate(districtId, Date.valueOf(date))
         return result
     }
@@ -148,8 +138,7 @@ open class ForecastWeatherService: AbstractSpiderTask()
      * 获取今天之后的30天天气
      *
      * */
-    open fun findThirtyDaysWeather(districtId: Long): List<ForecastWeather>?
-    {
+    open fun findThirtyDaysWeather(districtId: Long): List<ForecastWeather>? {
         val MAX_RESULT = 30
         val list = forcastWeatherDao.findWeathersAfter(districtId, Date.valueOf(LocalDate.now()), MAX_RESULT)
         return list
@@ -160,16 +149,14 @@ open class ForecastWeatherService: AbstractSpiderTask()
 /**
  * URL Builder
  * */
-private fun forecastViewUrlBuilder(baseUrl: String, cityPinyin: String, districtPinyin: String): String
-{
+private fun forecastViewUrlBuilder(baseUrl: String, cityPinyin: String, districtPinyin: String): String {
 
     val urlSeparator = "/"
     val urlSuffix = "/30/"
 
     val urlBuffer: StringBuffer = StringBuffer()
-    with(urlBuffer){
-        if (! baseUrl.startsWith("http://") && ! baseUrl.startsWith("https://"))
-        {
+    with(urlBuffer) {
+        if (! baseUrl.startsWith("http://") && ! baseUrl.startsWith("https://")) {
             append("http://")
         }
 
@@ -200,27 +187,22 @@ private fun forecastViewUrlBuilder(baseUrl: String, cityPinyin: String, district
  * wind_direction_day, wind_direction_night 可能包含 wind_force_day 和 wind_force_night 的值, 需要作判断
  *
  * */
-private fun fetchDataViaSpider(targetUrl: String, district: District): List<ForecastWeather>
-{
+private fun fetchDataViaSpider(targetUrl: String, district: District): List<ForecastWeather> {
 
     var resultItems: ResultItems? = null
     val fws = mutableListOf<ForecastWeather>()
 
-    try
-    {
+    try {
         resultItems = ForecastWeatherService.spider.get(targetUrl)
-    }
-    catch(ex: Exception)
-    {
+    } catch(ex: Exception) {
         ex.printStackTrace()
     }
 
-    if (resultItems?.request == null)
-    {
+    if (resultItems?.request == null) {
         throw Exception("Request Can't Be Null")
     }
 
-    with(resultItems!!){
+    with(resultItems !!) {
         val dateStrs: List<String> = get("date")
         val maxes: List<String> = get("max")
         val mines: List<String> = get("min")
@@ -236,60 +218,47 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): List<Fore
         // 将所有的 string 转换成日期存储到数组中
         dateStrs.forEach { dates.add(Date.valueOf(LocalDate.parse(it.toString().split(" ")[0].replace("月", "").replace("日", "").trim().plus(LocalDate.now().year), DateTimeFormatter.ofPattern("MMddyyyy")))) }
 
-        for ((index, date) in dates.withIndex())
-        {
+        for ((index, date) in dates.withIndex()) {
             val fw: ForecastWeather = ForecastWeather()
-            with(fw){
+            with(fw) {
                 this.district = district.id
                 this.date = dates[index]
 
                 // 获取白天的天气
-                max = try
-                {
+                max = try {
                     Integer.parseInt(maxes[index].replace("℃", "").trim())
-                }
-                catch (ex: Exception)
-                {
+                } catch (ex: Exception) {
                     - 273
                 }
                 weather_day = parseWeather(dayWeathers[index])
                 // 风向有三种情况: 1.只包含风向的名称 2.另外包含了风力并用空格隔开 3. 只包含了风力的信息（带有级或微风）
                 val parsedWDD = dayWindDirections[index].trim().split(" ")
                 // 如果
-                if(!parsedWDD[0].contains("级") && !parsedWDD[0].contains("微风"))
-                {
+                if (! parsedWDD[0].contains("级") && ! parsedWDD[0].contains("微风")) {
                     wind_direction_day = findByWindDirectionName(parsedWDD[0]).code
-                    if(dayWindForces[index].trim() == "")
+                    if (dayWindForces[index].trim() == "")
                         wind_force_day = parsedWDD[1]
                     else
                         wind_force_day = parseWindForce(dayWindForces[index])
-                }
-                else
-                {
+                } else {
                     wind_direction_day = WindDirection.NOWIND.code
                     wind_force_day = parseWindForce(parsedWDD[0])
                 }
 
                 // 获取晚上的天气
-                min = try
-                {
+                min = try {
                     Integer.parseInt(mines[index].toString().replace("℃", "").trim())
-                }
-                catch(ex: Exception)
-                {
+                } catch(ex: Exception) {
                     - 273
                 }
                 val parsedWDN = nightWindDirections[index].trim().split(" ")
                 weather_night = parseWeather(nightWeathers[index])
-                if(parsedWDN[0].contains("级") || parsedWDN[0].contains("微风"))
-                {
+                if (parsedWDN[0].contains("级") || parsedWDN[0].contains("微风")) {
                     wind_direction_night = WindDirection.NOWIND.code
                     wind_force_night = parseWindForce(parsedWDN[0])
-                }
-                else
-                {
+                } else {
                     wind_direction_night = findByWindDirectionName(parsedWDN.first()).code
-                    if(nightWindForces[index].trim() == "")
+                    if (nightWindForces[index].trim() == "")
                         wind_force_night = parsedWDN[1]
                     else
                         wind_force_night = parseWindForce(nightWindForces[index])
@@ -312,19 +281,15 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): List<Fore
  * 若只有一种天气, 则直接返回对应的天气代码
  *
  * */
-private fun parseWeather(weatherStr: String): String
-{
+private fun parseWeather(weatherStr: String): String {
     var result = ""
     val list = weatherStr.trim().split("转")
-    when(list.size)
-    {
-        1 ->
-        {
+    when (list.size) {
+        1 -> {
             val codeone = findByWeatherName(list[0]).code.toString()
             result = codeone
         }
-        2 ->
-        {
+        2 -> {
             val codeone = findByWeatherName(list[0]).code.toString()
             val codetwo = findByWeatherName(list[1]).code.toString()
             result = "$codeone,$codetwo"
@@ -342,19 +307,15 @@ private fun parseWeather(weatherStr: String): String
  *
  * 若只有一种风力, 则直接返回对应的风力代码
  * */
-private fun parseWindForce(windForceStr: String): String
-{
+private fun parseWindForce(windForceStr: String): String {
     var result = ""
     val list = windForceStr.trim().split("转")
-    when(list.size)
-    {
-        1 ->
-        {
+    when (list.size) {
+        1 -> {
             val codeone = findByWindForceName(list[0]).code.toString()
             result = codeone
         }
-        2 ->
-        {
+        2 -> {
             val codeone = findByWindForceName(list[0]).code.toString()
             val codetwo = findByWindForceName(list[1]).code.toString()
             result = "$codeone,$codetwo"
@@ -367,30 +328,26 @@ private fun parseWindForce(windForceStr: String): String
 /**
  * 通过调用中国天气网的 官方api 获取三天预报的数据
  * */
-fun fetchDataViaAPI(district: District): List<ForecastWeather>
-{
+fun fetchDataViaAPI(district: District): List<ForecastWeather> {
     val fws = mutableListOf<ForecastWeather>()
-    try
-    {
+    try {
         val resultBean = getResultBean(district)
         val f = resultBean?.f
-        if(f != null)
-        {
+        if (f != null) {
             val f0 = f.f0
             val f1 = f.f1
             val datetime = LocalDateTime.parse(f0, DateTimeFormatter.ofPattern("yyyyMMddHHmm"))
 
-            for((index, forecast) in f1.withIndex())
-            {
+            for ((index, forecast) in f1.withIndex()) {
                 val fw = ForecastWeather()
-                with(fw){
+                with(fw) {
                     date = Date.valueOf(datetime.toLocalDate().plusDays(index.toLong()))
                     this.district = district.id
                     weather_day = findByWeatherCode(forecast.fa).code.toString()
                     weather_night = findByWeatherCode(forecast.fb).code.toString()
                     // 若无温度数据, 则设置温度为-273
-                    max = (if(forecast.fc.trim() == "") "-273" else forecast.fc.trim()).toInt()
-                    min = (if(forecast.fd.trim() == "") "-273" else forecast.fd.trim()).toInt()
+                    max = (if (forecast.fc.trim() == "") "-273" else forecast.fc.trim()).toInt()
+                    min = (if (forecast.fd.trim() == "") "-273" else forecast.fd.trim()).toInt()
                     wind_direction_day = findByWindDirectionCode(forecast.fe).code
                     wind_direction_night = findByWindDirectionCode(forecast.ff).code
                     wind_force_day = findByWindForceCode(forecast.fg).code.toString()
@@ -404,9 +361,7 @@ fun fetchDataViaAPI(district: District): List<ForecastWeather>
             }
         }
 
-    }
-    catch(ex: Exception)
-    {
+    } catch(ex: Exception) {
         ex.printStackTrace()
     }
 

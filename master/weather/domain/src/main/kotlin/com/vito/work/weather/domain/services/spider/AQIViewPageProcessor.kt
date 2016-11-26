@@ -14,10 +14,9 @@ import us.codecraft.webmagic.processor.PageProcessor
  * Description:
  *
  */
-class AQIViewPageProcessor: PageProcessor
-{
+class AQIViewPageProcessor : PageProcessor {
 
-    companion object{
+    companion object {
         val logger = LoggerFactory.getLogger(AQIViewPageProcessor::class.java)
     }
 
@@ -26,18 +25,15 @@ class AQIViewPageProcessor: PageProcessor
             .setRetryTimes(5)
             .setCycleRetryTimes(5)
 
-    override fun getSite(): Site?
-    {
+    override fun getSite(): Site? {
         return site
     }
 
-    override fun process(page: Page?)
-    {
+    override fun process(page: Page?) {
         val html = page?.html
 
-        val path1= "//div[@class='num']/span/text()"
-        if(html == null || html.xpath(path1).all().size == 0)
-        {
+        val path1 = "//div[@class='num']/span/text()"
+        if (html == null || html.xpath(path1).all().size == 0) {
             throw BusinessException(BusinessError.ERROR_TARGET_PAGE_NOT_FOUND)
         }
 

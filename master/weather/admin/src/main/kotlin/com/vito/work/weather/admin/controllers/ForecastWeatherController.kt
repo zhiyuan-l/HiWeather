@@ -61,8 +61,7 @@ open class ForecastWeatherController {
                 val city = locationService.getCity(cityId)
                 if (city != null) {
                     cities = listOf(city)
-                }
-                else {
+                } else {
                     throw BusinessException(BusinessError.ERROR_CITY_NOT_FOUND)
                 }
             }
@@ -74,8 +73,7 @@ open class ForecastWeatherController {
         for (city in cities) {
             try {
                 districts?.filter { it.city == city.id }?.forEach { forecastWeatherService.execute(city, it) }
-            }
-            catch(ex: Exception) {
+            } catch(ex: Exception) {
                 // 忽略更新的异常
                 continue
             }

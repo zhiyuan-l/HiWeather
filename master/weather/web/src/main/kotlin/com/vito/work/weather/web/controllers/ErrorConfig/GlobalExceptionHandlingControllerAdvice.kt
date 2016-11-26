@@ -26,17 +26,15 @@ import org.thymeleaf.exceptions.TemplateInputException
  * 处理所有异常, 包括 GlobalErrorController抛出的异常
  * */
 @ControllerAdvice
-open class GlobalExceptionHandlingControllerAdvice
-{
+open class GlobalExceptionHandlingControllerAdvice {
 
-    companion object{
+    companion object {
         val logger: Logger = LoggerFactory.getLogger(GlobalExceptionHandlingControllerAdvice::class.java)
     }
 
     @ExceptionHandler(value = Exception::class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    open fun exceptionHandler(exception: Exception, model: Model): Any
-    {
+    open fun exceptionHandler(exception: Exception, model: Model): Any {
         val statusName = "errorStatus"
         val messageName = "errorMessage"
 
@@ -45,20 +43,16 @@ open class GlobalExceptionHandlingControllerAdvice
 
         exception.printStackTrace()
 
-        when (exception)
-        {
-            is BusinessException ->
-            {
+        when (exception) {
+            is BusinessException      -> {
                 errorCode = exception.error.code
                 errorMessage = exception.error.message
             }
-            is TemplateInputException ->
-            {
+            is TemplateInputException -> {
                 errorCode = HttpStatus.NOT_FOUND.value()
                 errorMessage = BusinessError.ERROR_TEMPLATE_NOT_FOUND.message
             }
-            else                 ->
-            {
+            else                      -> {
                 errorCode = HttpStatus.INTERNAL_SERVER_ERROR.value()
                 errorMessage = "服务器内部错误"
             }
@@ -70,8 +64,7 @@ open class GlobalExceptionHandlingControllerAdvice
         logger.error("错误代码 : $errorCode")
         logger.error("错误描述 : $errorMessage")
 
-        if (AnnotationUtils.findAnnotation(exception.javaClass, ResponseStatus::class.java) != null)
-        {
+        if (AnnotationUtils.findAnnotation(exception.javaClass, ResponseStatus::class.java) != null) {
             logger.info("RETURN ERROR RESPONSE")
             return ErrorResponse(errorCode, errorMessage)
         }

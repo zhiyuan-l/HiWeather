@@ -43,8 +43,7 @@ open class TodayWeatherController {
         distrcts.forEach { district ->
             try {
                 hourWeatherService.execute(district)
-            }
-            catch(ex: Exception) {
+            } catch(ex: Exception) {
                 ex.printStackTrace()
                 // 忽略错误
             }

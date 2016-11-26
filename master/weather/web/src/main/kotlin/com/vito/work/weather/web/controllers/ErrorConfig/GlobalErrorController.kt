@@ -22,29 +22,24 @@ import javax.servlet.http.HttpServletResponse
  */
 
 @Controller
-open class GlobalErrorController @Autowired constructor(var errorAttributes: DefaultErrorAttributes) : AbstractErrorController(errorAttributes)
-{
+open class GlobalErrorController @Autowired constructor(var errorAttributes: DefaultErrorAttributes) : AbstractErrorController(errorAttributes) {
 
-    companion object{
+    companion object {
         const val DEFAULT_ERROR_PATH = "/error"
 
         val logger = LoggerFactory.getLogger(GlobalErrorController::class.java)
     }
 
-    override fun getErrorPath(): String?
-    {
+    override fun getErrorPath(): String? {
         return DEFAULT_ERROR_PATH
     }
 
     // 捕获异常并抛出
     @RequestMapping(DEFAULT_ERROR_PATH)
-    open fun toErrorPage(request: HttpServletRequest, response: HttpServletResponse)
-    {
+    open fun toErrorPage(request: HttpServletRequest, response: HttpServletResponse) {
         val status = response.status
-        when(status)
-        {
-            HttpStatus.SC_NOT_FOUND ->
-            {
+        when (status) {
+            HttpStatus.SC_NOT_FOUND -> {
                 throw BusinessException(BusinessError.ERROR_URL_NOT_FOUND)
             }
         }

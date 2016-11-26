@@ -20,7 +20,7 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/weather/aqi")
-open class AQIController{
+open class AQIController {
 
     @Resource
     lateinit var aqiService: AQIService
@@ -28,8 +28,7 @@ open class AQIController{
     lateinit var locationService: LocationService
 
     @RequestMapping("/")
-    open fun index(): String
-    {
+    open fun index(): String {
         return "weather/aqi/index"
     }
 
@@ -38,10 +37,9 @@ open class AQIController{
      * */
     @RequestMapping("/station")
     @ResponseBody
-    open fun stationAQI(@RequestParam cityId: Long): ObjectResponse
-    {
+    open fun stationAQI(@RequestParam cityId: Long): ObjectResponse {
 
-        val district = locationService.findDistricts(cityId)?.firstOrNull{ it.pinyin_aqi != ""} ?: District()
+        val district = locationService.findDistricts(cityId)?.firstOrNull { it.pinyin_aqi != "" } ?: District()
         val data = aqiService.findStationAQI(district.id)
         val response = ObjectResponse(data)
         return response
@@ -52,9 +50,8 @@ open class AQIController{
      * */
     @RequestMapping("/instant")
     @ResponseBody
-    open fun instantAQI(@RequestParam cityId: Long): ObjectResponse
-    {
-        val district = locationService.findDistricts(cityId)?.firstOrNull{ it.pinyin_aqi != ""} ?: District()
+    open fun instantAQI(@RequestParam cityId: Long): ObjectResponse {
+        val district = locationService.findDistricts(cityId)?.firstOrNull { it.pinyin_aqi != "" } ?: District()
         val data = aqiService.findLatestAQI(district.id)
         val response = ObjectResponse(data)
         return response

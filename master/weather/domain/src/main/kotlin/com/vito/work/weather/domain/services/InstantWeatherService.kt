@@ -35,15 +35,13 @@ import javax.annotation.Resource
 
 @Service("instantWeatherService")
 @Transactional
-open class InstantWeatherService: AbstractSpiderTask()
-{
+open class InstantWeatherService : AbstractSpiderTask() {
     @Resource
     lateinit var instantWeatherDao: InstantWeatherDao
     @Resource
     lateinit var locationDao: LocationDao
 
-    companion object
-    {
+    companion object {
         val logger = LoggerFactory.getLogger(HourWeatherService::class.java)
     }
 
@@ -53,19 +51,18 @@ open class InstantWeatherService: AbstractSpiderTask()
      * 没找到则抛出资源未找到的异常
      *
      * */
-    open fun findLatestInstantWeather(districtId: Long): InstantWeather
-    {
+    open fun findLatestInstantWeather(districtId: Long): InstantWeather {
         val weather: InstantWeather = instantWeatherDao.findLatestByDistrictId(districtId) ?: throw BusinessException(BusinessError.ERROR_RESOURCE_NOT_FOUND)
 
         return weather
     }
 
     fun execute() {
-        task(){
+        task() {
             val distrcts: List<District?> = locationDao.findAll<District>() ?: listOf()
             distrcts.forEach {
-                val weather: InstantWeather? = fetchAndSaveInstantWeather(it?.id?:-1)
-                if(weather != null){
+                val weather: InstantWeather? = fetchAndSaveInstantWeather(it?.id ?: - 1)
+                if (weather != null) {
                     instantWeatherDao save weather
                 }
             }
@@ -73,38 +70,37 @@ open class InstantWeatherService: AbstractSpiderTask()
     }
 }
 
-private fun fetchAndSaveInstantWeather(districtId: Long): InstantWeather?
-{
+private fun fetchAndSaveInstantWeather(districtId: Long): InstantWeather? {
     val jsonDataList = invokeAPI(districtId.toString()).removePrefix("var dataSK =").replace("SD", "sd2")
 
     val mapper = ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
     val weather: InstantWeather
-    try{
+    try {
         val weatherModel = mapper.readValue(jsonDataList, CnWeatherNowAPIModel::class.java)
         weather = InstantWeather()
-        with(weatherModel) wm@{
+        with(weatherModel) wm@ {
             val date = LocalDate.now()
             val time = LocalTime.parse(this@wm.time.trim(), DateTimeFormatter.ofPattern("HH:mm"))
             val datetime = LocalDateTime.of(date, time)
 
             this@wm.date = this@wm.date?.split("(")?.first()?.trim() ?: "${LocalDate.now().monthValue}月${LocalDate.now().dayOfMonth}日"
-            this@wm.sd = if(this@wm.sd.trim() != "暂无实况" && this@wm.sd.trim() != "") this@wm.sd.trim().removeSuffix("%") else "-1"
+            this@wm.sd = if (this@wm.sd.trim() != "暂无实况" && this@wm.sd.trim() != "") this@wm.sd.trim().removeSuffix("%") else "-1"
             this@wm.WS = this@wm.WS.replace("级", "").trim()
 
-            with(weather) w@{
-                aqi = if(!this@wm.aqi.isNullOrBlank() && this@wm.aqi?.trim() != "?") this@wm.aqi!!.trim().toInt() else -1
-                pm25 = if(!this@wm.aqi_pm25.isNullOrBlank()) this@wm.aqi_pm25!!.trim().toInt() else -1
-                this.weather = if(this@wm.weathercode.trim() != "暂无实况") this@wm.weathercode.trim().substring(1).toInt() else Weather.UNKNOWN.code
+            with(weather) w@ {
+                aqi = if (! this@wm.aqi.isNullOrBlank() && this@wm.aqi?.trim() != "?") this@wm.aqi !!.trim().toInt() else - 1
+                pm25 = if (! this@wm.aqi_pm25.isNullOrBlank()) this@wm.aqi_pm25 !!.trim().toInt() else - 1
+                this.weather = if (this@wm.weathercode.trim() != "暂无实况") this@wm.weathercode.trim().substring(1).toInt() else Weather.UNKNOWN.code
                 this.datetime = Timestamp.valueOf(datetime)
-                precipitation = if(!this@wm.rain.isNullOrBlank() && this@wm.rain?.trim() != "暂无实况") this@wm.rain!!.trim().toDouble() else -1.0
-                humidity = if(this@wm.sd != "") this@wm.sd.trim().toInt() else -1
+                precipitation = if (! this@wm.rain.isNullOrBlank() && this@wm.rain?.trim() != "暂无实况") this@wm.rain !!.trim().toDouble() else - 1.0
+                humidity = if (this@wm.sd != "") this@wm.sd.trim().toInt() else - 1
                 district = this@wm.city.trim().toLong()
-                temperature = if(this@wm.temp != "") this@wm.temp.toDouble() else -273.0
+                temperature = if (this@wm.temp != "") this@wm.temp.toDouble() else - 273.0
                 wind_direction = findByWindDirectionName(this@wm.WD).code
                 wind_force = chooseLevel(this@wm.WS.toInt()).code
             }
         }
-    }catch (ex: Exception){
+    } catch (ex: Exception) {
         ex.printStackTrace()
         return null
     }

@@ -18,17 +18,16 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/location")
-open class LocationController
-{
+open class LocationController {
 
     @Resource
     lateinit var locationService: LocationService
+
     /**
      * 前往 index 页面
      * */
     @RequestMapping("/")
-    fun toManage(): String
-    {
+    fun toManage(): String {
         return "location/index"
     }
 
@@ -37,8 +36,7 @@ open class LocationController
      * */
     @RequestMapping("/provinces")
     @ResponseBody
-    fun getProvinces(): ObjectResponse
-    {
+    fun getProvinces(): ObjectResponse {
         val provinces = locationService.findProvinces()
         val response = ObjectResponse(provinces)
         return response
@@ -49,8 +47,7 @@ open class LocationController
      * */
     @RequestMapping("/cities")
     @ResponseBody
-    fun getCitiesByProvinceId(@RequestParam(required = false, defaultValue = "0")provinceId: Long): ObjectResponse
-    {
+    fun getCitiesByProvinceId(@RequestParam(required = false, defaultValue = "0") provinceId: Long): ObjectResponse {
         val cities = locationService.findCities(provinceId)
         val response = ObjectResponse(cities)
         return response
@@ -61,8 +58,7 @@ open class LocationController
      * */
     @RequestMapping("/districts")
     @ResponseBody
-    fun getDistrictByCityId(@RequestParam(required = false, defaultValue = "0") cityId: Long): ObjectResponse
-    {
+    fun getDistrictByCityId(@RequestParam(required = false, defaultValue = "0") cityId: Long): ObjectResponse {
         val districts = locationService.findDistricts(cityId)
         val response = ObjectResponse(districts)
         return response

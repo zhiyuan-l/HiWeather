@@ -14,13 +14,13 @@ abstract class AbstractSpiderTask {
     val task: (() -> Unit) -> Unit = {
         body ->
         try {
-            if(!lock){
+            if (! lock) {
                 lock = true
                 body()
             }
-        }catch (ex: Exception){
+        } catch (ex: Exception) {
             ex.printStackTrace()
-        }finally {
+        } finally {
             lock = false
         }
     }

@@ -73,8 +73,7 @@ open class HistoryWeatherController {
                 try {
                     tempDate = tempDate.plusMonths(1)
                     historyWeatherService.updateFromWeb(city, tempDate)
-                }
-                catch(ex: Exception) {
+                } catch(ex: Exception) {
                     // 忽略更新时的异常
                     continue
                 }

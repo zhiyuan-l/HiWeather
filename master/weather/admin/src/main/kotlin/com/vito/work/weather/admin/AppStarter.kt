@@ -27,7 +27,7 @@ import javax.servlet.Filter
 @EntityScan(basePackages = arrayOf("com.vito.work.weather.domain.entities"))
 @EnableJpaRepositories(basePackages = arrayOf("com.vito.work.weather.domain.daos"))
 @ComponentScan(basePackages = arrayOf("com.vito.work.weather.admin", "com.vito.work.weather.domain"))
-open class AppStarter  {
+open class AppStarter {
 
     @Bean
     open fun errorAttributes(): DefaultErrorAttributes {

@@ -9,9 +9,9 @@ import java.time.LocalDate
  * Description:
  *
  */
-class Constant{
+class Constant {
 
-    companion object{
+    companion object {
 
         val CNWEATHER_BASE_URL = "http://open.weather.com.cn/data/"
         val CNWEATHER_APPID = "d8729751835749e4"

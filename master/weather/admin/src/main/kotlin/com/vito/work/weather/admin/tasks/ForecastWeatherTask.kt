@@ -48,8 +48,7 @@ open class ForecastWeatherTask @Autowired constructor(val locationService: Locat
 
                 try {
                     forecastWeatherService.execute(city, district)
-                }
-                catch(ex: Exception) {
+                } catch(ex: Exception) {
                     ex.printStackTrace()
                     // 忽略更新时的异常
                 }
