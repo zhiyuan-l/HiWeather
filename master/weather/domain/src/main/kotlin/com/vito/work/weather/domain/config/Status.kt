@@ -14,7 +14,6 @@ class SpiderStatus {
     companion object {
 
         var FORECAST_UPDATE_STATUS: Boolean = false
-        var HISTORY_UPDATE_STATUS: Boolean = false
         var TODAY_WEATHER_STATUS: Boolean = false
     }
 
