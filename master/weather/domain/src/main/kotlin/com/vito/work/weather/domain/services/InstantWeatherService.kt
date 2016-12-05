@@ -59,7 +59,7 @@ open class InstantWeatherService : AbstractSpiderTask() {
 
     fun execute() {
         task() {
-            val distrcts: List<District?> = locationDao.findAll<District>() ?: listOf()
+            val distrcts: List<District?> = locationDao.findAll(District::class.java)
             distrcts.forEach {
                 val weather: InstantWeather? = fetchAndSaveInstantWeather(it?.id ?: - 1)
                 if (weather != null) {

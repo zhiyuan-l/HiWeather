@@ -57,27 +57,27 @@ open class LocationService : AbstractSpiderTask() {
     /**
      * 获取所有省份
      * */
-    open fun findProvinces(): List<Province> = locationDao.findAll()
+    open fun findProvinces(): List<Province> = locationDao.findAll(Province::class.java)
 
     /**
      * 获取省份
      * @param provinceId 省份的 id
      * */
     open fun getProvince(provinceId: Long)
-            = locationDao.findById<Province>(provinceId)
+            = locationDao.findById<Province>(Province::class.java,provinceId)
 
     /**
      * 获取所有城市
      * @param provinceId 省份的 id, 为0时返回所有城市
      * */
     open fun findCities(provinceId: Long = 0): List<City>?
-            = if (provinceId == 0L) locationDao.findAll() else locationDao.findCities(provinceId)?.filterIsInstance<City>()
+            = if (provinceId == 0L) locationDao.findAll(City::class.java) else locationDao.findCities(provinceId)?.filterIsInstance<City>()
 
     /**
      * 获取一个城市
      * @param cityId 城市的 id
      * */
-    open fun getCity(cityId: Long) = locationDao.findById<City>(cityId)
+    open fun getCity(cityId: Long) = locationDao.findById(City::class.java, cityId)
 
     /**
      * 根据省份列表查询出城市列表
@@ -93,7 +93,7 @@ open class LocationService : AbstractSpiderTask() {
      * @param cityId 城市的 id
      * */
     open fun findDistricts(cityId: Long = 0)
-            = if (cityId == 0L) locationDao.findAll<District>() else locationDao.findDistricts(cityId)
+            = if (cityId == 0L) locationDao.findAll(District::class.java) else locationDao.findDistricts(cityId)
 
     /**
      * 执行更新任务

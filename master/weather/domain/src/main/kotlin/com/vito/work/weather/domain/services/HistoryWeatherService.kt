@@ -58,8 +58,8 @@ open class HistoryWeatherService : AbstractSpiderTask() {
             val provinces = mutableListOf<Province>()
             val cities = mutableListOf<City>()
             HistoryWeatherService.spider.scheduler = QueueScheduler()
-            provinces.addAll(locationDao.findAll<Province>()?.filterNotNull() ?: listOf())
-            cities.addAll(locationDao.findAll<City>()?.filterNotNull() ?: listOf())
+            provinces.addAll(locationDao.findAll(Province::class.java))
+            cities.addAll(locationDao.findAll(City::class.java))
             for (city in cities) {
                 var tempDate = Constant.SPIDER_HISTORY_START_DATE
                 while (tempDate <= LocalDate.now().minusMonths(1)) {

@@ -16,38 +16,41 @@ import javax.annotation.Resource
 @NoRepositoryBean
 abstract class BaseDao {
     @Resource
-    lateinit var hibernateTemplate: HibernateTemplate
+    protected lateinit var hibernateTemplate: HibernateTemplate
     @Resource
-    lateinit var sessionFactory: SessionFactory
+    protected lateinit var sessionFactory: SessionFactory
 
-    inline fun <reified T> findAll(): List<T> {
+    open fun <T> findAll(clazz: Class<T>): List<T> {
         val session = sessionFactory.currentSession
-        val criteria = session.createCriteria(T::class.javaClass)
-        return criteria.list()?.filterIsInstance<T>() ?: listOf()
+        val criteria = session.createCriteria(clazz)
+        return criteria.list().filterIsInstance(clazz)
     }
 
-    inline fun <reified T> findById(id: Long)
-            = hibernateTemplate.get(T::class.javaClass, id) as T?
+    open fun <T> findById(clazz: Class<T>,id: Long): T? {
+        return hibernateTemplate.get(clazz, id)
+    }
 
-    inline fun <reified T> getById(id: Long)
-            = hibernateTemplate.get(T::class.javaClass, id) as T?
+    open fun <T> getById(clazz: Class<T>,id: Long): T? {
+        return hibernateTemplate.get(clazz, id)
+    }
 
-    infix inline fun <reified T> save(target: T?) = {
+    open infix fun save(target: Any?) {
         if (target != null) {
             hibernateTemplate.saveOrUpdate(target)
         }
     }
 
-    infix inline fun <reified T> update(target: T?) = {
+    open infix fun update(target: Any?) {
         if (target != null) {
             hibernateTemplate.update(target)
         }
     }
 
-    infix inline fun <reified T> batchDelete(list: List<T>?)
-            = hibernateTemplate.deleteAll(list ?: listOf<Any?>())
+    open infix fun batchDelete(list: List<Any>?) {
+        hibernateTemplate.deleteAll(list ?: listOf<Any?>())
+    }
 
-    infix inline fun <reified T> delete(target: T?) = {
+    open infix fun delete(target: Any?) {
         if (target != null) {
             hibernateTemplate.delete(target)
         }
