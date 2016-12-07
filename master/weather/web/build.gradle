@@ -16,7 +16,6 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
         classpath group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: "$SpringBootStarterVersion"
-
     }
 }
 

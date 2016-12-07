@@ -1,43 +1,7 @@
 group 'com.vito.work'
 version '1.0-SNAPSHOT'
 
-buildscript {
-
-    ext.kotlin_version = '1.0.5' // Required for Kotlin integration
-    ext.SpringBootStarterVersion = "1.4.2.RELEASE"
-
-    repositories {
-        maven { url 'http://maven.aliyun.com/mvn/repository/' }
-        maven { url "https://repo.spring.io/plugins-snapshot" }
-        maven { url "https://repo.spring.io/snapshot" }
-        maven { url "https://repo.spring.io/milestone" }
-    }
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
-        classpath group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: "$SpringBootStarterVersion"
-
-    }
-}
-
-apply plugin: 'idea'
-apply plugin: 'kotlin' // Required for Kotlin integration
-apply plugin: 'org.springframework.boot'
-apply plugin: 'application'
-
-sourceCompatibility = 1.8
-
-repositories {
-    maven { url 'http://maven.aliyun.com/mvn/repository/' }
-    maven { url "https://repo.spring.io/plugins-snapshot" }
-    maven { url "https://repo.spring.io/snapshot" }
-    maven { url "https://repo.spring.io/milestone" }
-}
-
 dependencies {
-    compile "org.jetbrains:annotations:15.0"
-
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     compile "org.springframework.boot:spring-boot-starter-data-jpa"
     compile 'org.springframework.security:spring-security-core'
@@ -50,9 +14,6 @@ dependencies {
 
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
 
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin")
-
-    testCompile group: 'junit', name: 'junit'
 }
 
 
