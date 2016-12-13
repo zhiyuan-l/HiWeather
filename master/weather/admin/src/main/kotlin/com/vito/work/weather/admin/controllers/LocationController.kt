@@ -26,7 +26,7 @@ open class LocationController {
 
     @RequestMapping("/")
     open fun toManage(): String {
-        return "location/index"
+        return "admin/location/index"
     }
 
     /**

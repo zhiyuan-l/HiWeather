@@ -1,7 +1,5 @@
 package com.vito.work.weather.admin.controllers
 
-import com.vito.work.weather.domain.services.ForecastWeatherService
-import com.vito.work.weather.domain.services.HourWeatherService
 import com.vito.work.weather.domain.services.LocationService
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
@@ -21,26 +19,22 @@ import javax.servlet.http.HttpServletRequest
 open class BasicController {
 
     @Resource
-    lateinit var forecastWeatherService: ForecastWeatherService
-    @Resource
-    lateinit var hourWeatherService: HourWeatherService
-    @Resource
     lateinit var locationService: LocationService
 
     @RequestMapping("/")
     open fun toIndex(): String {
-        return "index"
+        return "admin/index"
     }
 
     @RequestMapping("/login")
     open fun login(): String {
-        return "login"
+        return "admin/login"
     }
 
     @RequestMapping("/logout")
     open fun logout(request: HttpServletRequest): String {
         request.logout()
-        return "login"
+        return "admin/login"
     }
 
 }

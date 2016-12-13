@@ -37,10 +37,9 @@ open class TodayWeatherController {
         // 重置 Scheduler （清空Scheduler内已爬取的 url）
         HourWeatherService.spider.scheduler = QueueScheduler()
 
-        val cities = locationService.findCities() ?: listOf()
-        val distrcts = locationService.findDistricts() ?: listOf()
+        val districts = locationService.findDistricts()
 
-        distrcts.forEach { district ->
+        districts?.forEach { district ->
             try {
                 hourWeatherService.execute(district)
             } catch(ex: Exception) {

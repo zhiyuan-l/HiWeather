@@ -15,7 +15,7 @@ import org.springframework.stereotype.Repository
 @Repository
 open class StationDao : BaseDao() {
     open fun findByNames(names: List<String>): MutableList<Station>? {
-        if (names.size == 0) {
+        if (names.isEmpty()) {
             return null
         }
 

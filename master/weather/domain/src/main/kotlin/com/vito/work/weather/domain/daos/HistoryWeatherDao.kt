@@ -21,11 +21,11 @@ open class HistoryWeatherDao : BaseDao() {
         criteria.add(Restrictions.eq("city", cityId))
         criteria.add(Restrictions.eq("date", date))
         val list = criteria.list().filterIsInstance<HistoryWeather>()
-        return if (list.size > 0) list[0] else null
+        return if (list.isNotEmpty()) list[0] else null
     }
 
     open fun findByCityDates(cityId: Long, dates: List<Date>): List<HistoryWeather>? {
-        if (dates.size == 0) return null
+        if (dates.isEmpty()) return null
         val criteria = sessionFactory.currentSession.createCriteria(HistoryWeather::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         criteria.add(Restrictions.`in`("date", dates))

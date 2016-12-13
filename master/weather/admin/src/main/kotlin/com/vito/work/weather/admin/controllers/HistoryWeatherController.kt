@@ -33,7 +33,7 @@ open class HistoryWeatherController {
 
     @RequestMapping("/")
     open fun forecastIndex(): String {
-        return "weather/history/index"
+        return "admin/weather/history/index"
     }
 
     /**

@@ -1,4 +1,4 @@
-package com.vito.work.weather.admin.controllers.ErrorConfig
+package com.vito.work.weather.ErrorConfig
 
 /**
  * Created by lingzhiyuan.

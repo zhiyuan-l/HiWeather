@@ -1,4 +1,4 @@
-package com.vito.work.weather.admin.controllers.ErrorConfig
+package com.vito.work.weather.ErrorConfig
 
 import com.vito.work.weather.domain.util.http.BaseResponse
 import com.vito.work.weather.domain.util.http.BusinessException

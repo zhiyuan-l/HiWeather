@@ -19,8 +19,10 @@ open class SecurityConfig : WebSecurityConfigurerAdapter() {
 
     override fun configure(http: HttpSecurity) {
         http.authorizeRequests()
-                .antMatchers("/static/**").permitAll()
-                .anyRequest().access("hasRole('ADMIN')")
+//                .antMatchers("/").permitAll()
+//                .antMatchers("/static/**").permitAll()
+//                .antMatchers("/public/**").permitAll()
+                .antMatchers("/admin/**").access("hasRole('ADMIN')")
                 .and()
                 .formLogin().defaultSuccessUrl("/admin/")
                 .loginPage("/admin/login")

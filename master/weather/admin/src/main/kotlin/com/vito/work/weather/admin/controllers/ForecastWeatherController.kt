@@ -34,7 +34,7 @@ open class ForecastWeatherController {
 
     @RequestMapping("/")
     open fun forecastIndex(): String {
-        return "weather/forecast/index"
+        return "admin/weather/forecast/index"
     }
 
     @RequestMapping("/spider/update")

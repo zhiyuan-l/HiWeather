@@ -1,15 +1,11 @@
-package com.vito.work.weather.admin
+package com.vito.work.weather
 
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.vito.work.weather.admin.config.SecurityConfig
 import org.springframework.boot.SpringApplication
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration
-import org.springframework.boot.autoconfigure.domain.EntityScan
+import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.web.DefaultErrorAttributes
 import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.ComponentScan
-import org.springframework.context.annotation.Configuration
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 import org.springframework.web.filter.CharacterEncodingFilter
 import javax.servlet.Filter
@@ -22,11 +18,7 @@ import javax.servlet.Filter
  *
  */
 
-@Configuration
-@EnableAutoConfiguration
-@EntityScan(basePackages = arrayOf("com.vito.work.weather.domain.entities"))
-@EnableJpaRepositories(basePackages = arrayOf("com.vito.work.weather.domain.daos"))
-@ComponentScan(basePackages = arrayOf("com.vito.work.weather.admin", "com.vito.work.weather.domain"))
+@SpringBootApplication
 open class AppStarter {
 
     @Bean

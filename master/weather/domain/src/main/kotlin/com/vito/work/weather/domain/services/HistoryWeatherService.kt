@@ -30,7 +30,7 @@ import javax.annotation.Resource
  *
  */
 
-@Service("historyWeatherService")
+@Service
 @Transactional
 open class HistoryWeatherService : AbstractSpiderTask() {
 
@@ -54,7 +54,7 @@ open class HistoryWeatherService : AbstractSpiderTask() {
     }
 
     open fun execute() {
-        task() {
+        task {
             val provinces = mutableListOf<Province>()
             val cities = mutableListOf<City>()
             HistoryWeatherService.spider.scheduler = QueueScheduler()
@@ -88,9 +88,9 @@ open class HistoryWeatherService : AbstractSpiderTask() {
      *
      * 执行更新和和保存操作
      * */
-    open val updateFromWeb = fun(city: City, date: LocalDate) {
+    open fun updateFromWeb(city: City, date: LocalDate) {
         try {
-            task() {
+            task {
                 val targetUrl = monthViewUrlBuilder(Constant.HISTORY_WEATHER_BASE_URL, city.pinyin, date)
                 val hws = fetchDataViaSpider(targetUrl, city)
                 saveHistoryWeather(hws, city)
@@ -103,7 +103,7 @@ open class HistoryWeatherService : AbstractSpiderTask() {
     /**
      * 执行保存历史天气的操作
      * */
-    open val saveHistoryWeather = fun(weathers: List<HistoryWeather>, city: City) {
+    open fun saveHistoryWeather(weathers: List<HistoryWeather>, city: City) {
         val dates = mutableListOf<Date>()
         weathers.forEach { dates.add(it.date) }
         val savedWeathers: MutableList<HistoryWeather> = mutableListOf()
@@ -112,7 +112,7 @@ open class HistoryWeatherService : AbstractSpiderTask() {
             savedWeathers.addAll(temp)
         }
         weathers.forEach { iw ->
-            val t = savedWeathers.firstOrNull() { it -> it.city == iw.city && it.date == iw.date }
+            val t = savedWeathers.firstOrNull { it -> it.city == iw.city && it.date == iw.date }
             if (t == null) {
                 savedWeathers.add(iw)
             } else {
@@ -128,7 +128,7 @@ open class HistoryWeatherService : AbstractSpiderTask() {
         savedWeathers.forEach { historyWeatherDao save it }
     }
 
-    open val findHistoryWeathersOfToday = fun(cityId: Long): List<HistoryWeather> {
+    open fun findHistoryWeathersOfToday(cityId: Long): List<HistoryWeather> {
         val now = LocalDate.now()
 
         val dates = mutableListOf<Date>()
@@ -141,7 +141,7 @@ open class HistoryWeatherService : AbstractSpiderTask() {
         return result
     }
 
-    open val findHistoryTops = fun(cityId: Long): List<HistoryWeather> {
+    open fun findHistoryTops(cityId: Long): List<HistoryWeather> {
 
         val result = mutableListOf<HistoryWeather>()
 
