@@ -15,23 +15,23 @@ import javax.servlet.http.HttpServletRequest
  */
 
 @Controller
-@RequestMapping("/admin")
+@RequestMapping("/admin/")
 open class BasicController {
 
     @Resource
     lateinit var locationService: LocationService
 
-    @RequestMapping("/")
+    @RequestMapping("")
     open fun toIndex(): String {
         return "admin/index"
     }
 
-    @RequestMapping("/login")
+    @RequestMapping("login")
     open fun login(): String {
         return "admin/login"
     }
 
-    @RequestMapping("/logout")
+    @RequestMapping("logout")
     open fun logout(request: HttpServletRequest): String {
         request.logout()
         return "admin/login"

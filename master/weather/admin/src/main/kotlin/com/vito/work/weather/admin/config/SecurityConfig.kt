@@ -22,7 +22,7 @@ open class SecurityConfig : WebSecurityConfigurerAdapter() {
 //                .antMatchers("/").permitAll()
 //                .antMatchers("/static/**").permitAll()
 //                .antMatchers("/public/**").permitAll()
-                .antMatchers("/admin/**").access("hasRole('ADMIN')")
+                .mvcMatchers("/admin/**").access("hasRole('ADMIN')")
                 .and()
                 .formLogin().defaultSuccessUrl("/admin/")
                 .loginPage("/admin/login")
