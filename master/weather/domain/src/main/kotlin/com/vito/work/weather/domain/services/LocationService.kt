@@ -98,12 +98,12 @@ open class LocationService : AbstractSpiderTask() {
     /**
      * 执行更新任务
      * */
-    val execute = {
+    open fun execute() {
         try {
-            task() {
+            task {
                 updateProvincesFromWeb().apply {
                     forEach { locationDao save it }
-                    updateCititesFromWebByProvinces(this).apply {
+                    updateCitiesFromWebByProvinces(this).apply {
                         forEach { locationDao save it }
                         // 获取 tianqi.com上的所有区县
                         updateDistrictsFromWebByCitites(this).apply {
@@ -133,9 +133,8 @@ open class LocationService : AbstractSpiderTask() {
 /**
  * 通过网站 API获取省的信息, 并保存到数据库中
  * */
-private fun updateProvincesFromWeb(): List<Province> {
+private val updateProvincesFromWeb: ()-> List<Province> = {
     var provinces = listOf<Province>()
-
     val params = HashMap<String, Any>()
     params.put("type", LocationData.LOCATION_INFO_TYPE_ZERO)
     // 获取原始的JSON数据, 结构为 List
@@ -148,26 +147,26 @@ private fun updateProvincesFromWeb(): List<Province> {
     }
 
     LocationService.logger.info("Provinces Updated")
-    return provinces
+    provinces
 }
 
 /**
  * 通过网站API, 根据省爬取所有市的信息
  * */
 @Contract("null->null")
-private fun updateCititesFromWebByProvinces(provinces: List<Province>): MutableList<City> {
+private fun updateCitiesFromWebByProvinces(provinces: List<Province>): MutableList<City> {
 
     val cities = mutableListOf<City>()
-    for (province in provinces) {
+    for ((id) in provinces) {
         val params = HashMap<String, Any>()
         params.put("type", LocationData.LOCATION_INFO_TYPE_ONE)
-        params.put("pid", province.id.toString())
+        params.put("pid", id.toString())
         val data = fetchAndConvertDataFromWeb(params)
 
         // 获取区域信息
         val locationInfo = locationInfoParser(LocationData.LOCATION_INFO_TYPE_ONE, data)
         if (locationInfo != null) {
-            cities.addAll(getCitiesFromLocationInfo(locationInfo, province.id))
+            cities.addAll(getCitiesFromLocationInfo(locationInfo, id))
         }
     }
     LocationService.logger.info("Cities Updated")

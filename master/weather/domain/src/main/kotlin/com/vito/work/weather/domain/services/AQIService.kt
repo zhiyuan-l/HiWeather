@@ -59,14 +59,13 @@ open class AQIService : AbstractSpiderTask() {
         val logger = LoggerFactory.getLogger(AQIService::class.java)
     }
 
-    open val findLatestAQI = {
-        districtId: Long ->
-        aqiDao.findLatestByDistrict(districtId)
+    open fun findLatestAQI(districtId: Long): AQI? {
+        return aqiDao.findLatestByDistrict(districtId)
     }
 
-    open val execute = {
+    open fun execute(){
         try {
-            task() {
+            task {
                 val districts = locationDao.findAQIDistrict()
                 districts?.forEach {
                     val targetUrl = AQIViewUrlBuilder(Constant.AQI_BASE_URL, it.pinyin_aqi)
@@ -90,8 +89,7 @@ open class AQIService : AbstractSpiderTask() {
      *  若有, 则更新旧项
      *  没有, 则保存为新项
      * */
-    open val saveWebdata = {
-        webData: WebData ->
+    open fun saveWebdata(webData: WebData) {
         val aqi = webData.aqi
         val stationAQIs = webData.stationAQIs
         val stations = webData.stations
@@ -117,8 +115,7 @@ open class AQIService : AbstractSpiderTask() {
         stationAQIs.forEach { stationAQIDao save it }
     }
 
-    open val findStationAQI = {
-        districtId: Long ->
+    open fun findStationAQI(districtId: Long) {
         val stations = stationDao.findByDistrict(districtId) ?: mutableListOf()
         val ids = mutableListOf<Long>()
         stations.forEach { ids.add(it.id) }
@@ -130,7 +127,8 @@ open class AQIService : AbstractSpiderTask() {
 /**
  * URL Builder
  * */
-private fun AQIViewUrlBuilder(baseUrl: String, districtPinyin: String): String {
+private val AQIViewUrlBuilder: (String, String) -> String = {
+    baseUrl, districtPinyin ->
     val urlSuffix = ".html"
 
     val urlBuffer: StringBuffer = StringBuffer()
@@ -142,7 +140,7 @@ private fun AQIViewUrlBuilder(baseUrl: String, districtPinyin: String): String {
     urlBuffer.append(districtPinyin)
     urlBuffer.append(urlSuffix)
 
-    return urlBuffer.toString()
+    urlBuffer.toString()
 }
 
 private fun fetchDataViaSpider(targetUrl: String, district: District): WebData? {
@@ -206,11 +204,12 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): WebData? 
     return result
 }
 
-private fun parseIntegerData(data: String): Int {
+private val parseIntegerData:(String)-> Int = {
+    data ->
     try {
-        return parseInt(data.split("：").last().replace("μg/m3", "").trim())
+        parseInt(data.split("：").last().replace("μg/m3", "").trim())
     } catch(ex: Exception) {
-        return - 1
+        - 1
     }
 }
 

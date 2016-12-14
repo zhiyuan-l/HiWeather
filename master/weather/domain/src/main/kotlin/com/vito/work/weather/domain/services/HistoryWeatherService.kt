@@ -157,22 +157,20 @@ open class HistoryWeatherService : AbstractSpiderTask() {
     /**
      * 根据城市的 id查找某一天的历史天气
      * */
-    open val findByDate: (Long, LocalDate) -> HistoryWeather? = {
-        cityId, date ->
-        historyWeatherDao.findByCityDate(cityId, Date.valueOf(date))
+    open fun findByDate(cityId: Long, date:LocalDate): HistoryWeather? {
+         return historyWeatherDao.findByCityDate(cityId, Date.valueOf(date))
     }
 
     /**
      * 根据城市的 id 查出某一个月所有的历史天气
      * */
-    open val findByMonth: (Long, LocalDate) -> List<HistoryWeather>? = {
-        cityId, date ->
+    open fun findByMonth (cityId: Long, date: LocalDate): List<HistoryWeather>? {
         val dates = mutableListOf<Date>()
 
         // 这个月的起始日期
         val startDate = date.minusDays(date.dayOfMonth.toLong() - 1)
         (0 .. date.lengthOfMonth() - 1).forEach { offset -> dates.add(Date.valueOf(startDate.plusDays(offset.toLong()))) }
-        historyWeatherDao.findByCityDates(cityId, dates)
+        return historyWeatherDao.findByCityDates(cityId, dates)
     }
 }
 

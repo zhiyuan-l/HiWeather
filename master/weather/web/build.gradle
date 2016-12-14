@@ -2,7 +2,6 @@ group 'com.vito.work'
 version '1.0-SNAPSHOT'
 
 configurations {
-
     compile.exclude module: 'slf4j-log4j12'
 }
 

@@ -71,10 +71,9 @@ open class HourWeatherService : AbstractSpiderTask() {
      *
      * @return  hws     获取到并保存成功的结果集
      * */
-    open val execute = {
-        district: District ->
+    open fun execute(district: District) {
         try {
-            task() {
+            task {
                 val targetUrl = urlBuilder(Constant.CNWEATHER_24H_API_BASE_URL, district.id)
                 val hws = fetchDataFromCnWeather(targetUrl, district)
                 saveHourWeather(hws)
