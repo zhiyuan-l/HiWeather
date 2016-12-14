@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en-us"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title> Hi Weather </title>
+    <meta name="description" content="A Weather Website"/>
+    <meta name="author" content="vito"/>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+    <!-- #CSS Links -->
+    <!-- Basic Styles -->
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/css/font-awesome.min.css}"/>
+    <!--<link rel="stylesheet" type="text/css" href="http://cdn.oesmith.co.uk/morris-0.5.1.css"/>-->
+
+    <!-- #FAVICONS -->
+    <link rel="shortcut icon" type="image/x-icon"
+          th:href="@{/static/imgs/favicon/favicon.ico}"/>
+    <link rel="icon" type="image/x-icon"
+          th:href="@{/static/imgs/favicon/favicon.ico}"/>
+
+    <!-- Animate.css -->
+    <link rel="stylesheet" th:href="@{/static/css/animate.css}"/>
+    <!-- Icomoon Icon Fonts-->
+    <link rel="stylesheet" th:href="@{/static/lib/css/icomoon.css}"/>
+    <!-- Magnific Popup-->
+    <link rel="stylesheet" th:href="@{/static/css/magnific-popup.css}"/>
+    <!-- Owl Carousel -->
+    <link rel="stylesheet" th:href="@{/static/lib/css/owl.carousel.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/lib/css/owl.theme.default.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/lib/css/morris.css}"/>
+
+    <!-- Cards -->
+    <link rel="stylesheet" th:href="@{/static/css/cards.css}"/>
+
+    <link rel="stylesheet" th:href="@{/static/lib/css/weather-icons.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/lib/css/weather-icons-wind.min.css}"/>
+    <link rel="stylesheet" th:href="@{/static/lib/css/meteocons.css}"/>
+    <link rel="stylesheet" th:href="@{/static/lib/smartadmin/js/plugin/bootstrap-timepicker/bootstrap-datetimepicker.min.css}"/>
+
+    <!-- Modernizr JS -->
+    <script th:src="@{/static/lib/js/modernizr-2.6.2.min.js}"></script>
+    <!-- FOR IE9 below -->
+    <!--[if lt IE 9]>
+    <script th:src="@{/static/lib/js/respond.min.js}"></script>
+    <![endif]-->
+
+</head>
+<body>
+
+<div id="fh5co-page">
+    <nav class="fh5co-nav-style-1" role="navigation"
+         data-offcanvass-position="fh5co-offcanvass-left">
+        <div class="container">
+            <div class="col-lg-3 col-md-3 col-sm-3 col-xs-12 fh5co-logo">
+                <a href="javascript:void(0)" class="js-fh5co-mobile-toggle fh5co-nav-toggle"><i></i></a>
+                <a href="javascript:void(0)">Hi Weather</a>
+            </div>
+            <div class="col-lg-6 col-md-5 col-sm-5 text-center fh5co-link-wrap">
+                <ul data-offcanvass="yes">
+                    <li><a th:href="@{/}">当地天气</a></li>
+                    <li><a th:href="@{/weather/forecast/}">天气预报</a></li>
+                    <li class="active"><a th:href="@{/weather/history/}">历史天气</a></li>
+                    <li><a th:href="@{/weather/aqi/}">空气质量</a></li>
+                </ul>
+            </div>
+            <span class="col-lg-3 col-md-4 col-sm-4 text-right">
+                <button href="javascript:void(0)" class="btn btn-default btn-outline btn-lg"
+                        data-toggle="modal" data-target="#location_modal"
+                        style="color: lightgoldenrodyellow">
+                    更改默认城市
+                </button>
+            </span>
+        </div>
+    </nav>
+
+    <div class="fh5co-cover fh5co-cover-style-2 js-full-height" data-stellar-background-ratio="0.5"
+         data-next="yes" style="background-image: url(/static/imgs/full_1.jpg);">
+		  	<span class="scroll-btn wow fadeInUp" data-wow-duration=".5s" data-wow-delay="1.4s">
+				<a href="#">
+                    <span class="mouse"><span></span></span>
+                </a>
+			</span>
+        <div class="fh5co-overlay"></div>
+
+        <div class="fh5co-cover-text">
+            <div class="container">
+                <div class="row">
+                    <div class="col-md-4 full-height js-full-height">
+                        <div class="fh5co-cover-intro text-center">
+                            <p class="cover-text-lead wow fadeInUp" data-wow-duration=".5s"
+                               data-wow-delay=".5s"><i class="fa fa-map-marker"
+                                                       style="color: #b1811d;"></i>
+                                <span id="district_name">Some Place</span>
+                            </p>
+                            <h2 class="cover-text-sublead wow fadeInUp" data-wow-duration=".5s"
+                                data-wow-delay=".7s">历史天气</h2>
+                        </div>
+                    </div>
+
+                    <div class="col-md-8 full-height js-full-height">
+                        <div class="fh5co-cover-intro text-center">
+                            <p class="cover-text-lead wow fadeInUp" data-wow-duration=".5s" data-wow-delay=".5s">
+                                <table id="history_table" class="table" width="100%" style="color: #e6e6e6">
+                                    <thead>
+                                    <tr class="text-center">
+                                        <th class="text-center"><i class="fa fa-fw fa-calendar-o"></i>日期
+                                        </th>
+                                        <th class="text-center"><i class="fa fa-fw fa-sun-o"></i>天气
+                                        </th>
+                                        <th class="text-center"><i class="wi wi-fw wi-thermometer"></i>最高温度
+                                        </th>
+                                        <th class="text-center"><i class="wi wi-fw wi-thermometer"></i>最低温度
+                                        </th>
+                                        <th class="text-center"><i class="wi wi-fw wi-direction-up"></i>风向
+                                        </th>
+                                        <th class="text-center"><i class="wi wi-fw wi-strong-wind"></i>风力
+                                        </th>
+                                    </tr>
+                                    </thead>
+                                </table>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 时光机 -->
+    <div class="fh5co-project-style-1">
+        <div class="container">
+            <div class="row p-b">
+
+                <h2 class="fh5co-heading wow fadeInUp text-center" data-wow-duration="1s"
+                    data-wow-delay="0s">时光机</h2>
+
+                <div class="cover-text-lead wow fadeInUp" data-wow-duration=".5s" data-wow-delay=".5s">
+
+                    <div class="row text-center">
+                        <div class="col-md-2 col-md-offset-4">
+                            <div class="input-group date" data-date="2011-01-01" id="datepicker">
+                                <input class="form-control" size="16" type="text" id="queryDate" value="" placeholder="选择一个日期" readonly="readonly"/>
+                                <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></span>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <div class="input-group date form_date" >
+                                <select class="form-control" id="queryType">
+                                    <option value="20">全月</option>
+                                    <option value="10">当日</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-1">
+                            <button class="btn btn-success" id="confirm">查询</button>
+                        </div>
+                    </div>
+
+                </div>
+                <hr/>
+                <div class="cover-text-lead wow fadeInUp" data-wow-duration=".5s" data-wow-delay=".5s">
+                    <div class="row text-center">
+                        <table id="timeMachine" class="table" width="100%">
+                            <thead>
+                            <tr>
+                                <th class="text-center"><i class="fa fa-fw fa-calendar-o"></i>日期
+                                </th>
+                                <th class="text-center"><i class="fa fa-fw fa-sun-o"></i>天气
+                                </th>
+                                <th class="text-center"><i class="wi wi-fw wi-thermometer"></i>最高温度
+                                </th>
+                                <th class="text-center"><i class="wi wi-fw wi-thermometer"></i>最低温度
+                                </th>
+                                <th class="text-center"><i class="wi wi-fw wi-direction-up"></i>风向
+                                </th>
+                                <th class="text-center"><i class="wi wi-fw wi-strong-wind"></i>风力
+                                </th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 历史之最 -->
+    <div class="fh5co-project-style-2" id="forecast_part">
+
+        <div class="fh5co-projects">
+            <ul>
+                <li class="wow fadeInUp" style="background-image: url(/static/imgs/full_1.jpg);"
+                    data-wow-duration=".5s" data-wow-delay=".5s"
+                    data-stellar-background-ratio="0.5">
+                    <a href="javascript:void(0)">
+                        <div class="fh5co-overlay"></div>
+                        <div class="container">
+                            <div class="fh5co-text">
+                                <div class="fh5co-text-inner text-center">
+                                    <div class="row">
+                                        <div class="col-md-12"><h2 style="color: #e6e6e6">
+                                            历史之最</h2></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li class="wow fadeInUp" style="background-image: url(/static/imgs/full_2.jpg);"
+                    data-wow-duration=".5s" data-wow-delay=".5s"
+                    data-stellar-background-ratio="0.5">
+                    <a href="javascript:void(0)">
+                        <div class="fh5co-overlay"></div>
+                        <div class="container">
+                            <div class="fh5co-text">
+                                <div class="fh5co-text-inner history_tops">
+                                    <div class="row">
+                                        <div class="col-md-4"><h3>历史最高温度</h3></div>
+                                        <div class="col-md-4"><h3 class="date">Day 1</h3></div>
+                                        <div class="col-md-4"><p class="p1">DayWeather</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                <li class="wow fadeInUp" style="background-image: url(/static/imgs/full_2.jpg);"
+                    data-wow-duration=".5s" data-wow-delay=".5s"
+                    data-stellar-background-ratio="0.5">
+                    <a href="javascript:void(0)">
+                        <div class="fh5co-overlay"></div>
+                        <div class="container">
+                            <div class="fh5co-text">
+                                <div class="fh5co-text-inner history_tops">
+                                    <div class="row">
+                                        <div class="col-md-4"><h3>历史最低温度</h3></div>
+                                        <div class="col-md-4"><h3 class="date">Day 1</h3></div>
+                                        <div class="col-md-4"><p class="p1">DayWeather</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="fh5co-footer-style-3">
+        <div class="container">
+            <div class="row p-b">
+                <div class="col-md-offset-3 col-md-3 col-sm-6 fh5co-footer-widget wow fadeInUp"
+                     data-wow-duration=".5s" data-wow-delay=".5s">
+                    <div class="fh5co-logo"><span class="logo">Hi</span> Weather</div>
+                    <p class="fh5co-copyright">&copy; 2016 vito. <br/>All Rights Reserved. <br/>
+                    </p>
+                </div>
+                <div class="col-md-offset-2 col-md-3 col-sm-6 fh5co-footer-widget wow fadeInUp"
+                     data-wow-duration=".5s" data-wow-delay=".7s">
+                    <h3>关于</h3>
+                    <p>凌志远的毕业设计</p>
+                    <p><a href="Mailto:dev_vito@163.com" class="btn btn-success btn-sm btn-outline">联系我</a>
+                    </p>
+                </div>
+                <div class="clearfix visible-sm-block"></div>
+            </div>
+            <div class="row fh5co-made">
+                <div class="col-md-12 wow fadeInUp" data-wow-duration=".5s" data-wow-delay=".5s">
+                    <p><i class="heart icon-heart"></i></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- END footer -->
+
+</div>
+<!-- END page-->
+
+<!-- Location Modal -->
+<div class="modal fade" id="location_modal" tabindex="-1" role="dialog"
+     aria-labelledby="location_modal_label" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">
+                    &times;
+                </button>
+                <h4 class="modal-title" id="location_modal_label">更改城市</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-md-push-3 col-md-6">
+                        <div class="form-group">
+                            <label for="switch_province"> 省/直辖市 </label>
+                            <select class="form-control" id="switch_province">
+                                <option>北京</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-push-3 col-md-6">
+                        <div class="form-group">
+                            <label for="switch_city"> 城市 </label>
+                            <select class="form-control" id="switch_city">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-push-3 col-md-6">
+                        <div class="form-group">
+                            <label for="switch_district"> 县级市/县 </label>
+                            <select class="form-control" id="switch_district">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">
+                    取消
+                </button>
+                <button type="button" id="confirm_switch_location" class="btn btn-primary ">
+                    确认
+                </button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<!-- jQuery -->
+<script th:src="@{/static/lib/js/jquery-2.1.1.min.js}"></script>
+<!-- jQuery Easing -->
+<script th:src="@{/static/lib/js/jquery.easing.1.3.js}"></script>
+<!-- BOOTSTRAP JS -->
+<script th:src="@{/static/lib/js/bootstrap.min.js}"></script>
+<!-- Waypoints -->
+<script th:src="@{/static/lib/js/jquery.waypoints.min.js}"></script>
+<!-- Owl Carousel -->
+<script th:src="@{/static/lib/js/owl.carousel.min.js}"></script>
+<!-- Magnific Popup -->
+<script th:src="@{/static/lib/js/jquery.magnific-popup.min.js}"></script>
+<!-- Stellar -->
+<script th:src="@{/static/lib/js/jquery.stellar.min.js}"></script>
+<!-- countTo -->
+<script th:src="@{/static/lib/js/jquery.countTo.js}"></script>
+<!-- WOW -->
+<script th:src="@{/static/lib/js/wow.min.js}"></script>
+
+<!--[if IE 8]>
+
+<h1>Your browser is out of date, please update your browser by going to
+    www.microsoft.com/download</h1>
+
+<![endif]-->
+
+<script th:src="@{/static/lib/js/moment-with-locales.min.js}"></script>
+
+<!-- PAGE RELATED PLUGIN(S) -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/morris/raphael.min.js}"></script>
+<!--<script th:src="@{/static/lib/smartadmin/js/plugin/morris/morris-chart-settings.min.js}"></script>-->
+<script th:src="@{/static/lib/smartadmin/js/plugin/morris/morris.min.js}"></script>
+<script th:src="@{/static/lib/smartadmin/js/plugin/datatables/jquery.dataTables.min.js}"></script>
+<script th:src="@{/static/lib/smartadmin/js/plugin/datatables/dataTables.colVis.min.js}"></script>
+<script th:src="@{/static/lib/smartadmin/js/plugin/datatables/dataTables.tableTools.min.js}"></script>
+<script th:src="@{/static/lib/smartadmin/js/plugin/datatables/dataTables.bootstrap.min.js}"></script>
+<script th:src="@{/static/lib/smartadmin/js/plugin/datatable-responsive/datatables.responsive.min.js}"></script>
+
+<script th:src="@{/static/lib/smartadmin/js/plugin/bootstrap-timepicker/bootstrap-datetimepicker.min.js}"></script>
+<script th:src="@{/static/lib/smartadmin/js/plugin/bootstrap-timepicker/bootstrap-datetimepicker.zh-CN.js}"></script>
+
+<script th:src="@{/static/js/location2.js}"></script>
+<script th:src="@{/static/js/location/index.js}"></script>
+<script th:src="@{/static/js/weather.js}"></script>
+<script th:src="@{/static/js/base.js}"></script>
+<script th:src="@{/static/js/switch-location-modal.js}"></script>
+
+
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(function () {
+        var weatherData = []
+
+        new WOW().init();
+        $('#district_name').text(window.currentDistrict.title);
+
+        var responsiveHelper_history_table = undefined;
+        var responsiveHelper_timeMachine_table = undefined;
+
+        // 设置日期选择器
+        $('#datepicker').datetimepicker({
+            language: 'zh-CN',
+            format: 'yyyy-mm-dd',
+            autoclose: true,
+            startDate: "2011-01-01",
+            endDate: moment().subtract(1, "months").format("YYYY-MM-DD"),
+            startView: "year",
+            maxView: "year",
+            minView: "month",
+            keyboardNavigation: true
+        })
+
+        // 提交查询按钮的事件
+        $('#confirm').on('click', function(ev){
+
+            var type = $('#queryType').val()
+            var date = $('#queryDate').val()
+            if(date == ''){
+                return
+            }
+            // 清空之前的数据
+            weatherData = []
+
+            $.ajax({
+                url: /*[[@{/weather/history/query}]]*/"",
+                data: {cityId: currentDistrict.city.id, date: date, type: type},
+                dataType: 'json',
+                async: false,
+                success: function (data) {
+                    $.each(data.data, function (index, val) {
+                        weatherData.push(val)
+                    })
+                }
+            })
+
+            var datatable = $('#timeMachine').dataTable().api()
+            datatable.clear();
+            datatable.rows.add(weatherData)
+            datatable.draw();
+
+        })
+
+        // 时光机的表格配置
+        $('#timeMachine').DataTable({
+            sDom: sDomSetting2,
+            oLanguage: oLanguageSetting,
+            preDrawCallback: function () {
+                // Initialize the responsive datatables helper once.
+                if (!responsiveHelper_timeMachine_table) {
+                    responsiveHelper_timeMachine_table = new ResponsiveDatatablesHelper($('#timeMachine '), breakpointDefinition);
+                }
+            },
+            rowCallback: function (nRow) {
+                responsiveHelper_timeMachine_table.createExpandIcon(nRow);
+            },
+            drawCallback: function (oSettings) {
+                responsiveHelper_timeMachine_table.respond();
+            },
+            autoWidth: true,
+            paging: false,
+            data: weatherData,
+            columns: [
+                {data: "date"},
+                {data: "weather"},
+                {data: "max"},
+                {data: "min"},
+                {data: "wind_direction"},
+                {data: "wind_force"}
+            ]
+        });
+
+
+        // 设置区域切换 modal
+        var provinceSelect = $('#switch_province');
+        var citySelect = $('#switch_city');
+        var districtSelect = $('#switch_district');
+
+        // 区域切换的Modal初始设置
+        locationModal(provinceSelect, citySelect, districtSelect);
+        // 初始化location 选择列表
+        changeProvinces();
+
+        $('#confirm_switch_location').click(function () {
+            changeCurrentDistrictById(selectedDistrictId)
+            changeCurrentCityById(selectedCityId)
+            changeCurrentProvinceById(selectedProvinceId)
+            window.location.reload()
+        })
+
+        // 获取当前城市每年今日天气的函数
+        function getWeathersOfYears(cityId) {
+            var weathers = []
+            $.ajax({
+                url: /*[[@{/weather/history/today}]]*/"",
+                data: {cityId: cityId},
+                dateType: "json",
+                async: false,
+                success: function (data) {
+                    $.each(data.data, function (index, val) {
+                        weathers.push(val)
+                    })
+                }
+            })
+
+            return weathers
+        }
+
+        // 获取天气
+        var weathersOfYears = getWeathersOfYears(window.currentDistrict.city.id)
+
+        var breakpointDefinition = {
+            tablet: 1024,
+            phone: 480
+        };
+
+        /* day history table */
+
+        $('#history_table').DataTable({
+            sDom: sDomSetting2,
+            oLanguage: oLanguageSetting,
+            preDrawCallback: function () {
+                // Initialize the responsive datatables helper once.
+                if (!responsiveHelper_history_table) {
+                    responsiveHelper_history_table = new ResponsiveDatatablesHelper($('#history_table'), breakpointDefinition);
+                }
+            },
+            rowCallback: function (nRow) {
+                responsiveHelper_history_table.createExpandIcon(nRow);
+            },
+            drawCallback: function (oSettings) {
+                responsiveHelper_history_table.respond();
+            },
+            autoWidth: true,
+
+            data: weathersOfYears,
+            columns: [
+                {data: "date"},
+                {data: "weather"},
+                {data: "max"},
+                {data: "min"},
+                {data: "wind_direction"},
+                {data: "wind_force"}
+            ]
+        });
+
+        /* END day history table */
+
+        // 获取历史之最
+        var  weatherTops = []
+        $.ajax({
+            url: /*[[@{/weather/history/tops}]]*/"",
+            data: {cityId: window.currentDistrict.city.id},
+            dataType: "json",
+            async: false,
+            success: function (data) {
+                $.each(data.data, function (index, val) {
+                    weatherTops.push(val)
+                })
+                // 组装历史之最部分
+                if (weatherTops.length != 0) {
+                    $('.history_tops').each(function (index, val) {
+
+                        var hw = weatherTops[index]
+
+                        $(val).find("h3.date").text(moment(hw.date, 'YYYY-MM-DD').format('YYYY年M月D日') + "(" + moment(hw.date, 'YYYY-MM-DD').format('dddd') + ")")
+                        $(val).find("p.p1").text("")
+                                .append($("<span></span>").text("" + hw.weather + " " + hw.max + "°C" +"~"+hw.min+ "°C " + hw.wind_direction + " " + hw.wind_force))
+
+                    })
+                }
+            },
+            fail: function () {
+                alert("历史之最获取失败")
+            }
+        })
+
+
+
+    });
+
+    /*]]>*/
+</script>
+
+
+<!-- Main -->
+<script th:src="@{/static/lib/js/main.js}"></script>
+
+</body>
+</html>
