@@ -6,6 +6,6 @@ This project provides a complete example of developing web project in Kotlin. Th
 #Keywords
 Kotlin SpringBoot SpringMVC Hibernate Gradle Thymeleaf
 #Usage
-Importing the project from master/weather/setting.gradle
-Running this project needs a active mysql server, and the database should be named weather, the charset of the DB must be utf-8. Before deploying the website, you should execute the script file, document/weather.sql
-There is only one user in admin module, both the user name and password are admin
+Importing the project from setting.gradle
+Running this project needs an active mysql server, and the database should be named weather, the charset of the DB must be utf-8, you can configure this project by editing the application.properties file. Before deploying the website, you should execute doc/weather.sql, the init script.
+There is only one user, both the username and password are admin.
