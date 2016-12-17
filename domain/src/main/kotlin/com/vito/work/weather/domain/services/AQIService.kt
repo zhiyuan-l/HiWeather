@@ -99,14 +99,17 @@ open class AQIService : AbstractSpiderTask() {
 
         // 不存在则保存
         stations.forEach { iw ->
-            val station = savedStations.firstOrNull { iw.name_zh == it.name_zh }
-            if (station == null) {
-                savedStations.add(iw)
-            } else {
-                station.district = iw.district
-                station.name_en = iw.name_en
-                station.name_zh = iw.name_zh
-                savedStations.add(station)
+            with(iw){
+                savedStations.firstOrNull { name_zh == it.name_zh }.apply {
+                    if (this == null) {
+                        savedStations.add(iw)
+                    } else {
+                        district = district
+                        name_en = name_en
+                        name_zh = name_zh
+                        savedStations.add(this)
+                    }
+                }
             }
         }
         aqiDao save aqi

@@ -22,19 +22,15 @@ class HackedAPI {
 val CNWEATHER_API_BASE_URL_NOW = "http://d1.weather.com.cn/sk_2d/districtId.html"
 val CNWEATHER_API_REFERER_BASE_URL = "http://www.weather.com.cn/weather1d/districtId.shtml"
 
-private fun UrlBuilder(baseUrl: String, districtId: String): String {
-
-    var urlBuffer: StringBuffer = StringBuffer()
-
-    with(urlBuffer) {
+private fun UrlBuilder(baseUrl: String, districtId: String): String{
+    return with(StringBuffer()) {
         if (! baseUrl.startsWith("http://") && ! baseUrl.startsWith("https://")) {
             append("http://")
         }
         append(baseUrl.replace("districtId", districtId))
-    }
-
-    return urlBuffer.toString()
+    }.toString()
 }
+
 
 fun invokeAPI(districtId: String): String {
     val targetUrl = UrlBuilder(CNWEATHER_API_BASE_URL_NOW, districtId)

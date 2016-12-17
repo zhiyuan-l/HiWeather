@@ -287,12 +287,7 @@ private fun updateAQIDistricts(districts: List<District>) {
 
     val receivedUrls: List<String> = resultItems.get("urls")
     val titles: List<String> = resultItems.get("titles")
-    val pinyins = mutableListOf<String>()
-
-    for (url in receivedUrls) {
-        val pinyin_aqi = url.substringAfter("/air/").removeSuffix(".html")
-        pinyins.add(pinyin_aqi)
-    }
+    val pinyins = receivedUrls.map { it.substringAfter("/air/").removeSuffix(".html") }
 
     for (district in districts) {
         titles.forEachIndexed { index, it ->
@@ -301,7 +296,6 @@ private fun updateAQIDistricts(districts: List<District>) {
             }
         }
     }
-
 }
 
 private fun updateDistrictViaAPI(districts: List<District>) {

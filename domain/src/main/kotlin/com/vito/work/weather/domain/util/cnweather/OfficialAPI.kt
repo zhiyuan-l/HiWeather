@@ -39,17 +39,17 @@ enum class APIType(val type: Int, val title: String) {
     FORECAST_V(4, "forecast_v")
 }
 
-data class ReqeustBean(val areaids: List<Long>, val type: APIType, val datetime: LocalDateTime, val appid: String, val private_key: String)
+data class RequestBean(val areaids: List<Long>, val type: APIType, val datetime: LocalDateTime, val appid: String, val private_key: String)
 
 fun getResultBean(district: District): CnWeatherModel? {
     val districtIds = mutableListOf(district.id)
 
-    val requestBean = ReqeustBean(districtIds, APIType.FORECAST_V, LocalDateTime.now(), Constant.CNWEATHER_APPID, Constant.CNWEATHER_PRIVATE_KEY)
+    val requestBean = RequestBean(districtIds, APIType.FORECAST_V, LocalDateTime.now(), Constant.CNWEATHER_APPID, Constant.CNWEATHER_PRIVATE_KEY)
 
     try {
-        var result = invokeAPI(Constant.CNWEATHER_BASE_URL, requestBean)
-        var mapper = ObjectMapper()
-        var resultBean = mapper.readValue(result, CnWeatherModel::class.java)
+        val mapper = ObjectMapper()
+        val result = invokeAPI(Constant.CNWEATHER_BASE_URL, requestBean)
+        val resultBean = mapper.readValue(result, CnWeatherModel::class.java)
         return resultBean
     } catch(ex: Exception) {
         ex.printStackTrace()
@@ -57,7 +57,7 @@ fun getResultBean(district: District): CnWeatherModel? {
     }
 }
 
-private fun invokeAPI(baseUrl: String, requestBean: ReqeustBean): String? {
+private fun invokeAPI(baseUrl: String, requestBean: RequestBean): String? {
     val url = urlBuilder(baseUrl, requestBean)
     val result: String? = HttpUtil.sendGetRequestViaHttpClient(url, hashMapOf(), hashMapOf(), Charset.forName("utf-8"))
     if (result != null) {
@@ -66,7 +66,7 @@ private fun invokeAPI(baseUrl: String, requestBean: ReqeustBean): String? {
     return result
 }
 
-private fun urlBuilder(baseUrl: String, requestBean: ReqeustBean): String {
+private fun urlBuilder(baseUrl: String, requestBean: RequestBean): String {
 
     val url = StringBuffer()
 
@@ -106,7 +106,7 @@ private fun urlBuilder(baseUrl: String, requestBean: ReqeustBean): String {
     url.append(paramSeperator)
     url.append("appid=")
 
-    var publicKey = url.toString().plus(appid)
+    val publicKey = url.toString().plus(appid)
 
     url.append(appid.substring(0, 6))
 

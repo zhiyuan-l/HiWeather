@@ -43,7 +43,7 @@ open class HourWeatherService : AbstractSpiderTask() {
     }
 
     companion object {
-        var spider: Spider = Spider.create(CnWeather24ViewPageProcessor()).thread(Constant.SPIDER_THREAD_COUNT) !!
+        val spider: Spider = Spider.create(CnWeather24ViewPageProcessor()).thread(Constant.SPIDER_THREAD_COUNT) !!
         val logger = LoggerFactory.getLogger(HourWeatherService::class.java) !!
     }
 

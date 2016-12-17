@@ -43,9 +43,9 @@ open class ForecastWeatherTask @Autowired constructor(val locationService: Locat
 
         val cities = locationService.findCities() ?: listOf()
 
-        for (city in cities) {
+        cities.forEach {
+            city ->
             districts?.filter { it.city == city.id }?.forEach { district ->
-
                 try {
                     forecastWeatherService.execute(city, district)
                 } catch(ex: Exception) {
@@ -56,4 +56,5 @@ open class ForecastWeatherTask @Autowired constructor(val locationService: Locat
         }
         logger.info("Success : Task Update Forecast Weather")
     }
+
 }
