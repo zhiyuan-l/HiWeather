@@ -24,7 +24,7 @@ open class ForecastWeatherTask @Autowired constructor(val locationService: Locat
 
 
     companion object {
-        val logger = LoggerFactory.getLogger(ForecastWeatherTask::class.java)
+        val logger = LoggerFactory.getLogger(ForecastWeatherTask::class.java) !!
     }
 
     @Scheduled(cron = "0 0 7 * * ?") // 每天早上七点更新

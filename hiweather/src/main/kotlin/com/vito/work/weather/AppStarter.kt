@@ -22,9 +22,8 @@ import javax.servlet.Filter
 open class AppStarter {
 
     @Bean
-    open fun errorAttributes(): DefaultErrorAttributes {
-        return DefaultErrorAttributes()
-    }
+    open fun errorAttributes(): DefaultErrorAttributes
+            = DefaultErrorAttributes()
 
     @Bean
     open fun charsetFilter(): Filter {
@@ -35,9 +34,8 @@ open class AppStarter {
     }
 
     @Bean
-    open fun securityConfig(): SecurityConfig {
-        return SecurityConfig()
-    }
+    open fun securityConfig(): SecurityConfig
+            = SecurityConfig()
 
     @Bean
     open fun objectMapperBuilder(): Jackson2ObjectMapperBuilder
