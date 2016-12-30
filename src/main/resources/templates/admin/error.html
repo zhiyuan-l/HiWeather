@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en-us"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8"/>
+    <title> Weather </title>
+    <meta name="description" content="A Weather Website"/>
+    <meta name="author" content="vito"/>
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+
+    <!-- #CSS Links -->
+    <!-- Basic Styles -->
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/bootstrap.min.css}"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/font-awesome.min.css}"/>
+    <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>-->
+
+
+    <!-- SmartAdmin Styles : Caution! DO NOT change the order -->
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/smartadmin-production-plugins.min.css}"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/smartadmin-production.min.css}"/>
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/smartadmin-skins.min.css}"/>
+
+    <!-- SmartAdmin RTL Support -->
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/lib/smartadmin/css/smartadmin-rtl.min.css}"/>
+
+    <link rel="stylesheet" type="text/css" media="screen"
+          th:href="@{/static/css/error/error.css}"/>
+
+    <!-- #FAVICONS -->
+    <link rel="shortcut icon" type="image/x-icon"
+          th:href="@{/static/imgs/favicon.ico}"/>
+    <link rel="icon" type="image/x-icon"
+          th:href="@{/static/imgs/favicon.ico}"/>
+</head>
+
+<body class="smart-style-6 container">
+
+<!-- #HEADER -->
+<header id="header">
+    <div id="logo-group">
+
+        <!-- PLACE YOUR LOGO HERE -->
+        <span id="logo"><img th:src="@{/static/imgs/weather-admin-logo.png}"
+                             alt="Weather管理控制台"/> </span>
+        <!-- END LOGO PLACEHOLDER -->
+    </div>
+
+    <!-- #TOGGLE LAYOUT BUTTONS -->
+    <!-- pulled right: nav area -->
+    <div class="pull-right">
+
+        <!-- logout button -->
+        <div id="logout" class="btn-header transparent pull-right">
+            <span>
+                <a th:href="@{/logout}" title="Sign Out" data-action="userLogout"
+                   data-logout-msg="您确认要退出吗?"><i class="fa fa-sign-out"></i></a>
+            </span>
+        </div>
+        <!-- end logout button -->
+
+    </div>
+    <!-- end pulled right: nav area -->
+
+</header>
+<!-- END HEADER -->
+
+<!-- #NAVIGATION -->
+<!-- Left panel : Navigation area -->
+<!-- Note: This width of the aside area can be adjusted through LESS variables -->
+<aside id="left-panel">
+
+    <!-- User info -->
+    <div class="login-info">
+				<span> <!-- User image size is adjusted inside CSS, it should stay as it -->
+
+					<a href="javascript:void(0);" id="show-shortcut" data-action="toggleShortcut">
+                        <img th:src="@{/static/lib/smartadmin/img/avatars/sunny.png}" alt="me"
+                             class="online"/>
+						<span>
+							vito
+						</span>
+                        <i class="fa fa-angle-down"></i>
+                    </a>
+
+				</span>
+    </div>
+    <!-- end user info -->
+
+    <nav>
+        <ul>
+            <li class="">
+                <a th:href="@{/}"><i class="fa fa-lg fa-fw fa-home"></i> 首页</a>
+            </li>
+            <li class="">
+                <a th:href="@{/templates/admin/location}"><i class="fa fa-lg fa-fw fa-map"></i> <span
+                        class="menu-item-parent">区域</span></a>
+            </li>
+            <li class="">
+                <a th:href="@{/weather/current/}"><i class="fa fa-lg fa-fw fa-sun-o"></i> <span
+                        class="menu-item-parent">即时天气</span></a>
+            </li>
+            <li class="">
+                <a th:href="@{/weather/forecast/}"><i class="fa fa-lg fa-fw fa-calendar"></i> <span
+                        class="menu-item-parent">未来天气</span></a>
+            </li>
+            <li class="">
+                <a th:href="@{/weather/history/}"><i class="fa fa-lg fa-fw fa-calendar-o"></i> <span
+                        class="menu-item-parent">历史天气</span></a>
+            </li>
+            <li class="">
+                <a th:href="@{/weather/aqi/}"><i class="fa fa-lg fa-fw fa-line-chart"></i> <span
+                        class="menu-item-parent">空气质量</span></a>
+            </li>
+            <li class="">
+                <a href="#"><i class="fa fa-lg fa-fw fa-user"></i> <span class="menu-item-parent">用户中心</span></a>
+                <ul>
+                    <li>
+                        <a th:href="@{/account/}" target="_top">帐号管理</a>
+                    </li>
+                    <li>
+                        <a th:href="@{/permission/}">权限管理</a>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+    </nav>
+
+</aside>
+<!-- END NAVIGATION -->
+
+<!-- MAIN PANEL -->
+<div id="main" role="main">
+
+    <!-- MAIN CONTENT -->
+    <div id="content">
+
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="text-center error-box">
+                        <h1 class="error-text-2 bounceInDown animated"> ERROR <span
+                                class="particle particle--c"></span><span
+                                class="particle particle--a"></span><span
+                                class="particle particle--b"></span></h1>
+                        <h2 class="font-xl"><strong><i
+                                class="fa fa-fw fa-warning fa-lg text-warning"></i>
+                            <div></div>
+                        </strong></h2>
+                        <br/>
+                        <p class="lead">
+                            您发送的请求出现错误, 请使用浏览器的 <b>返回</b> 按钮回到上一个页面
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+    <!-- END MAIN CONTENT -->
+
+</div>
+<!-- END MAIN PANEL -->
+
+<!-- PAGE FOOTER -->
+<div class="page-footer">
+    <div class="row">
+        <div class="col-xs-12 col-sm-6">
+            <span class="txt-color-white">Weather 1.0 <span class="hidden-xs"> - Vito's Weather Website</span> © 2015-2016</span>
+        </div>
+    </div>
+</div>
+<!-- END PAGE FOOTER -->
+
+<!-- SHORTCUT AREA : With large tiles (activated via clicking user name tag) -->
+<div id="shortcut">
+    <ul>
+        <li>
+            <a th:href="@{/user/profile}" class="jarvismetro-tile big-cubes bg-color-pinkDark">
+                <span class="iconbox">
+                    <i class="fa fa-user fa-4x"></i>
+                    <span>个人资料</span>
+                </span>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/user/message/manage}"
+               class="jarvismetro-tile big-cubes bg-color-blueDark">
+                <span class="iconbox">
+                    <i class="fa fa-envelope fa-4x"></i>
+                    <span>我的消息</span>
+                </span>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/user/security/manage}"
+               class="jarvismetro-tile big-cubes bg-color-greenDark">
+                <span class="iconbox">
+                    <i class="fa fa-suitcase fa-4x"></i>
+                    <span>账户安全</span>
+                </span>
+            </a>
+        </li>
+    </ul>
+</div>
+<!-- END SHORTCUT AREA -->
+
+<!--================================================== -->
+
+<!-- PACE LOADER - turn this on if you want ajax loading to show (caution: uses lots of memory on iDevices)-->
+<!--<script data-pace-options='{ "restartOnRequestAfter": true }' th:src="@{/static/lib/smartadmin/js/plugin/pace/pace.min.js}"></script>-->
+
+<script th:src="@{/static/lib/smartadmin/js/libs/jquery-2.1.1.min.js}"></script>
+<!--<script th:src="@{/static/lib/smartadmin/js/libs/jquery-ui-1.10.3.min.js}"></script>-->
+<!-- IMPORTANT: APP CONFIG -->
+<script th:src="@{/static/lib/smartadmin/js/app.config.js}"></script>
+
+<!-- JS TOUCH : include this plugin for mobile drag / drop touch events-->
+<script th:src="@{/static/lib/smartadmin/js/plugin/jquery-touch/jquery.ui.touch-punch.min.js}"></script>
+
+<!-- BOOTSTRAP JS -->
+<script th:src="@{/static/lib/smartadmin/js/bootstrap/bootstrap.min.js}"></script>
+
+<!-- CUSTOM NOTIFICATION -->
+<script th:src="@{/static/lib/smartadmin/js/notification/SmartNotification.min.js}"></script>
+
+<!-- JARVIS WIDGETS -->
+<script th:src="@{/static/lib/smartadmin/js/smartwidgets/jarvis.widget.min.js}"></script>
+
+<!-- EASY PIE CHARTS -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/easy-pie-chart/jquery.easy-pie-chart.min.js}"></script>
+
+<!-- SPARKLINES -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/sparkline/jquery.sparkline.min.js}"></script>
+
+<!-- JQUERY VALIDATE -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/jquery-validate/jquery.validate.min.js}"></script>
+
+<!-- JQUERY MASKED INPUT -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/masked-input/jquery.maskedinput.min.js}"></script>
+
+<!-- JQUERY SELECT2 INPUT -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/select2/select2.min.js}"></script>
+
+<!-- JQUERY UI + Bootstrap Slider -->
+<script th:src="@{/static/lib/smartadmin/js/plugin/bootstrap-slider/bootstrap-slider.min.js}"></script>
+
+<!--[if IE 8]>
+
+<h1>Your browser is out of date, please update your browser by going to
+    www.microsoft.com/download</h1>
+
+<![endif]-->
+
+<!-- MAIN APP JS FILE -->
+<script th:src="@{/static/lib/smartadmin/js/app.min.js}"></script>
+
+<!-- PAGE RELATED PLUGIN(S) -->
+
+
+<script type="text/javascript" th:inline="javascript">
+    /*<![CDATA[*/
+
+    $(document).ready(function () {
+
+        pageSetUp()
+    })
+
+    /*]]>*/
+</script>
+
+</body>
+
+</html>
