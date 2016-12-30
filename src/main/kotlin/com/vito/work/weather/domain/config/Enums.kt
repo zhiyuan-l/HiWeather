@@ -21,12 +21,7 @@ enum class AQIPrimaryType(val code: Int, val name_1: String, val name_2: String 
 }
 
 fun getAQITypeCodeByName(name: String): AQIPrimaryType {
-    for (it in AQIPrimaryType.values()) {
-        if (it.name_1 == name.trim() || it.name_2 == name.trim()) {
-            return it
-        }
 
-    }
-
-    return AQIPrimaryType.UNKNOWN
+    return AQIPrimaryType.values().firstOrNull { it -> it.name_1 == name.trim() || it.name_2 == name.trim() }
+           ?: AQIPrimaryType.UNKNOWN
 }
