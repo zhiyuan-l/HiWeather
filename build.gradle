@@ -2,7 +2,7 @@ group 'com.vito.work'
 version '1.0-SNAPSHOT'
 buildscript {
 
-    ext.kotlin_version = '1.0.5' // Required for Kotlin integration
+    ext.kotlin_version = '1.0.6' // Required for Kotlin integration
     ext.SpringBootStarterVersion = "1.4.2.RELEASE"
 
     repositories {
