@@ -1,8 +1,8 @@
 package com.vito.work.weather.admin.tasks
 
-import com.vito.work.weather.domain.config.SpiderStatus
-import com.vito.work.weather.domain.services.ForecastWeatherService
-import com.vito.work.weather.domain.services.LocationService
+import com.vito.work.weather.config.SpiderStatus
+import com.vito.work.weather.service.ForecastWeatherService
+import com.vito.work.weather.service.LocationService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.scheduling.annotation.EnableScheduling

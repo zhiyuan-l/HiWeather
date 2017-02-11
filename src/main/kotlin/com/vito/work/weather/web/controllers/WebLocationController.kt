@@ -1,7 +1,7 @@
 package com.vito.work.weather.web.controllers
 
-import com.vito.work.weather.domain.services.LocationService
-import com.vito.work.weather.domain.util.http.ObjectResponse
+import com.vito.work.weather.service.LocationService
+import com.vito.work.weather.util.http.ObjectResponse
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam

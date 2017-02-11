@@ -3,7 +3,7 @@ version '1.0-SNAPSHOT'
 buildscript {
 
     ext.kotlin_version = '1.0.6' // Required for Kotlin integration
-    ext.SpringBootStarterVersion = "1.4.2.RELEASE"
+    ext.SpringBootStarterVersion = "1.5.1.RELEASE"
 
     repositories {
         maven { url 'http://maven.aliyun.com/mvn/repository/' }
@@ -41,8 +41,6 @@ dependencies {
     compile "org.jetbrains:annotations:15.0"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-
-    compile("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     compile "org.springframework.boot:spring-boot-starter-web"
     compile 'org.springframework.boot:spring-boot-starter-thymeleaf'

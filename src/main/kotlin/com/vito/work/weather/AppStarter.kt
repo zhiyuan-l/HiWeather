@@ -1,12 +1,10 @@
 package com.vito.work.weather
 
-import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.vito.work.weather.admin.config.SecurityConfig
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.web.DefaultErrorAttributes
 import org.springframework.context.annotation.Bean
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 import org.springframework.web.filter.CharacterEncodingFilter
 import javax.servlet.Filter
 
@@ -37,15 +35,10 @@ open class AppStarter {
     open fun securityConfig(): SecurityConfig
             = SecurityConfig()
 
-    @Bean
-    open fun objectMapperBuilder(): Jackson2ObjectMapperBuilder
-            = Jackson2ObjectMapperBuilder().modulesToInstall(KotlinModule())
+}
 
-    companion object {
-        @JvmStatic fun main(args: Array<String>) {
-            val application = SpringApplication(AppStarter::class.java, *args)
-            application.setAddCommandLineProperties(false)
-            application.run()
-        }
-    }
+fun main(args: Array<String>) {
+    val application = SpringApplication(AppStarter::class.java, *args)
+    application.setAddCommandLineProperties(false)
+    application.run()
 }

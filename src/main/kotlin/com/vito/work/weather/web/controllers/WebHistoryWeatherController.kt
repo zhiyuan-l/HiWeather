@@ -1,9 +1,9 @@
 package com.vito.work.weather.web.controllers
 
-import com.vito.work.weather.domain.config.Constant
-import com.vito.work.weather.domain.entities.HistoryWeather
-import com.vito.work.weather.domain.services.HistoryWeatherService
-import com.vito.work.weather.domain.util.http.ObjectResponse
+import com.vito.work.weather.config.Constant
+import com.vito.work.weather.dto.HistoryWeather
+import com.vito.work.weather.service.HistoryWeatherService
+import com.vito.work.weather.util.http.ObjectResponse
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam

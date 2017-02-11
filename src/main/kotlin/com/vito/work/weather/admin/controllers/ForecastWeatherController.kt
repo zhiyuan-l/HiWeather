@@ -1,13 +1,13 @@
 package com.vito.work.weather.admin.controllers
 
-import com.vito.work.weather.domain.config.Constant
-import com.vito.work.weather.domain.config.SpiderStatus
-import com.vito.work.weather.domain.entities.City
-import com.vito.work.weather.domain.entities.Province
-import com.vito.work.weather.domain.services.ForecastWeatherService
-import com.vito.work.weather.domain.services.LocationService
-import com.vito.work.weather.domain.util.http.BusinessError
-import com.vito.work.weather.domain.util.http.BusinessException
+import com.vito.work.weather.config.Constant
+import com.vito.work.weather.config.SpiderStatus
+import com.vito.work.weather.dto.City
+import com.vito.work.weather.dto.Province
+import com.vito.work.weather.service.ForecastWeatherService
+import com.vito.work.weather.service.LocationService
+import com.vito.work.weather.util.http.BusinessError
+import com.vito.work.weather.util.http.BusinessException
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
