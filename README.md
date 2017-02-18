@@ -1,9 +1,10 @@
 ##HiWeather
 #介绍：
+这个项目是作为我的本科毕业设计而开发的。由于目前大多数我能找到的 Kotlin Demo 都是 Android 项目，对于 Java Web 开发帮助有限，因此本人开源此项目作为一个参考，希望能够对各位有所帮助。
+
 Github地址：https://github.com/vitoling/HiWeather
 Git@OSC地址：http://git.oschina.net/vitoling/HiWeather
 目前主要维护Github仓库，Git@OSC仓库间歇性同步
-这个项目是作为我的本科毕业设计而开发的。由于目前大多数我能找到的 Kotlin Demo 都是 Android 项目，对于 Java Web 开发帮助有限，因此本人开源此项目作为一个参考，希望能够对各位有所帮助。
 
 ![后台登录](http://git.oschina.net/uploads/images/2016/0612/174557_b82d3bfa_459585.jpeg "后台登录页")
 ![天气预报](http://git.oschina.net/uploads/images/2016/0612/174757_f80614b2_459585.jpeg "网站天气预报页面")
