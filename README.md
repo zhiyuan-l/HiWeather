@@ -18,3 +18,7 @@ Kotlin、SpringBoot、SpringMVC、Hibernate、Gradle、Thymeleaf 等。
 	账号：admin 
 	密码：admin
 项目运行前，请检查src/resources/config/ 下的配置文件内的数据库配置，运行项目需要创建名为weather的数据库，并执行 document 文件夹下 weather.sql中的代码, 其中包含所有表的结构和区域信息的数据。数据库的编码必须为 utf-8。
+### Intellij IDEA: 
+导入gradle项目，等待刷新完成之后，右键AppStarter.kt文件点击Run ... 或者 Debug ... 即可开始运行。 
+
+目前项目使用的gradle版本为3.3。
