@@ -2,9 +2,10 @@ package com.vito.work.weather.service
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vito.work.weather.config.Constant
-import com.vito.work.weather.repo.HourWeatherDao
 import com.vito.work.weather.dto.District
 import com.vito.work.weather.dto.HourWeather
+import com.vito.work.weather.repo.HourWeatherDao
+import com.vito.work.weather.service.spider.AbstractSpiderTask
 import com.vito.work.weather.service.spider.CnWeather24ViewPageProcessor
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
@@ -32,13 +33,13 @@ import javax.annotation.Resource
 
 @Service("hourWeatherService")
 @Transactional
-open class HourWeatherService : AbstractSpiderTask() {
+class HourWeatherService : AbstractSpiderTask() {
 
     @Resource
     lateinit var hourWeatherDao: HourWeatherDao
 
     @PreDestroy
-    open fun destroy() {
+    fun destroy() {
         spider.close()
     }
 
@@ -51,13 +52,13 @@ open class HourWeatherService : AbstractSpiderTask() {
      * 根据时间和区县找出一个节点的天气
      *  一个节点的时间精确到小时, 小时以下为0
      * */
-    open fun findHourWeather(district: District, dateTime: LocalDateTime)
+    fun findHourWeather(district: District, dateTime: LocalDateTime)
             = hourWeatherDao.findByDistrictDateTime(district.id, dateTime)
 
     /**
      * 查出最新的二十四小时天气预报
      * */
-    open fun find24HWeather(districtId: Long): List<HourWeather>? = hourWeatherDao.find24HByDistrict(districtId)
+    fun find24HWeather(districtId: Long): List<HourWeather>? = hourWeatherDao.find24HByDistrict(districtId)
 
     /**
      * 爬虫更新的入口
@@ -71,7 +72,7 @@ open class HourWeatherService : AbstractSpiderTask() {
      *
      * @return  hws     获取到并保存成功的结果集
      * */
-    open fun execute(district: District) {
+    fun execute(district: District) {
         try {
             task {
                 val targetUrl = urlBuilder(Constant.CNWEATHER_24H_API_BASE_URL, district.id)
@@ -94,29 +95,24 @@ open class HourWeatherService : AbstractSpiderTask() {
      * 以上操作是为了保证一个区县在一个时间点（精确到小时）只有一条数据
      *
      * */
-    open fun saveHourWeather(hourWeathers: List<HourWeather>) {
-        val savedWeathers: MutableList<HourWeather> = mutableListOf()
-        val dates = mutableListOf<Timestamp>()
-        hourWeathers.forEach { dates.add(it.datetime) }
-        savedWeathers.addAll(hourWeatherDao.findByDistrictDatetimes(hourWeathers[0].district, dates) ?: listOf())
-
-        val weathersToSave = mutableListOf<HourWeather>()
-
-        hourWeathers.forEach {
-            hw ->
-            // 存在则更新，否则新增
-            savedWeathers.firstOrNull {
-                sw ->
-                sw.district == hw.district && sw.datetime == hw.datetime
-            }?.apply {
-                aqi = hw.aqi
-                humidity = hw.humidity
-                temperature = hw.temperature
-                precipitation = hw.precipitation
-                update_time = hw.update_time
-                weathersToSave.add(this)
-            } ?: weathersToSave.add(hw)
+    fun saveHourWeather(hourWeathers: List<HourWeather>) {
+        val weathersToSave = hourWeathers.map {
+            hourWeathers
+                    .map { it.datetime }
+                    .let { hourWeatherDao.findByDistrictDatetimes(hourWeathers.first().district, it) }
+                    .firstOrNull {
+                        (_, datetime, _, _, _, _, _, _, district) ->
+                        district == it.district && datetime == it.datetime
+                    }
+                    ?.apply {
+                        aqi = it.aqi
+                        humidity = it.humidity
+                        temperature = it.temperature
+                        precipitation = it.precipitation
+                        update_time = it.update_time
+                    } ?: it
         }
+
         weathersToSave.forEach { hourWeatherDao save it }
     }
 }
@@ -133,10 +129,10 @@ private fun urlBuilder(baseUrl: String, districtId: Long): String {
  * */
 private fun fetchDataFromCnWeather(targetUrl: String, district: District): List<HourWeather> {
 
-    val hws = mutableListOf<HourWeather>()
+    var hws: List<HourWeather> = listOf()
     val resultItems: ResultItems = HourWeatherService.spider.get(targetUrl)
 
-    with(resultItems) {
+    resultItems.run {
         val ptime: PlainText = get<PlainText>("ptime")
         val hours: List<String> = get("hours")
         val temps: List<String> = get("temps")
@@ -146,10 +142,8 @@ private fun fetchDataFromCnWeather(targetUrl: String, district: District): List<
         val humis: List<String> = get("humis")
 
         val startTime = LocalDateTime.parse(ptime.firstSourceText, DateTimeFormatter.ofPattern("yy-MM-dd HH:mm"))
-        hours.forEachIndexed { index, hour ->
-
-            val weather = HourWeather()
-            with(weather) {
+        hws = hours.mapIndexed { index, _ ->
+            HourWeather().apply {
                 this.district = district.id
                 precipitation = (if (preds[index] != "") preds[index] else "-1").toDouble()
                 humidity = (if (humis[index] != "") humis[index] else "-1").toInt()
@@ -158,8 +152,6 @@ private fun fetchDataFromCnWeather(targetUrl: String, district: District): List<
                 datetime = Timestamp.valueOf(startTime.plusHours(index.toLong()))
                 temperature = (if (temps[index] != "") temps[index] else "-273").toInt()
             }
-
-            hws.add(weather)
         }
     }
 

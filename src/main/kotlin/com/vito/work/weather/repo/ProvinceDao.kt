@@ -5,14 +5,14 @@ import org.springframework.transaction.annotation.Transactional
 
 /**
  * Created by lingzhiyuan.
- * Date : 16/4/1.
- * Time : 下午9:51.
+ * Date : 3/2/17.
+ * Time : 17:36.
  * Description:
  *
  */
 
 @Repository
-@Transactional
-class LocationDao : BaseDao() {
+class ProvinceDao : BaseDao() {
+
 
 }

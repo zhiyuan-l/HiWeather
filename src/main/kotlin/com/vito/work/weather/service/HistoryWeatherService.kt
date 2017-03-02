@@ -1,14 +1,12 @@
 package com.vito.work.weather.service
 
 import com.vito.work.weather.config.Constant
-import com.vito.work.weather.repo.HistoryWeatherDao
-import com.vito.work.weather.repo.LocationDao
 import com.vito.work.weather.dto.City
 import com.vito.work.weather.dto.HistoryWeather
-import com.vito.work.weather.dto.Province
+import com.vito.work.weather.repo.DistrictDao
+import com.vito.work.weather.repo.HistoryWeatherDao
+import com.vito.work.weather.service.spider.AbstractSpiderTask
 import com.vito.work.weather.service.spider.MonthViewPageProcessor
-import com.vito.work.weather.util.http.BusinessError
-import com.vito.work.weather.util.http.BusinessException
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -32,15 +30,15 @@ import javax.annotation.Resource
 
 @Service
 @Transactional
-open class HistoryWeatherService : AbstractSpiderTask() {
+class HistoryWeatherService : AbstractSpiderTask() {
 
     @Resource
     lateinit var historyWeatherDao: HistoryWeatherDao
     @Resource
-    lateinit var locationDao: LocationDao
+    lateinit var districtDao: DistrictDao
 
     @PreDestroy
-    open fun destroy() {
+    fun destroy() {
         spider.close()
         logger.info("History Spider Stopped")
     }
@@ -53,14 +51,11 @@ open class HistoryWeatherService : AbstractSpiderTask() {
         private val logger = LoggerFactory.getLogger(HistoryWeatherService::class.java)
     }
 
-    open fun execute() {
+    fun execute() {
         task {
-            val provinces = mutableListOf<Province>()
-            val cities = mutableListOf<City>()
             HistoryWeatherService.spider.scheduler = QueueScheduler()
-            provinces.addAll(locationDao.findAll(Province::class.java))
-            cities.addAll(locationDao.findAll(City::class.java))
-            for (city in cities) {
+            val cities = districtDao.findAll(City::class.java)
+            cities.forEach { city ->
                 var tempDate = Constant.SPIDER_HISTORY_START_DATE
                 while (tempDate <= LocalDate.now().minusMonths(1)) {
                     try {
@@ -78,7 +73,7 @@ open class HistoryWeatherService : AbstractSpiderTask() {
     /**
      * 根据日期找到一个历史项, 找不到则抛出资源未找到的异常
      * */
-    open fun findHistoryWeather(city: City, date: LocalDate): HistoryWeather? {
+    fun findHistoryWeather(city: City, date: LocalDate): HistoryWeather? {
         val weather = historyWeatherDao.findByCityDate(city.id, Date.valueOf(date))
         return weather
     }
@@ -88,7 +83,7 @@ open class HistoryWeatherService : AbstractSpiderTask() {
      *
      * 执行更新和和保存操作
      * */
-    open fun updateFromWeb(city: City, date: LocalDate) {
+    fun updateFromWeb(city: City, date: LocalDate) {
         try {
             task {
                 val targetUrl = monthViewUrlBuilder(Constant.HISTORY_WEATHER_BASE_URL, city.pinyin, date)
@@ -103,45 +98,35 @@ open class HistoryWeatherService : AbstractSpiderTask() {
     /**
      * 执行保存历史天气的操作
      * */
-    open fun saveHistoryWeather(weathers: List<HistoryWeather>, city: City) {
-        val dates = mutableListOf<Date>()
-        weathers.forEach { dates.add(it.date) }
-        val savedWeathers: MutableList<HistoryWeather> = mutableListOf()
-        val temp = historyWeatherDao.findByCityDates(city.id, dates)
-        if (temp != null) {
-            savedWeathers.addAll(temp)
-        }
-        weathers.forEach { iw ->
-            val t = savedWeathers.firstOrNull { it -> it.city == iw.city && it.date == iw.date }
-            if (t == null) {
-                savedWeathers.add(iw)
-            } else {
-                t.max = iw.max
-                t.min = iw.min
-                t.wind_direction = iw.wind_direction
-                t.wind_force = iw.wind_force
-                t.weather = iw.weather
-                t.update_time = iw.update_time
-            }
+    fun saveHistoryWeather(weathers: List<HistoryWeather>, city: City) {
+
+        val savedWeathers = weathers
+                .map { it.date }
+                .let { historyWeatherDao.findByCityDates(city.id, it) }
+                .toMutableList()
+
+        weathers.forEach {
+            iw ->
+            savedWeathers.singleOrNull { it.city == iw.city && it.date == iw.date }?.apply {
+                max = iw.max
+                min = iw.min
+                wind_direction = iw.wind_direction
+                wind_force = iw.wind_force
+                weather = iw.weather
+                update_time = iw.update_time
+            } ?: savedWeathers.add(iw)
         }
 
         savedWeathers.forEach { historyWeatherDao save it }
     }
 
-    open fun findHistoryWeathersOfToday(cityId: Long): List<HistoryWeather> {
+    fun findHistoryWeathersOfToday(cityId: Long): List<HistoryWeather> {
         val now = LocalDate.now()
-
-        val dates = mutableListOf<Date>()
-        for (year in Constant.SPIDER_HISTORY_START_DATE.year .. now.year) {
-            dates.add(Date.valueOf(LocalDate.of(year, now.monthValue, now.dayOfMonth)))
-        }
-
-        val result = historyWeatherDao.findByCityDates(cityId, dates) ?: throw BusinessException(BusinessError.ERROR_RESOURCE_NOT_FOUND)
-
-        return result
+        val dates = (Constant.SPIDER_HISTORY_START_DATE.year .. now.year).map { Date.valueOf(LocalDate.of(it, now.monthValue, now.dayOfMonth)) }
+        return historyWeatherDao.findByCityDates(cityId, dates)
     }
 
-    open fun findHistoryTops(cityId: Long): List<HistoryWeather> {
+    fun findHistoryTops(cityId: Long): List<HistoryWeather> {
 
         val result = mutableListOf<HistoryWeather>()
 
@@ -157,14 +142,14 @@ open class HistoryWeatherService : AbstractSpiderTask() {
     /**
      * 根据城市的 id查找某一天的历史天气
      * */
-    open fun findByDate(cityId: Long, date:LocalDate): HistoryWeather? {
-         return historyWeatherDao.findByCityDate(cityId, Date.valueOf(date))
+    fun findByDate(cityId: Long, date: LocalDate): HistoryWeather? {
+        return historyWeatherDao.findByCityDate(cityId, Date.valueOf(date))
     }
 
     /**
      * 根据城市的 id 查出某一个月所有的历史天气
      * */
-    open fun findByMonth (cityId: Long, date: LocalDate): List<HistoryWeather>? {
+    fun findByMonth(cityId: Long, date: LocalDate): List<HistoryWeather>? {
         val dates = mutableListOf<Date>()
 
         // 这个月的起始日期
@@ -204,7 +189,6 @@ private val monthViewUrlBuilder: (String, String, LocalDate) -> String = {
  * */
 private val fetchDataViaSpider = fun(targetUrl: String, city: City): List<HistoryWeather> {
     val resultItems: ResultItems?
-    val hws = mutableListOf<HistoryWeather>()
 
     try {
         resultItems = HistoryWeatherService.spider.get(targetUrl)
@@ -215,43 +199,37 @@ private val fetchDataViaSpider = fun(targetUrl: String, city: City): List<Histor
     if (resultItems == null || resultItems.request == null) {
         throw Exception("Request Can't Be Null")
     }
+    var hws: List<HistoryWeather> = listOf()
 
-    with(resultItems) {
+    resultItems.apply {
         val dateStrs: List<String> = get("date")
         val maxes: List<String> = get("max")
         val mines: List<String> = get("min")
         val weathers: List<String> = get("weather")
         val directions: List<String> = get("wind_direction")
         val forces: List<String> = get("wind_force")
-
-        val dates = mutableListOf<Date>()
-
-        // 将 date 的字符串转换成日期数组
-        dateStrs.forEach { dates.add(Date.valueOf(it.toString())) }
-
-        for ((index, date) in dates.withIndex()) {
-            val weather: HistoryWeather = HistoryWeather()
-
-            with(weather) {
-                this.city = city.id
-                this.date = dates[index]
-                this.max = Integer.parseInt(maxes[index])
-                this.min = Integer.parseInt(mines[index])
-                // 调换温度的顺序, 数字大的为 max, 小的为 min
-                if (this.max < this.min) {
-                    val temp = this.min
-                    this.min = this.max
-                    this.max = temp
+        hws = dateStrs
+                .map { Date.valueOf(it) }
+                .mapIndexed {
+                    index, date ->
+                    HistoryWeather().apply {
+                        this.city = city.id
+                        this.date = date
+                        this.max = Integer.parseInt(maxes[index])
+                        this.min = Integer.parseInt(mines[index])
+                        // 调换温度的顺序, 数字大的为 max, 小的为 min
+                        if (this.max < this.min) {
+                            val temp = this.min
+                            this.min = this.max
+                            this.max = temp
+                        }
+                        this.weather = weathers[index]
+                        this.wind_direction = directions[index]
+                        this.wind_force = forces[index]
+                        this.update_time = Timestamp.valueOf(LocalDateTime.now())
+                    }
                 }
-                this.weather = weathers[index]
-                this.wind_direction = directions[index]
-                this.wind_force = forces[index]
-                this.update_time = Timestamp.valueOf(LocalDateTime.now())
-            }
-
-            hws.add(weather)
-        }
     }
-
     return hws
+
 }

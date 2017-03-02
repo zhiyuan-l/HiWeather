@@ -1,5 +1,6 @@
 package com.vito.work.weather.admin.controllers
 
+import com.vito.work.weather.domain.beans.api.LocationData
 import com.vito.work.weather.dto.City
 import com.vito.work.weather.dto.Province
 import com.vito.work.weather.service.LocationService
@@ -61,7 +62,10 @@ open class LocationController {
     @RequestMapping("/spider/update")
     @ResponseBody
     fun updateLocations(): Any {
-        locationService.execute()
+        locationService.execute(LocationData.LOCATION_INFO_TYPE_ZERO)
+        locationService.execute(LocationData.LOCATION_INFO_TYPE_ONE)
+        locationService.execute(LocationData.LOCATION_INFO_TYPE_TWO)
+        locationService.execute(3)
         return true
     }
 

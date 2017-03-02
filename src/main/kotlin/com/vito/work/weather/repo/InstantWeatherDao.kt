@@ -16,17 +16,16 @@ import java.time.LocalDateTime
  */
 
 @Repository
-open class InstantWeatherDao : BaseDao() {
+class InstantWeatherDao : BaseDao() {
 
     /**
      * 查找最新的天气, 但是必须要早于现在
      * */
-    open fun findLatestByDistrictId(districtId: Long): InstantWeather? {
+    fun findLatestByDistrictId(districtId: Long): InstantWeather? {
         val criteria = sessionFactory.currentSession.createCriteria(InstantWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         criteria.add(Restrictions.lt("datetime", Timestamp.valueOf(LocalDateTime.now())))
         criteria.addOrder(Order.desc("datetime"))
-        criteria.setMaxResults(1)
-        return criteria.list().getOrNull(0) as InstantWeather?
+        return criteria.list().filterIsInstance<InstantWeather>().firstOrNull()
     }
 }

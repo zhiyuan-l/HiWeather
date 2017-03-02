@@ -11,8 +11,8 @@ function Province(id, title, pinyin, ishot){
 
 function City(id, title, province, pinyin, ishot) {
     this.id = id;
-    this.title = title;
     this.province = province;
+    this.title = title;
     this.pinyin = pinyin;
     this.ishot = ishot;
 }

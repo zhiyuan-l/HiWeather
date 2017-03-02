@@ -1,4 +1,4 @@
-package com.vito.work.weather.service
+package com.vito.work.weather.service.spider
 
 /**
  * Created by lingzhiyuan.

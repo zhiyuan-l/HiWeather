@@ -58,12 +58,12 @@ data class CnWeatherNowAPIModel(
         @JsonProperty("date")
         var date: String? = "0"
                                )
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class CnWeatherModel(
         var c: ModelC = ModelC(),
         var f: ModelF = ModelF()
                          )
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ModelC(
         var c1: String = "",
         var c2: String = "",
@@ -84,11 +84,12 @@ data class ModelC(
         var c17: String = ""
                  )
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ModelF(
         var f1: List<ModeF1> = listOf(),
         var f0: String = ""
                  )
-
+@JsonIgnoreProperties(ignoreUnknown = true)
 data class ModeF1(
         var fa: String = "",
         var fb: String = "",

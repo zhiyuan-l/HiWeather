@@ -2,15 +2,16 @@ package com.vito.work.weather.service
 
 import com.vito.work.weather.config.Constant
 import com.vito.work.weather.config.getAQITypeCodeByName
-import com.vito.work.weather.repo.AQIDao
-import com.vito.work.weather.repo.LocationDao
-import com.vito.work.weather.repo.StationAQIDao
-import com.vito.work.weather.repo.StationDao
 import com.vito.work.weather.dto.AQI
 import com.vito.work.weather.dto.District
 import com.vito.work.weather.dto.Station
 import com.vito.work.weather.dto.StationAQI
+import com.vito.work.weather.repo.AQIDao
+import com.vito.work.weather.repo.DistrictDao
+import com.vito.work.weather.repo.StationAQIDao
+import com.vito.work.weather.repo.StationDao
 import com.vito.work.weather.service.spider.AQIViewPageProcessor
+import com.vito.work.weather.service.spider.AbstractSpiderTask
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import us.codecraft.webmagic.ResultItems
@@ -36,7 +37,7 @@ import javax.transaction.Transactional
 
 @Service
 @Transactional
-open class AQIService : AbstractSpiderTask() {
+class AQIService : AbstractSpiderTask() {
 
     @Resource
     lateinit var aqiDao: AQIDao
@@ -45,10 +46,10 @@ open class AQIService : AbstractSpiderTask() {
     @Resource
     lateinit var stationDao: StationDao
     @Resource
-    lateinit var locationDao: LocationDao
+    lateinit var districtDao: DistrictDao
 
     @PreDestroy
-    open fun destroy() {
+    fun destroy() {
         spider.close()
     }
 
@@ -59,15 +60,15 @@ open class AQIService : AbstractSpiderTask() {
         val logger = LoggerFactory.getLogger(AQIService::class.java)
     }
 
-    open fun findLatestAQI(districtId: Long): AQI? {
+    fun findLatestAQI(districtId: Long): AQI? {
         return aqiDao.findLatestByDistrict(districtId)
     }
 
-    open fun execute(){
+    fun execute(){
         try {
             task {
-                val districts = locationDao.findAQIDistrict()
-                districts?.forEach {
+                val districts = districtDao.findAQIDistrict()
+                districts.forEach {
                     val targetUrl = AQIViewUrlBuilder(Constant.AQI_BASE_URL, it.pinyin_aqi)
                     val webData = fetchDataViaSpider(targetUrl, it)
                     if (webData != null) {
@@ -82,20 +83,16 @@ open class AQIService : AbstractSpiderTask() {
 
     /**
      * 保存天气预报的 list
-     * @param weathers      待保存的所有天气
-     * @param district      待保存的天气所属的区县
-     *
      * 保存前需要先查出数据库中是否有对应的天气, 根据区县和日期判断是否存在旧项
      *  若有, 则更新旧项
      *  没有, 则保存为新项
      * */
-    open fun saveWebdata(webData: WebData) {
+    fun saveWebdata(webData: WebData) {
         val aqi = webData.aqi
         val stationAQIs = webData.stationAQIs
         val stations = webData.stations
-        val stationNames = mutableListOf<String>()
-        stations.forEach { stationNames.add(it.name_zh) }
-        val savedStations = stationDao.findByNames(stationNames) ?: mutableListOf()
+        val stationNames = stations.map { it.name_zh }
+        val savedStations = stationDao.findByNames(stationNames).toMutableList()
 
         // 不存在则保存
         stations.forEach { iw ->
@@ -118,12 +115,12 @@ open class AQIService : AbstractSpiderTask() {
         stationAQIs.forEach { stationAQIDao save it }
     }
 
-    open fun findStationAQI(districtId: Long) {
-        val stations = stationDao.findByDistrict(districtId) ?: mutableListOf()
-        val ids = mutableListOf<Long>()
-        stations.forEach { ids.add(it.id) }
+    fun findStationAQI(districtId: Long) {
+        val stations = stationDao.findByDistrict(districtId)
+        val ids = stations.map { it.id }
         val result = stationAQIDao.findLatestByStations(ids)
-        result?.forEach { id -> stations.forEach { if (it.id == id.station) id.station_name = it.name_zh } }
+        result.map {  }
+        result.forEach { id -> stations.forEach { if (it.id == id.station) id.station_name = it.name_zh } }
     }
 }
 
@@ -148,8 +145,8 @@ private val AQIViewUrlBuilder: (String, String) -> String = {
 
 private fun fetchDataViaSpider(targetUrl: String, district: District): WebData? {
 
-    var resultItems: ResultItems = ResultItems()
-    val stationAqis = mutableListOf<StationAQI>()
+    val resultItems: ResultItems
+    val stationAQIs = mutableListOf<StationAQI>()
     val aqi = AQI()
     val stations = mutableListOf<Station>()
 
@@ -183,26 +180,26 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): WebData? 
             val stationAQI = StationAQI()
             val station = Station()
             with(station) {
-                name_zh = stationName.toString()
-                name_en = station_urls[index].toString()
+                name_zh = stationName
+                name_en = station_urls[index]
                 this.district = district.id
             }
             stations.add(station)
 
             with(stationAQI) {
-                station_name = stationName.toString()
+                station_name = stationName
                 this.value = parseIntegerData(station_values[index])
                 PM25 = parseIntegerData(station_pm25[index])
                 O3 = parseIntegerData(station_o3[index])
-                major = getAQITypeCodeByName(station_primary[index].toString()).code
+                major = getAQITypeCodeByName(station_primary[index]).code
                 datetime = Timestamp.valueOf(LocalDateTime.now())
             }
-            stationAqis.add(stationAQI)
+            stationAQIs.add(stationAQI)
         }
 
     }
 
-    val result = WebData(stationAqis, aqi, stations)
+    val result = WebData(stationAQIs, aqi, stations)
 
     return result
 }

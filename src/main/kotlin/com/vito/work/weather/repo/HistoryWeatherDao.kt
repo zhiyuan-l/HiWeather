@@ -15,35 +15,35 @@ import java.sql.Date
  */
 
 @Repository
-open class HistoryWeatherDao : BaseDao() {
-    open fun findByCityDate(cityId: Long, date: Date): HistoryWeather? {
+class HistoryWeatherDao : BaseDao() {
+    fun findByCityDate(cityId: Long, date: Date): HistoryWeather? {
         val criteria = sessionFactory.currentSession.createCriteria(HistoryWeather::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         criteria.add(Restrictions.eq("date", date))
         val list = criteria.list().filterIsInstance<HistoryWeather>()
-        return if (list.isNotEmpty()) list[0] else null
+        return list.firstOrNull()
     }
 
-    open fun findByCityDates(cityId: Long, dates: List<Date>): List<HistoryWeather>? {
-        if (dates.isEmpty()) return null
+    fun findByCityDates(cityId: Long, dates: List<Date>): List<HistoryWeather> {
+        if (dates.isEmpty()) return listOf()
         val criteria = sessionFactory.currentSession.createCriteria(HistoryWeather::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         criteria.add(Restrictions.`in`("date", dates))
         return criteria.list().filterIsInstance<HistoryWeather>()
     }
 
-    open fun findHighestTemperature(cityId: Long): HistoryWeather? {
+    fun findHighestTemperature(cityId: Long): HistoryWeather? {
         val criteria = sessionFactory.currentSession.createCriteria(HistoryWeather::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         criteria.addOrder(Order.desc("max"))
-        return criteria.list()[0] as HistoryWeather?
+        return criteria.list().firstOrNull() as HistoryWeather?
     }
 
-    open fun findLowestTemperature(cityId: Long): HistoryWeather? {
+    fun findLowestTemperature(cityId: Long): HistoryWeather? {
         val criteria = sessionFactory.currentSession.createCriteria(HistoryWeather::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         criteria.addOrder(Order.asc("min"))
         criteria.setMaxResults(1)
-        return criteria.list()[0] as HistoryWeather?
+        return criteria.list().firstOrNull() as HistoryWeather?
     }
 }

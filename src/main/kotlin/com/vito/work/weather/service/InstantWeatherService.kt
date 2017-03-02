@@ -3,10 +3,11 @@ package com.vito.work.weather.service
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.vito.work.weather.domain.beans.api.CnWeatherNowAPIModel
-import com.vito.work.weather.repo.InstantWeatherDao
-import com.vito.work.weather.repo.LocationDao
 import com.vito.work.weather.dto.District
 import com.vito.work.weather.dto.InstantWeather
+import com.vito.work.weather.repo.DistrictDao
+import com.vito.work.weather.repo.InstantWeatherDao
+import com.vito.work.weather.service.spider.AbstractSpiderTask
 import com.vito.work.weather.util.cnweather.Weather
 import com.vito.work.weather.util.cnweather.chooseLevel
 import com.vito.work.weather.util.cnweather.findByWindDirectionName
@@ -35,11 +36,11 @@ import javax.annotation.Resource
 
 @Service("instantWeatherService")
 @Transactional
-open class InstantWeatherService : AbstractSpiderTask() {
+class InstantWeatherService : AbstractSpiderTask() {
     @Resource
     lateinit var instantWeatherDao: InstantWeatherDao
     @Resource
-    lateinit var locationDao: LocationDao
+    lateinit var districtDao: DistrictDao
 
     companion object {
         val logger = LoggerFactory.getLogger(HourWeatherService::class.java)
@@ -51,7 +52,7 @@ open class InstantWeatherService : AbstractSpiderTask() {
      * 没找到则抛出资源未找到的异常
      *
      * */
-    open fun findLatestInstantWeather(districtId: Long): InstantWeather {
+    fun findLatestInstantWeather(districtId: Long): InstantWeather {
         val weather: InstantWeather = instantWeatherDao.findLatestByDistrictId(districtId) ?: throw BusinessException(BusinessError.ERROR_RESOURCE_NOT_FOUND)
 
         return weather
@@ -59,9 +60,9 @@ open class InstantWeatherService : AbstractSpiderTask() {
 
     fun execute() {
         task {
-            val districts: List<District?> = locationDao.findAll(District::class.java)
+            val districts: List<District?> = districtDao.findAll(District::class.java)
             districts.forEach {
-                val weather: InstantWeather? = fetchAndSaveInstantWeather(it?.id ?: - 1)
+                val weather = fetchAndSaveInstantWeather(it?.id ?: - 1)
                 if (weather != null) {
                     instantWeatherDao save weather
                 }
@@ -88,7 +89,7 @@ private fun fetchAndSaveInstantWeather(districtId: Long): InstantWeather? {
             this@wm.WS = this@wm.WS.replace("级", "").trim()
 
             with(weather) w@ {
-                aqi = if (! this@wm.aqi.isNullOrBlank() && this@wm.aqi?.trim() != "?") this@wm.aqi !!.trim().toInt() else - 1
+                aqi = if (! this@wm.aqi.isNullOrBlank() && this@wm.aqi?.trim() != "?" && this@wm.aqi?.trim() != "—") this@wm.aqi !!.trim().toInt() else - 1
                 pm25 = if (! this@wm.aqi_pm25.isNullOrBlank()) this@wm.aqi_pm25 !!.trim().toInt() else - 1
                 this.weather = if (this@wm.weathercode.trim() != "暂无实况") this@wm.weathercode.trim().substring(1).toInt() else Weather.UNKNOWN.code
                 this.datetime = Timestamp.valueOf(datetime)

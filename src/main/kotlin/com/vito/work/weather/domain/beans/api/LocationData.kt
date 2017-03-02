@@ -15,8 +15,11 @@ import java.util.*
 class LocationData {
 
     companion object {
+        // 省份
         val LOCATION_INFO_TYPE_ZERO: Int = 0
+        // 城市
         val LOCATION_INFO_TYPE_ONE: Int = 1
+        // 区县
         val LOCATION_INFO_TYPE_TWO: Int = 2
     }
 
@@ -46,16 +49,15 @@ fun locationInfoParser(type: Int, data: String): LocationInfo? {
         LocationData.LOCATION_INFO_TYPE_ONE, LocationData.LOCATION_INFO_TYPE_TWO -> infoIndex = 0
     }
 
-    var mapper = ObjectMapper()
-    var list = mapper.readValue(data, Array<Any>::class.java)
+    val mapper = ObjectMapper()
+    val list = mapper.readValue(data, Array<Any>::class.java)
     var locationInfo: LocationInfo?
 
-    var writer = StringWriter()
+    val writer = StringWriter()
     mapper.writeValue(writer, list[infoIndex])
-    var tempData: String = writer.toString()
+    val tempData: String = writer.toString()
     try {
-        locationInfo = mapper.readValue(tempData,
-                                        LocationInfo::class.java)
+        locationInfo = mapper.readValue(tempData, LocationInfo::class.java)
     } catch (ex: Exception) {
         // 转换失败则跳过
         locationInfo = null

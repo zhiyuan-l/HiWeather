@@ -1,10 +1,11 @@
 package com.vito.work.weather.service
 
 import com.vito.work.weather.config.Constant
-import com.vito.work.weather.repo.ForcastWeatherDao
 import com.vito.work.weather.dto.City
 import com.vito.work.weather.dto.District
 import com.vito.work.weather.dto.ForecastWeather
+import com.vito.work.weather.repo.ForcastWeatherDao
+import com.vito.work.weather.service.spider.AbstractSpiderTask
 import com.vito.work.weather.service.spider.ThirtyDaysForecastPageProcessor
 import com.vito.work.weather.util.cnweather.*
 import org.slf4j.LoggerFactory
@@ -31,12 +32,12 @@ import javax.annotation.Resource
 
 @Service("forecastWeatherService")
 @Transactional
-open class ForecastWeatherService : AbstractSpiderTask() {
+class ForecastWeatherService : AbstractSpiderTask() {
     @Resource
     lateinit var forcastWeatherDao: ForcastWeatherDao
 
     @PreDestroy
-    open fun destroy() {
+    fun destroy() {
         spider.close()
     }
 
@@ -54,7 +55,7 @@ open class ForecastWeatherService : AbstractSpiderTask() {
      *
      * @return  返回获取到的天气
      * */
-    open fun findThreeDaysWeather(districtId: Long): List<ForecastWeather>? {
+    fun findThreeDaysWeather(districtId: Long): List<ForecastWeather>? {
         val MAX_RESULT = 3
         val list = forcastWeatherDao.findWeathersAfter(districtId, Date.valueOf(LocalDate.now().plusDays(1)), MAX_RESULT)
         return list
@@ -75,7 +76,7 @@ open class ForecastWeatherService : AbstractSpiderTask() {
      * @return  fws     获取到的天气
      *
      * */
-    open fun execute(city: City, district: District) {
+    fun execute(city: City, district: District) {
         task {
             val targetUrl = forecastViewUrlBuilder(Constant.FORCAST_WEATHER_BASE_URL, city.pinyin, district.pinyin)
             val fws = fetchDataViaSpider(targetUrl, district)
@@ -94,7 +95,7 @@ open class ForecastWeatherService : AbstractSpiderTask() {
      *  若有, 则更新旧项
      *  没有, 则保存为新项
      * */
-    open fun saveWeathers(weathers: List<ForecastWeather>, district: District) {
+    fun saveWeathers(weathers: List<ForecastWeather>, district: District) {
         val dates = mutableListOf<Date>()
         val savedWeathers: MutableList<ForecastWeather> = mutableListOf()
         weathers.forEach { dates.add(it.date) }
@@ -129,7 +130,7 @@ open class ForecastWeatherService : AbstractSpiderTask() {
     /**
      * 获取特定日期的天气预报
      * */
-    open fun findByDate(districtId: Long, date: LocalDate): ForecastWeather? {
+    fun findByDate(districtId: Long, date: LocalDate): ForecastWeather? {
         val result = forcastWeatherDao.findByDistrictDate(districtId, Date.valueOf(date))
         return result
     }
@@ -138,7 +139,7 @@ open class ForecastWeatherService : AbstractSpiderTask() {
      * 获取今天之后的30天天气
      *
      * */
-    open fun findThirtyDaysWeather(districtId: Long): List<ForecastWeather>? {
+    fun findThirtyDaysWeather(districtId: Long): List<ForecastWeather>? {
         val MAX_RESULT = 30
         val list = forcastWeatherDao.findWeathersAfter(districtId, Date.valueOf(LocalDate.now()), MAX_RESULT)
         return list
@@ -202,7 +203,7 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): List<Fore
         throw Exception("Request Can't Be Null")
     }
 
-    with(resultItems !!) {
+    with(resultItems) {
         val dateStrs: List<String> = get("date")
         val maxes: List<String> = get("max")
         val mines: List<String> = get("min")

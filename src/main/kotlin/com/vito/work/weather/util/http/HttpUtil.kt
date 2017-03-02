@@ -24,7 +24,7 @@ object HttpUtil {
     val logger = LoggerFactory.getLogger(HttpUtil::class.java)
 }
 
-fun HttpUtil.sendGetRequestViaHttpClient(baseUrl: String, params: HashMap<String, Any>, headers: HashMap<String, String>, charset: Charset): String? {
+fun HttpUtil.sendGetRequestViaHttpClient(baseUrl: String, params: Map<String, Any>, headers: HashMap<String, String>, charset: Charset): String? {
 
     var url = if (baseUrl.startsWith("http://") || baseUrl.startsWith("https://")) baseUrl
     else
