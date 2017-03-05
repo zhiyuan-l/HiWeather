@@ -30,7 +30,7 @@ open class ForecastWeatherTask @Autowired constructor(val locationService: Locat
     @Scheduled(cron = "0 0 7 * * ?") // 每天早上七点更新
     open fun scheduledForecastWeatherUpdate() {
         // 如果正在更新,则跳过
-        if (SpiderStatus.FORECAST_UPDATE_STATUS == true) {
+        if (SpiderStatus.FORECAST_UPDATE_STATUS) {
             logger.info("Skip Scheduled Task : Forecast Weather Is Updating")
             return
         }
@@ -45,7 +45,7 @@ open class ForecastWeatherTask @Autowired constructor(val locationService: Locat
 
         cities.forEach {
             city ->
-            districts?.filter { it.city == city.id }?.forEach { district ->
+            districts.filter { it.city == city.id }.forEach { district ->
                 try {
                     forecastWeatherService.execute(city, district)
                 } catch(ex: Exception) {

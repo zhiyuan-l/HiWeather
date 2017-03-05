@@ -29,7 +29,7 @@ open class HourWeatherTask @Autowired constructor(val locationService: LocationS
     @Scheduled(cron = "0 0 0-23/3 * * ?") // 每天0-23点,每三小时检查一次
     open fun scheduledTodayWeatherUpdate() {
         // 如果正在更新,则跳过
-        if (SpiderStatus.TODAY_WEATHER_STATUS == true) {
+        if (SpiderStatus.TODAY_WEATHER_STATUS) {
             logger.info("Skip Scheduled Task : Today Weather Is Updating")
             return
         }
@@ -39,9 +39,8 @@ open class HourWeatherTask @Autowired constructor(val locationService: LocationS
         // 重置 Scheduler （清空Scheduler内已爬取的 url）
         HourWeatherService.spider.scheduler = QueueScheduler()
         val districts = locationService.findDistricts()
-        val cities = locationService.findCities() ?: listOf()
 
-        districts?.forEach { district ->
+        districts.forEach { district ->
             try {
                 hourWeatherService.execute(district)
             } catch(ex: Exception) {

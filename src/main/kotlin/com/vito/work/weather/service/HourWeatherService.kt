@@ -227,14 +227,14 @@ private fun fetchDataViaSpider(targetUrl: String, district: District): List<Hour
     val aqi: String = resultItems["aqi"]
 
     val mapper: ObjectMapper = ObjectMapper()
-    val dateSpans = mapper.readValue(tdate.toString(), Array<String>::class.java)
+    val dateSpans = mapper.readValue(tdate, Array<String>::class.java)
     val tvalues = mapper.readValue(tvalue, Array<Int>::class.java)
     val pvalues = mapper.readValue(pvalue, Array<Double>::class.java)
     val hvalues = mapper.readValue(hvalue, Array<Int>::class.java)
     val aqis = mapper.readValue(aqi, Array<Int>::class.java)
     val now = LocalDateTime.now()
     val startTime = LocalDateTime.of(now.year, now.monthValue, now.dayOfMonth, parseInt(dateSpans[0].substringAfter(">").substringBefore("</span>")), 0, 0, 0)
-    for ((index, span) in dateSpans.withIndex()) {
+    for ((index, _) in dateSpans.withIndex()) {
         val hw: HourWeather = HourWeather()
         hw.district = district.id
         hw.datetime = Timestamp.valueOf(startTime.plusHours(index.toLong()))
