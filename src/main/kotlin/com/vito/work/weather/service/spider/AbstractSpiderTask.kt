@@ -17,11 +17,10 @@ abstract class AbstractSpiderTask {
             if (! lock) {
                 lock = true
                 body()
+                lock = false
             }
         } catch (ex: Exception) {
             ex.printStackTrace()
-        } finally {
-            lock = false
         }
     }
 }
