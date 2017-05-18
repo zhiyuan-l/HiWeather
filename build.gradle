@@ -1,5 +1,4 @@
-group 'com.vito.work'
-version '1.0-SNAPSHOT'
+group 'com.vito'
 buildscript {
 
     ext.SpringBootStarterVersion = "1.5.1.RELEASE"
