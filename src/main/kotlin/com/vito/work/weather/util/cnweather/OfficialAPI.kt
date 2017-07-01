@@ -1,10 +1,10 @@
 package com.vito.work.weather.util.cnweather
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.vito.work.weather.domain.beans.api.CnWeatherModel
-import com.vito.work.weather.config.Constant
-import com.vito.work.weather.dto.District
 import com.vito.work.weather.util.cnweather.APIType.*
+import com.vito.work.weather.config.Constant
+import com.vito.work.weather.domain.beans.api.CnWeatherModel
+import com.vito.work.weather.dto.District
 import com.vito.work.weather.util.http.HttpUtil
 import com.vito.work.weather.util.http.sendGetRequestViaHttpClient
 import org.slf4j.LoggerFactory
@@ -44,7 +44,7 @@ data class RequestBean(val areaids: List<Long>, val type: APIType, val datetime:
 fun getResultBean(district: District): CnWeatherModel? {
     val districtIds = mutableListOf(district.id)
 
-    val requestBean = RequestBean(districtIds, APIType.FORECAST_V, LocalDateTime.now(), Constant.CNWEATHER_APPID, Constant.CNWEATHER_PRIVATE_KEY)
+    val requestBean = RequestBean(districtIds, FORECAST_V, LocalDateTime.now(), Constant.CNWEATHER_APPID, Constant.CNWEATHER_PRIVATE_KEY)
 
     try {
         val mapper = ObjectMapper()

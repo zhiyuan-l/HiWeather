@@ -84,6 +84,7 @@ fun findByWeatherName(name: String): Weather {
  * 风力编码
  * */
 enum class WindForce(val code: Int, val name_ch: String, val level: String, val min: Int, val max: Int) {
+    LEVEL_NONE(-1, "暂无实况", "NONE", -1, -1),
     LEVEL_ZERO(0, "微风", "<10m/h", 0, 3),
     LEVEL_ONE(1, "3-4级", "10~17m/h", 3, 4),
     LEVEL_TWO(2, "4-5级", "17~25m/h", 4, 5),
@@ -99,13 +100,12 @@ enum class WindForce(val code: Int, val name_ch: String, val level: String, val 
 /**
  * 根据风力的等级数判断所处的等级区间
  * */
-fun chooseLevel(num: Int): WindForce {
-    for (it in WindForce.values()) {
-        if (num >= it.min && num <= it.max) {
-            return it
-        }
+fun chooseLevel(num: Int?): WindForce {
+    if(num == null){
+        return WindForce.LEVEL_NONE
     }
-    return WindForce.LEVEL_ZERO
+    return WindForce.values().firstOrNull { it -> num >= it.min && num <= it.max }
+           ?: WindForce.LEVEL_ZERO
 }
 
 /**

@@ -32,7 +32,7 @@ var  findProvinceById = function (provinces, id) {
 
     var province = new Province();
     $.each(provinces, function (index, val) {
-        if (val.id == id){
+        if (val.id === id){
             province = val
         }
     });
@@ -43,7 +43,7 @@ var findCityById = function(cities, id) {
 
     var city = new City();
     $.each(cities, function (index, val) {
-        if (val.id == id){
+        if (val.id === id){
             city = val
         }
     });
@@ -98,7 +98,7 @@ var getDistricts = function (cities, url) {
         success: function (data) {
             $.each(data, function (index, val) {
                 var city  = findCityById(cities, val.city);
-                if(val.title == city.title)
+                if(val.title === city.title)
                 {
                     val.title = val.title+"[城区]"
                 }

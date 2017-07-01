@@ -98,7 +98,7 @@ private fun fetchAndSaveInstantWeather(districtId: Long): InstantWeather? {
                 district = this@wm.city.trim().toLong()
                 temperature = if (this@wm.temp != "") this@wm.temp.toDouble() else - 273.0
                 wind_direction = findByWindDirectionName(this@wm.WD).code
-                wind_force = chooseLevel(this@wm.WS.toInt()).code
+                wind_force = chooseLevel(this@wm.WS.toIntOrNull()).code
             }
         }
     } catch (ex: Exception) {

@@ -38,6 +38,7 @@ open class AppStarter {
 }
 
 fun main(args: Array<String>) {
+
     val application = SpringApplication(AppStarter::class.java, *args)
     application.setAddCommandLineProperties(false)
     application.run()
