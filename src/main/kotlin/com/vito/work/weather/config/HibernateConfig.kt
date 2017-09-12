@@ -15,12 +15,12 @@ import javax.persistence.EntityManagerFactory
  */
 
 @Configuration
-open class HibernateConfig {
+class HibernateConfig {
     @Bean
-    open fun EntityManagerFactory.sessionFactory(): SessionFactory
+    fun EntityManagerFactory.sessionFactory(): SessionFactory
             = unwrap(SessionFactory::class.java)
 
     @Bean
-    open fun SessionFactory.hibernateTemplate(): HibernateTemplate
+    fun SessionFactory.hibernateTemplate(): HibernateTemplate
             = HibernateTemplate(this)
 }

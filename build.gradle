@@ -4,10 +4,7 @@ buildscript {
     ext.SpringBootStarterVersion = "1.5.1.RELEASE"
 
     repositories {
-        maven { url 'http://maven.aliyun.com/mvn/repository/' }
-        maven { url "https://repo.spring.io/plugins-snapshot" }
-        maven { url "https://repo.spring.io/snapshot" }
-        maven { url "https://repo.spring.io/milestone" }
+        mavenCentral()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION"
@@ -24,15 +21,13 @@ apply plugin: "kotlin-allopen"
 apply plugin: "kotlin-spring"
 apply plugin: "kotlin-noarg"
 apply plugin: "kotlin-jpa"
+apply plugin: "war"
 apply plugin: 'org.springframework.boot'
 
 sourceCompatibility = 1.8
 
 repositories {
-    maven { url 'http://maven.aliyun.com/mvn/repository/' }
-    maven { url "https://repo.spring.io/plugins-snapshot" }
-    maven { url "https://repo.spring.io/snapshot" }
-    maven { url "https://repo.spring.io/milestone" }
+    mavenCentral()
 }
 
 configurations {

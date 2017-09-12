@@ -15,16 +15,15 @@ import javax.servlet.Filter
  * Description:
  *
  */
-
 @SpringBootApplication
-open class AppStarter {
+class AppStarter {
 
     @Bean
-    open fun errorAttributes(): DefaultErrorAttributes
+    fun errorAttributes(): DefaultErrorAttributes
             = DefaultErrorAttributes()
 
     @Bean
-    open fun charsetFilter(): Filter {
+    fun charsetFilter(): Filter {
         val charFilter = CharacterEncodingFilter()
         charFilter.encoding = "UTF-8"
         charFilter.setForceEncoding(true)
@@ -32,7 +31,7 @@ open class AppStarter {
     }
 
     @Bean
-    open fun securityConfig(): SecurityConfig
+    fun securityConfig(): SecurityConfig
             = SecurityConfig()
 
 }
