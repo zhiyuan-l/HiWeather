@@ -19,7 +19,7 @@ class StationAQIDao : BaseDao() {
         if (stationIds.isEmpty()) {
             return listOf()
         }
-        val criteria = sessionFactory.currentSession.createCriteria(StationAQI::class.java)
+        val criteria = sf.currentSession.createCriteria(StationAQI::class.java)
         criteria.add(Restrictions.`in`("station", stationIds))
         criteria.addOrder(Order.desc("datetime"))
         criteria.setMaxResults(stationIds.size)

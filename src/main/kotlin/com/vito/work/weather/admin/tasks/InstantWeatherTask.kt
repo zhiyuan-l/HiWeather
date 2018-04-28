@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @EnableScheduling
-open class InstantWeatherTask @Autowired constructor(val locationService: LocationService, val instantWeatherService: InstantWeatherService) {
+class InstantWeatherTask @Autowired constructor(val locationService: LocationService, val instantWeatherService: InstantWeatherService) {
 
     companion object {
         val logger = LoggerFactory.getLogger(InstantWeatherTask::class.java) !!
@@ -26,7 +26,7 @@ open class InstantWeatherTask @Autowired constructor(val locationService: Locati
 
     // 即时天气
     @Scheduled(cron = "0 0 0-23/1 * * ?")
-    open fun scheduledInstantWeatherUpdate() {
+    fun scheduledInstantWeatherUpdate() {
 
         instantWeatherService.execute()
         logger.info("Success : Task Update Instant Weather")

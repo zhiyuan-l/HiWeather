@@ -24,7 +24,7 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/admin/weather/history")
-open class HistoryWeatherController {
+class HistoryWeatherController {
 
     @Resource
     lateinit var locationService: LocationService
@@ -32,7 +32,7 @@ open class HistoryWeatherController {
     lateinit var historyWeatherService: HistoryWeatherService
 
     @RequestMapping("/")
-    open fun forecastIndex(): String {
+    fun forecastIndex(): String {
         return "admin/weather/history/index"
     }
 
@@ -44,7 +44,7 @@ open class HistoryWeatherController {
      * */
     @RequestMapping("/spider/update")
     @ResponseBody
-    open fun updateHistoryFromWeb(@RequestParam(required = true) type: Int,
+    fun updateHistoryFromWeb(@RequestParam(required = true) type: Int,
                                   @RequestParam(required = false, defaultValue = "0") provinceId: Long,
                                   @RequestParam(required = false, defaultValue = "0") cityId: Long) {
 

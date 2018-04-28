@@ -22,7 +22,7 @@ class InstantWeatherDao : BaseDao() {
      * 查找最新的天气, 但是必须要早于现在
      * */
     fun findLatestByDistrictId(districtId: Long): InstantWeather? {
-        val criteria = sessionFactory.currentSession.createCriteria(InstantWeather::class.java)
+        val criteria = sf.currentSession.createCriteria(InstantWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         criteria.add(Restrictions.lt("datetime", Timestamp.valueOf(LocalDateTime.now())))
         criteria.addOrder(Order.desc("datetime"))

@@ -21,7 +21,7 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/admin/weather/today")
-open class TodayWeatherController {
+class TodayWeatherController {
     @Resource
     lateinit var locationService: LocationService
     @Resource
@@ -29,7 +29,7 @@ open class TodayWeatherController {
 
     @RequestMapping("/spider/update")
     @ResponseBody
-    open fun updateFromWeb() {
+    fun updateFromWeb() {
 
         if (SpiderStatus.TODAY_WEATHER_STATUS == true) {
             throw BusinessException(BusinessError.ERROR_TODAY_WEATHER_UPDATING)

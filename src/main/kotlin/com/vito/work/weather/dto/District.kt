@@ -30,7 +30,7 @@ data class District(
         var altitude: Double = .0,
         @Column(length = 10)
         var zipcode: String = "",
-        @Column(length = 10)
+        @Column(length = 10, name = "area_code")
         var areaCode: String = "",
         var ishot: Int = 0
                    )

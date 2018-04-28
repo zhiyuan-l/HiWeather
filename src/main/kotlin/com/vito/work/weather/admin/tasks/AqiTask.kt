@@ -18,14 +18,14 @@ import org.springframework.stereotype.Component
 
 @Component
 @EnableScheduling
-open class AqiTask @Autowired constructor(val locationService: LocationService, val aqiService: AQIService) {
+class AqiTask @Autowired constructor(val locationService: LocationService, val aqiService: AQIService) {
 
     companion object {
         val logger = LoggerFactory.getLogger(AqiTask::class.java) !!
     }
 
     @Scheduled(cron = "0 0 0-23/3 * * ?") // 每天0-23点,每三小时检查一次
-    open fun scheduledAQIUpdate() {
+    fun scheduledAQIUpdate() {
         aqiService.execute()
         logger.info("Success : AQI Updated")
     }

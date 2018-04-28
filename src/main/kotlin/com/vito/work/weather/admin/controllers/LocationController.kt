@@ -1,8 +1,7 @@
 package com.vito.work.weather.admin.controllers
 
 import com.vito.work.weather.domain.beans.api.LocationData
-import com.vito.work.weather.dto.City
-import com.vito.work.weather.dto.Province
+import com.vito.work.weather.dto.*
 import com.vito.work.weather.service.LocationService
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.RequestMapping
@@ -20,13 +19,13 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/admin/location")
-open class LocationController {
+class LocationController {
 
     @Resource
     lateinit var locationService: LocationService
 
     @RequestMapping("/")
-    open fun toManage(): String {
+    fun toManage(): String {
         return "admin/location/index"
     }
 
@@ -53,7 +52,8 @@ open class LocationController {
      * */
     @RequestMapping("/districts")
     @ResponseBody
-    fun getDistrictByCityId(@RequestParam(required = false, defaultValue = "0") cityId: Long): List<Any?>?
+    fun getDistrictByCityId(@RequestParam(required = false, defaultValue =
+    "0") cityId: Long): List<District?>?
             = locationService.findDistricts(cityId)
 
     /**

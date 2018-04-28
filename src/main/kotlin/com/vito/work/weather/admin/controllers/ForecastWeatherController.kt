@@ -25,7 +25,7 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/admin/weather/forecast")
-open class ForecastWeatherController {
+class ForecastWeatherController {
 
     @Resource
     lateinit var forecastWeatherService: ForecastWeatherService
@@ -33,13 +33,13 @@ open class ForecastWeatherController {
     lateinit var locationService: LocationService
 
     @RequestMapping("/")
-    open fun forecastIndex(): String {
+    fun forecastIndex(): String {
         return "admin/weather/forecast/index"
     }
 
     @RequestMapping("/spider/update")
     @ResponseBody
-    open fun updateForecastFromWeb(@RequestParam(required = true) type: Int, @RequestParam(required = false, defaultValue = "0") cityId: Long) {
+    fun updateForecastFromWeb(@RequestParam(required = true) type: Int, @RequestParam(required = false, defaultValue = "0") cityId: Long) {
         // 如果正在更新,则跳过
         if (SpiderStatus.FORECAST_UPDATE_STATUS == true) {
             throw BusinessException(BusinessError.ERROR_FORECAST_WEATHER_UPDATING)

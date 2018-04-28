@@ -17,7 +17,7 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/admin/weather/instant")
-open class InstantWeatherController {
+class InstantWeatherController {
 
     @Resource
     lateinit var locationService: LocationService
@@ -27,7 +27,7 @@ open class InstantWeatherController {
     // 即时天气, 每半小时更新一次
     @RequestMapping("/spider/update")
     @ResponseBody
-    open fun updateFromWeb() {
+    fun updateFromWeb() {
         instantWeatherService.execute()
     }
 

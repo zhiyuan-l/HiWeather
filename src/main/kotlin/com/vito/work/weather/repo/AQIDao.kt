@@ -15,8 +15,9 @@ import org.springframework.stereotype.Repository
 
 @Repository
 class AQIDao : BaseDao() {
+
     fun findLatestByDistrict(districtId: Long): AQI? {
-        val criteria = sessionFactory.currentSession.createCriteria(AQI::class.java)
+        val criteria = sf.currentSession.createCriteria(AQI::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         criteria.addOrder(Order.desc("update_time"))
         criteria.setMaxResults(1)

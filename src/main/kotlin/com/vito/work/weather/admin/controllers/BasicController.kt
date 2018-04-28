@@ -16,23 +16,23 @@ import javax.servlet.http.HttpServletRequest
 
 @Controller
 @RequestMapping("/admin")
-open class BasicController {
+class BasicController {
 
     @Resource
     lateinit var locationService: LocationService
 
     @RequestMapping("","/")
-    open fun toIndex(): String {
+    fun toIndex(): String {
         return "admin/index"
     }
 
     @RequestMapping("login")
-    open fun login(): String {
+    fun login(): String {
         return "admin/login"
     }
 
     @RequestMapping("logout")
-    open fun logout(request: HttpServletRequest): String {
+    fun logout(request: HttpServletRequest): String {
         request.logout()
         return "admin/login"
     }

@@ -18,7 +18,7 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/location")
-open class WebLocationController {
+class WebLocationController {
 
     @Resource
     lateinit var locationService: LocationService

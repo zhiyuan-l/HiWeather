@@ -1,7 +1,7 @@
-group 'com.vito'
+group 'com.zhiyuan'
 buildscript {
 
-    ext.SpringBootStarterVersion = "1.5.1.RELEASE"
+    ext.SpringBootStarterVersion = "2.0.1.RELEASE"
 
     repositories {
         mavenCentral()
@@ -10,25 +10,24 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$KOTLIN_VERSION"
         classpath "org.jetbrains.kotlin:kotlin-allopen:$KOTLIN_VERSION"
         classpath "org.jetbrains.kotlin:kotlin-noarg:$KOTLIN_VERSION"
-        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
+//        classpath "io.spring.gradle:dependency-management-plugin:0.6.1.RELEASE"
         classpath group: 'org.springframework.boot', name: 'spring-boot-gradle-plugin', version: "$SpringBootStarterVersion"
     }
 }
 
 apply plugin: 'idea'
 apply plugin: 'kotlin'
-apply plugin: "kotlin-allopen"
 apply plugin: "kotlin-spring"
 apply plugin: "kotlin-noarg"
 apply plugin: "kotlin-jpa"
-apply plugin: "war"
 apply plugin: 'org.springframework.boot'
-
-sourceCompatibility = 1.8
+apply plugin: 'io.spring.dependency-management'
 
 repositories {
     mavenCentral()
 }
+
+sourceCompatibility = 1.8
 
 configurations {
     compile.exclude module: 'slf4j-log4j12'
@@ -38,7 +37,8 @@ dependencies {
 
     compile "org.jetbrains:annotations:15.0"
 
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$KOTLIN_VERSION"
+    compile("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    compile("org.jetbrains.kotlin:kotlin-reflect")
 
     compile "org.springframework.boot:spring-boot-starter-web"
     compile 'org.springframework.boot:spring-boot-starter-thymeleaf'
@@ -56,5 +56,11 @@ dependencies {
 
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
 
-    testCompile group: 'junit', name: 'junit'
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+}
+
+tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).all {
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }

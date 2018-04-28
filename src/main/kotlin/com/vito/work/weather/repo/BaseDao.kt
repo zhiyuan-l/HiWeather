@@ -2,8 +2,7 @@ package com.vito.work.weather.repo
 
 import org.hibernate.SessionFactory
 import org.springframework.data.repository.NoRepositoryBean
-import org.springframework.orm.hibernate5.HibernateTemplate
-import javax.annotation.Resource
+import javax.persistence.*
 
 /**
  * Created by lingzhiyuan.
@@ -15,44 +14,49 @@ import javax.annotation.Resource
 
 @NoRepositoryBean
 abstract class BaseDao {
-    @Resource
-    protected lateinit var hibernateTemplate: HibernateTemplate
-    @Resource
-    protected lateinit var sessionFactory: SessionFactory
+
+    @PersistenceUnit
+    private lateinit var emf: EntityManagerFactory
+    @PersistenceContext
+    private lateinit var em: EntityManager
+
+    protected val sf: SessionFactory by lazy { emf.unwrap(SessionFactory::class.java) }
 
     open fun <T> findAll(clazz: Class<T>): List<T> {
-        val session = sessionFactory.currentSession
-        val criteria = session.createCriteria(clazz)
-        return criteria.list().filterIsInstance(clazz)
+        val builder = sf.criteriaBuilder
+        val query = builder.createQuery(clazz)
+        query.select(query.from(clazz))
+        val typedQuery: TypedQuery<T> = em.createQuery(query)
+        return typedQuery.resultList
     }
 
     open fun <T> findById(clazz: Class<T>,id: Long): T? {
-        return hibernateTemplate.get(clazz, id)
+        return sf.currentSession.get(clazz, id)
     }
 
     open fun <T> getById(clazz: Class<T>,id: Long): T? {
-        return hibernateTemplate.get(clazz, id)
+        return sf.currentSession.get(clazz, id)
     }
 
     open infix fun save(target: Any?) {
         if (target != null) {
-            hibernateTemplate.saveOrUpdate(target)
+            sf.currentSession.saveOrUpdate(target)
         }
     }
 
     open infix fun update(target: Any?) {
         if (target != null) {
-            hibernateTemplate.update(target)
+            sf.currentSession.update(target)
         }
     }
 
     open infix fun batchDelete(list: List<Any>?) {
-        hibernateTemplate.deleteAll(list ?: listOf<Any?>())
+        list?.forEach { sf.currentSession.delete(it) }
     }
 
     open infix fun delete(target: Any?) {
         if (target != null) {
-            hibernateTemplate.delete(target)
+            sf.currentSession.delete(target)
         }
     }
 }

@@ -16,19 +16,19 @@ import org.springframework.stereotype.Repository
 class DistrictDao : BaseDao(){
 
     fun findDistricts(cityId: Long): List<District> {
-        val criteria: Criteria = sessionFactory.currentSession.createCriteria(District::class.java)
+        val criteria: Criteria = sf.currentSession.createCriteria(District::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         return criteria.list().filterIsInstance<District>()
     }
 
     fun findAQIDistrict(): List<District> {
-        val criteria: Criteria = sessionFactory.currentSession.createCriteria(District::class.java)
+        val criteria: Criteria = sf.currentSession.createCriteria(District::class.java)
         criteria.add(Restrictions.neOrIsNotNull("pinyin_aqi", ""))
         return criteria.list().filterIsInstance<District>()
     }
 
     fun findObsoleteDistricts(newIds: List<Long>): List<District> {
-        val criteria: Criteria = sessionFactory.currentSession.createCriteria(District::class.java)
+        val criteria: Criteria = sf.currentSession.createCriteria(District::class.java)
         criteria.add(Restrictions.not(Restrictions.`in`("id", newIds)))
         return criteria.list().filterIsInstance<District>()
     }

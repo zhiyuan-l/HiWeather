@@ -21,12 +21,12 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/weather/history")
-open class WebHistoryWeatherController {
+class WebHistoryWeatherController {
     @Resource
     lateinit var historyWeatherService: HistoryWeatherService
 
     @RequestMapping("/")
-    open fun index(): String {
+    fun index(): String {
         return "web/weather/history/index"
     }
 
@@ -35,7 +35,7 @@ open class WebHistoryWeatherController {
      * */
     @RequestMapping("/today")
     @ResponseBody
-    open fun today(@RequestParam cityId: Long): ObjectResponse {
+    fun today(@RequestParam cityId: Long): ObjectResponse {
         val list = historyWeatherService.findHistoryWeathersOfToday(cityId)
         val response = ObjectResponse(list)
         return response
@@ -46,7 +46,7 @@ open class WebHistoryWeatherController {
      * */
     @RequestMapping("/tops")
     @ResponseBody
-    open fun tops(@RequestParam cityId: Long): ObjectResponse {
+    fun tops(@RequestParam cityId: Long): ObjectResponse {
         val list = historyWeatherService.findHistoryTops(cityId)
         val response = ObjectResponse(list)
         return response
@@ -58,7 +58,7 @@ open class WebHistoryWeatherController {
      * */
     @RequestMapping("/query")
     @ResponseBody
-    open fun query(@RequestParam cityId: Long, @RequestParam date: String, @RequestParam(required = true) type: Int): ObjectResponse {
+    fun query(@RequestParam cityId: Long, @RequestParam date: String, @RequestParam(required = true) type: Int): ObjectResponse {
         var data: Any = listOf<Any>()
 
         when (type) {

@@ -17,7 +17,7 @@ import java.sql.Date
 @Repository
 class HistoryWeatherDao : BaseDao() {
     fun findByCityDate(cityId: Long, date: Date): HistoryWeather? {
-        val criteria = sessionFactory.currentSession.createCriteria(HistoryWeather::class.java)
+        val criteria = sf.currentSession.createCriteria(HistoryWeather::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         criteria.add(Restrictions.eq("date", date))
         val list = criteria.list().filterIsInstance<HistoryWeather>()
@@ -26,21 +26,21 @@ class HistoryWeatherDao : BaseDao() {
 
     fun findByCityDates(cityId: Long, dates: List<Date>): List<HistoryWeather> {
         if (dates.isEmpty()) return listOf()
-        val criteria = sessionFactory.currentSession.createCriteria(HistoryWeather::class.java)
+        val criteria = sf.currentSession.createCriteria(HistoryWeather::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         criteria.add(Restrictions.`in`("date", dates))
         return criteria.list().filterIsInstance<HistoryWeather>()
     }
 
     fun findHighestTemperature(cityId: Long): HistoryWeather? {
-        val criteria = sessionFactory.currentSession.createCriteria(HistoryWeather::class.java)
+        val criteria = sf.currentSession.createCriteria(HistoryWeather::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         criteria.addOrder(Order.desc("max"))
         return criteria.list().firstOrNull() as HistoryWeather?
     }
 
     fun findLowestTemperature(cityId: Long): HistoryWeather? {
-        val criteria = sessionFactory.currentSession.createCriteria(HistoryWeather::class.java)
+        val criteria = sf.currentSession.createCriteria(HistoryWeather::class.java)
         criteria.add(Restrictions.eq("city", cityId))
         criteria.addOrder(Order.asc("min"))
         criteria.setMaxResults(1)

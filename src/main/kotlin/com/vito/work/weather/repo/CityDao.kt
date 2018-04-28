@@ -17,7 +17,7 @@ import org.springframework.stereotype.Repository
 class CityDao : BaseDao() {
 
     fun findCities(provinceId: Long): List<City> {
-        val criteria: Criteria = sessionFactory.currentSession.createCriteria(City::class.java)
+        val criteria: Criteria = sf.currentSession.createCriteria(City::class.java)
         criteria.add(Restrictions.eq("province", provinceId))
         return criteria.list().filterIsInstance<City>()
     }

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component
 
 @Component
 @EnableScheduling
-open class HistoryWeatherTask @Autowired constructor(val locationService: LocationService, val historyWeatherService: HistoryWeatherService) {
+class HistoryWeatherTask @Autowired constructor(val locationService: LocationService, val historyWeatherService: HistoryWeatherService) {
 
 
     companion object {
@@ -26,7 +26,7 @@ open class HistoryWeatherTask @Autowired constructor(val locationService: Locati
     }
 
     @Scheduled(cron = "0 0 12 ? * SUN") // 每周的周日中午十二点更新
-    open fun scheduledHistoryWeatherUpdate() {
+    fun scheduledHistoryWeatherUpdate() {
 
         logger.info("Start : Executing Scheduled Task Update History Weather")
 

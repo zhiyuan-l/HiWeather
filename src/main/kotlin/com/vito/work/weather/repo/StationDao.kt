@@ -19,13 +19,13 @@ class StationDao : BaseDao() {
             return listOf()
         }
 
-        val criteria = sessionFactory.currentSession.createCriteria(Station::class.java)
+        val criteria = sf.currentSession.createCriteria(Station::class.java)
         criteria.add(Restrictions.`in`("name_zh", names))
         return criteria.list().filterIsInstance<Station>()
     }
 
     fun findByDistrict(districtId: Long): List<Station> {
-        val criteria = sessionFactory.currentSession.createCriteria(Station::class.java)
+        val criteria = sf.currentSession.createCriteria(Station::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         return criteria.list().filterIsInstance<Station>()
     }

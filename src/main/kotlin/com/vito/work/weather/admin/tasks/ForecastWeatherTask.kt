@@ -20,7 +20,7 @@ import us.codecraft.webmagic.scheduler.QueueScheduler
 
 @Component
 @EnableScheduling
-open class ForecastWeatherTask @Autowired constructor(val locationService: LocationService, val forecastWeatherService: ForecastWeatherService) {
+class ForecastWeatherTask @Autowired constructor(val locationService: LocationService, val forecastWeatherService: ForecastWeatherService) {
 
 
     companion object {
@@ -28,7 +28,7 @@ open class ForecastWeatherTask @Autowired constructor(val locationService: Locat
     }
 
     @Scheduled(cron = "0 0 7 * * ?") // 每天早上七点更新
-    open fun scheduledForecastWeatherUpdate() {
+    fun scheduledForecastWeatherUpdate() {
         // 如果正在更新,则跳过
         if (SpiderStatus.FORECAST_UPDATE_STATUS) {
             logger.info("Skip Scheduled Task : Forecast Weather Is Updating")

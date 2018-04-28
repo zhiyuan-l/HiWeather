@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 class HourWeatherDao : BaseDao() {
     fun findByDistrictDateTime(districtId: Long, dateTime: LocalDateTime): HourWeather? {
         val time = LocalDateTime.of(dateTime.year, dateTime.month, dateTime.dayOfMonth, dateTime.hour, 0, 0, 0)
-        val criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
+        val criteria = sf.currentSession.createCriteria(HourWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         criteria.add(Restrictions.eq("datetime", Timestamp.valueOf(time)))
         criteria.setMaxResults(1)
@@ -28,7 +28,7 @@ class HourWeatherDao : BaseDao() {
     }
 
     fun find24HByDistrict(districtId: Long): List<HourWeather> {
-        val criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
+        val criteria = sf.currentSession.createCriteria(HourWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         // 根据时间降序排列
         criteria.addOrder(Order.desc("datetime"))
@@ -37,7 +37,7 @@ class HourWeatherDao : BaseDao() {
     }
 
     fun findByDistrictDatetimes(districtId: Long, datetimes: List<Timestamp>): List<HourWeather> {
-        val criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
+        val criteria = sf.currentSession.createCriteria(HourWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         // 根据时间降序排列
         criteria.add(Restrictions.`in`("datetime", datetimes))
@@ -48,7 +48,7 @@ class HourWeatherDao : BaseDao() {
      * 查找最新的天气, 但是必须要早于现在
      * */
     fun findLatestByDistrictId(districtId: Long): HourWeather? {
-        val criteria = sessionFactory.currentSession.createCriteria(HourWeather::class.java)
+        val criteria = sf.currentSession.createCriteria(HourWeather::class.java)
         criteria.add(Restrictions.eq("district", districtId))
         criteria.add(Restrictions.lt("datetime", Timestamp.valueOf(LocalDateTime.now())))
         criteria.addOrder(Order.desc("datetime"))

@@ -18,14 +18,14 @@ import javax.annotation.Resource
 
 @Controller
 @RequestMapping("/admin/aqi")
-open class AQIController {
+class AQIController {
 
     @Resource
     lateinit var aqiService: AQIService
 
     @RequestMapping("/spider/update")
     @ResponseBody
-    open fun updateAQIFromWeb(): ObjectResponse {
+    fun updateAQIFromWeb(): ObjectResponse {
         aqiService.execute()
         return ObjectResponse("true")
     }

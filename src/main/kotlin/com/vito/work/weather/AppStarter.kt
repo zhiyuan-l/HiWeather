@@ -3,7 +3,8 @@ package com.vito.work.weather
 import com.vito.work.weather.admin.config.SecurityConfig
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
-import org.springframework.boot.autoconfigure.web.DefaultErrorAttributes
+import org.springframework.boot.runApplication
+import org.springframework.boot.web.servlet.error.DefaultErrorAttributes
 import org.springframework.context.annotation.Bean
 import org.springframework.web.filter.CharacterEncodingFilter
 import javax.servlet.Filter
@@ -37,8 +38,5 @@ class AppStarter {
 }
 
 fun main(args: Array<String>) {
-
-    val application = SpringApplication(AppStarter::class.java, *args)
-    application.setAddCommandLineProperties(false)
-    application.run()
+    runApplication<AppStarter>(*args)
 }
