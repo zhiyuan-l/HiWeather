@@ -45,6 +45,7 @@ dependencies {
     compile "org.springframework.boot:spring-boot-starter-security"
     compile "org.springframework.boot:spring-boot-starter-data-jpa"
     compile("org.springframework.boot:spring-boot-devtools")
+    compile("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     compile 'net.sourceforge.nekohtml:nekohtml'
 
